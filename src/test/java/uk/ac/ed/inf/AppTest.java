@@ -11,6 +11,7 @@ public class AppTest
 {
     /**
      * Rigorous Test :-)
+     * Added test comment to verify commits.
      */
     @Test
     public void shouldAnswerWithTrue()
