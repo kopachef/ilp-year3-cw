@@ -30,7 +30,6 @@ public class AppTest {
 
   @Test
   public void testIsConfinedBoundaryFalse(){
-    Settings settings = new Settings();
     LongLat locationOnBoundary = new LongLat(Settings.DEFAULT_NORTHWEST_BOUND_LONGITUDE, Settings.DEFAULT_NORTHWEST_BOUND_LATITUDE);
     assertFalse(locationOnBoundary.isConfined());
   }
@@ -136,7 +135,7 @@ public class AppTest {
   public void testAngleInvalidMove(){
     int invalidAngle = 888;
     LongLat nextPosition = appletonTower.nextPosition(invalidAngle);
-    assertTrue(appletonTower.equals(nextPosition));
+    assertEquals(appletonTower, nextPosition);
   }
 
   @Test

@@ -3,7 +3,6 @@ package uk.ac.ed.inf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -17,27 +16,26 @@ public class Menus {
    * provided by a majority of the other predefined classes.
    *
    * <h1>Functions</h1>
-   * <p><li>Core function of this class include unpacking json into content in separate object classes</li>
-   *    <li>Estimating delivery cost of of an order</li>
-   *    <li>parsing W3W(What Three Words) addresses into a java object</li>
-   * </p>
    *
+   * <p>
+   * <li>Core function of this class include unpacking json into content in separate object classes
+   * <li>Estimating delivery cost of an order
+   * <li>parsing W3W(What Three Words) addresses into a java object
    */
-
   public static ArrayList<Menu> menus;
-  private final Settings settings;
+
   private static HashMap<String, MenuItem> menuItemHashMap;
-  GsonBuilder gsonBuilder;
-  Gson gson;
-  Type restaurantMenuTypes;
+  final GsonBuilder gsonBuilder;
+  final Gson gson;
+  final Type restaurantMenuTypes;
 
   public Menus(String host, String port) {
-    settings = new Settings();
     gsonBuilder = new GsonBuilder();
     gson = gsonBuilder.create();
     menuItemHashMap = new HashMap<>();
     restaurantMenuTypes = new TypeToken<ArrayList<Menu>>() {}.getType();
-    String jsonMenuUrl = settings.getDefaultUrlPrefix() + host + ":" + port + settings.getDefaultMenusAddressUrl();
+    String jsonMenuUrl =
+        Settings.getDefaultUrlPrefix() + host + ":" + port + Settings.getDefaultMenusAddressUrl();
     menus = gson.fromJson(UrlDownLoader.loadUrlContents(jsonMenuUrl), restaurantMenuTypes);
     reloadMenuCache();
   }
@@ -55,27 +53,28 @@ public class Menus {
   /**
    * Looks up and returns a W3W(What Three Words) formatted location of a menu item.
    *
-   * <p> A W3W formatted is defined by a period-separated trio of 3 words e.g. "cheese.potato.river" </p>
+   * <p>A W3W formatted is defined by a period-separated trio of 3 words e.g. "cheese.potato.river"
    *
    * @param itemName String representing the exact name of the item whose name we are looking up.
-   * @return        String representing location formatted as a W3W address.
+   * @return String representing location formatted as a W3W address.
    */
   public String getItemLocation(String itemName) {
     return menuItemHashMap.get(itemName).getLocation();
   }
 
   /**
-   * Returns an aggregated list of Strings representing the names of the entire catalogue of items from all restaurants.
-   * @return        Returns list of all the names of items from all the menus.
+   * Returns an aggregated list of Strings representing the names of the entire catalogue of items
+   * from all restaurants.
+   *
+   * @return Returns list of all the names of items from all the menus.
    */
   public List<String> getAvailableItems() {
-    List<String> menuItems = new ArrayList<>(menuItemHashMap.keySet());
-    return menuItems;
+    return new ArrayList<>(menuItemHashMap.keySet());
   }
 
   /**
-   * Updates our item lookup cache by iterating through json-unpacked menu items and adding or updating the items
-   * in our item hashmap with their respective MenuItem objects.
+   * Updates our item lookup cache by iterating through json-unpacked menu items and adding or
+   * updating the items in our item hashmap with their respective MenuItem objects.
    */
   private void reloadMenuCache() {
     for (Menu menu : menus) {
@@ -86,17 +85,18 @@ public class Menus {
         int itemPrice = menuItem.pence;
         String restaurantName = menu.name;
 
-        // Check if we already have the item in the list
+        // Check if we already have the item in the hashmap.
         if ((menuItemHashMap.get(itemName)) == null) {
-          menuItemHashMap.put(itemName, new MenuItem(itemName, itemLocation, itemPrice, restaurantName));
+          menuItemHashMap.put(
+              itemName, new MenuItem(itemName, itemLocation, itemPrice, restaurantName));
         }
       }
     }
   }
 
   /**
-   * Calculates and returns the cost of all the provided items in our String array with the delivery cost
-   * included.
+   * Calculates and returns the cost of all the provided items in our String array with the delivery
+   * cost included.
    *
    * @param items String array of items in our order.
    * @return int value representing the total cost of items including the delivery cost.
@@ -106,23 +106,30 @@ public class Menus {
     for (String item : items) {
       cost += getItemPrice(item);
     }
-    return cost == 0 ? 0 : cost + settings.getDefaultStandardCharge();
+    // we do not add the delivery cost if no items were provided.
+    return cost == 0 ? 0 : cost + Settings.getDefaultStandardCharge();
   }
 
   /**
-   * Parses the contents of reading the given url, which points to a 'details.json' file and loads its contents into
-   * a predefined W3WObject static class.
+   * Parses the contents of reading the given url, which points to a 'details.json' file and loads
+   * its contents into a predefined W3WObject static class.
    *
    * @param localhost localhost address pointing to our server address.
-   * @param port  port pointing to our server access port.
+   * @param port port pointing to our server access port.
    * @param locations String representing the location formatted as a W3W address String.
-   * @return          W3WObject created from the reading the contents of the W3W address.
+   * @return W3WObject created from the reading the contents of the W3W address.
    */
-  public W3WObject parseW3WObject(String localhost, String port, @NotNull String locations) {
-    String addressUrl = settings.getDefaultUrlPrefix() + localhost + ":" + port + settings.getDefaultW3wContentRootDirectory() +
-            locations.replace(".","/") + "/" + settings.getDefaultW3wContentFilename();
+  public W3WObject parseW3WObject(String localhost, String port, String locations) {
+    String addressUrl =
+        Settings.getDefaultUrlPrefix()
+            + localhost
+            + ":"
+            + port
+            + Settings.getDefaultW3wContentRootDirectory()
+            + locations.replace(".", "/")
+            + "/"
+            + Settings.getDefaultW3wContentFilename();
     return gson.fromJson(UrlDownLoader.loadUrlContents(addressUrl), W3WObject.class);
-
   }
 
   /**
@@ -138,20 +145,20 @@ public class Menus {
     String language;
     String map;
 
-    class Square {
-      Coords southwest;
-      Coords northwest;
-    }
-
     static class Coords {
       String lng;
       String lat;
     }
+
+    static class Square {
+      Coords southwest;
+      Coords northwest;
+    }
   }
 
   /**
-   * Static class acting a blueprint for a generic 'menus.json' file containing a list of menus associated
-   * with individual restaurants.
+   * Static class acting a blueprint for a generic 'menus.json' file containing a list of menus
+   * associated with individual restaurants.
    */
   static class Menu {
     public String name;

@@ -1,7 +1,11 @@
 package uk.ac.ed.inf;
 
-public class Settings {
+public final class Settings {
 
+  private Settings() {
+    //Prevent instantiation
+    throw new UnsupportedOperationException();
+  }
   /**
    * Bounding box coordinates
    *
@@ -94,7 +98,6 @@ public class Settings {
   /**
    * Set methods for our food order and delivery constants.
    */
-
   public static void setDefaultStandardCharge(int defaultStandardCharge) {
     DEFAULT_STANDARD_CHARGE = defaultStandardCharge;
   }
@@ -117,7 +120,6 @@ public class Settings {
   /**
    * Set methods for the server file directory constants.
    */
-
   public static void setDefaultMenusAddressUrl(String menusAddressUrl){
     DEFAULT_MENUS_ADDRESS_URL = menusAddressUrl;
   }
@@ -131,7 +133,6 @@ public class Settings {
   /**
    * Get methods for the server file directory constants.
    */
-
   public static String getDefaultMenusAddressUrl() {
     return DEFAULT_MENUS_ADDRESS_URL;
   }
@@ -153,7 +154,6 @@ public class Settings {
   /**
    * Set methods for the url http request configurations.
    */
-
   public static void setDefaultUrlPrefix(String urlPrefix) {
     DEFAULT_URL_PREFIX = urlPrefix;
   }
@@ -167,15 +167,35 @@ public class Settings {
   /**
    * Get methods for the url http request configurations.
    */
-
   public static String getDefaultUrlPrefix() {
     return DEFAULT_URL_PREFIX;
   }
-  public static boolean isCacheUrlContent() {
+  public static boolean isCacheUrlContentEnabled() {
     return CACHE_URL_CONTENT;
   }
   public static int getDefaultUrlCacheSize() {
     return DEFAULT_URL_CACHE_SIZE;
+  }
+
+  /**
+   * Dump methods to print current state and parameters of our configurations.
+   */
+  public static void dump() {
+    System.out.println(
+                    "NORTHWEST_BOUND_LONGITUDE: " + getDefaultNorthwestBoundLongitude()
+                    + "\nNORTHWEST_BOUND_LATITUDE: " + getDefaultNorthwestBoundLatitude()
+                    + "\nSOUTHEAST_BOUND_LONGITUDE: " + getDefaultSoutheastBoundLongitude()
+                    + "\nSOUTHEAST_BOUND_LATITUDE: " + getDefaultSoutheastBoundLatitude()
+                    + "\nCLOSENESS_TOLERANCE: " + getDefaultClosenessTolerance()
+                    + "\nMOVEMENT_STEP_DISTANCE: " + getDefaultMovementStepDistance()
+                    + "\nSTANDARD_CHARGE: " + getDefaultStandardCharge()
+                    + "\nMENUS_ADDRESS_URL: " + getDefaultMenusAddressUrl()
+                    + "\nW3W_CONTENT_FILENAME: " + getDefaultW3wContentFilename()
+                    + "\nW3W_CONTENT_ROOT_DIRECTORY: " + getDefaultW3wContentRootDirectory()
+                    + "\nURL_PREFIX: " + getDefaultUrlPrefix()
+                    + "\nCACHE_URL_CONTENT: " + isCacheUrlContentEnabled()
+                    + "\nURL_CACHE_SIZE: " + getDefaultUrlCacheSize()
+    );
   }
 
 }
