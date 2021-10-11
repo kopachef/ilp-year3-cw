@@ -2,6 +2,9 @@ package uk.ac.ed.inf;
 
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import static org.junit.Assert.*;
 
 public class AppTest {
@@ -226,12 +229,23 @@ public class AppTest {
     String testItemLocation = "looks.clouds.daring";
     String nearestPlace = "Edinburgh";
     String country = "GB";
-    Menus.W3WObject w3wObject = menus.parseW3WObject("localhost", "9898", testItemLocation);
+    GeneratedJsonObjects.W3WObject w3wObject = Menus.parseW3WObject(testItemLocation);
 
     assertEquals(testItemLocation, w3wObject.words);
     assertEquals(nearestPlace, w3wObject.nearestPlace);
     assertEquals(country, w3wObject.country);
   }
 
+  @Test
+  public void testLongLatDump() {
+    String expectedOutput = "Longitude: " + appletonTower.longitude + "\nLatitude: " + appletonTower.latitude + "\n";
 
+    PrintStream standardOut = System.out;
+    ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStreamCaptor));
+
+    appletonTower.dump();
+
+    assertEquals(expectedOutput, outputStreamCaptor.toString());
+  }
 }

@@ -8,7 +8,6 @@ public class MenuItem {
    *
    * <p>Further utility functions are provided within the class to enable easier operations on an instances of this
    * class</>
-   *
    */
   private final String name;
   private final String location;
@@ -97,7 +96,25 @@ public class MenuItem {
    */
   @Override
   public String toString() {
-    return "Name: " + name + "\nLocation: " + location + "\nPrice: " + price + "\nRestaurant Name: " + restaurantName;
+    GeneratedJsonObjects.W3WObject w3wObject = Menus.parseW3WObject(location);
+    return "Name: " + name +
+            "\nLocation: " + location +
+            "\nPrice: " + price +
+            "\nRestaurant Name: " + restaurantName +
+            "\n\nFormatted Location: " +
+            "\n\tCountry: " + w3wObject.country +
+            "\n\tNearest Place: " + w3wObject.nearestPlace +
+            "\n\tWords: " + w3wObject.words +
+            "\n\tLanguage: " + w3wObject.language +
+            "\n\tMap: " + w3wObject.map +
+            "\n\tSquare: " +
+            "\n\t\tNortheast: longitude: " + w3wObject.square.northeast.lng
+            + " latitude: " + w3wObject.square.northeast.lat +
+            "\n\t\tSouthwest: longitude: " + w3wObject.square.southwest.lng
+            + " latitude: " + w3wObject.square.southwest.lat +
+            "\n\tCoords: " +
+            "\n\t\tLongitude: " + w3wObject.coordinates.lng +
+            "\n\t\tLatitude: " + w3wObject.coordinates.lat;
   }
 
   /**

@@ -10,33 +10,37 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Menus {
-
   /**
    * This class provides the core functionality of the system and aggregates the functionality
    * provided by a majority of the other predefined classes.
    *
    * <h1>Functions</h1>
-   *
    * <p>
    * <li>Core function of this class include unpacking json into content in separate object classes
-   * <li>Estimating delivery cost of an order
-   * <li>parsing W3W(What Three Words) addresses into a java object
+   * <li> * Estimating delivery cost of an order
+   * <li> * Parsing W3W(What Three Words) addresses into a java object
+   * </p>
+   *
    */
-  public static ArrayList<Menu> menus;
 
-  private static HashMap<String, MenuItem> menuItemHashMap;
-  final GsonBuilder gsonBuilder;
-  final Gson gson;
-  final Type restaurantMenuTypes;
+  private static final HashMap<String, MenuItem> menuItemHashMap = new HashMap<>();
+  private static final GsonBuilder gsonBuilder = new GsonBuilder();
+  private static final Gson gson = gsonBuilder.create();
+
+  private static ArrayList<GeneratedJsonObjects.Menu> menus;
 
   public Menus(String host, String port) {
-    gsonBuilder = new GsonBuilder();
-    gson = gsonBuilder.create();
-    menuItemHashMap = new HashMap<>();
-    restaurantMenuTypes = new TypeToken<ArrayList<Menu>>() {}.getType();
-    String jsonMenuUrl =
-        Settings.getDefaultUrlPrefix() + host + ":" + port + Settings.getDefaultMenusAddressUrl();
-    menus = gson.fromJson(UrlDownLoader.loadUrlContents(jsonMenuUrl), restaurantMenuTypes);
+    Settings.setDefaultHost(host);
+    Settings.setDefaultPort(port);
+    String jsonMenuListUrl =
+            Settings.getDefaultUrlPrefix()
+            + host
+            + ":"
+            + port
+            + Settings.getDefaultMenusAddressUrl();
+    Type restaurantMenuTypes =
+            new TypeToken<ArrayList<GeneratedJsonObjects.Menu>>() {}.getType();
+    menus = gson.fromJson(UrlDownLoader.loadUrlContents(jsonMenuListUrl), restaurantMenuTypes);
     reloadMenuCache();
   }
 
@@ -73,22 +77,24 @@ public class Menus {
   }
 
   /**
-   * Updates our item lookup cache by iterating through json-unpacked menu items and adding or
+   * Updates our item lookup cache by iterating through json-unpacked menu items ArrayList and adding or
    * updating the items in our item hashmap with their respective MenuItem objects.
    */
   private void reloadMenuCache() {
-    for (Menu menu : menus) {
-      for (Menu.Item menuItem : menu.menu) {
+    for (GeneratedJsonObjects.Menu menu : menus) {
+      for (GeneratedJsonObjects.Menu.Item menuItem : menu.menu) {
 
         String itemName = menuItem.item;
         String itemLocation = menu.location;
         int itemPrice = menuItem.pence;
         String restaurantName = menu.name;
 
-        // Check if we already have the item in the hashmap.
-        if ((menuItemHashMap.get(itemName)) == null) {
-          menuItemHashMap.put(
-              itemName, new MenuItem(itemName, itemLocation, itemPrice, restaurantName));
+        //Create MenuItem object with current attributes.
+        MenuItem menuItemObject = new MenuItem(itemName, itemLocation, itemPrice, restaurantName);
+
+        // Check if we already have the item in the hashmap or if the cached item is different.
+        if ((menuItemHashMap.get(itemName)) == null || !menuItemHashMap.get(itemName).equals(menuItemObject)) {
+          menuItemHashMap.put(itemName, menuItemObject);
         }
       }
     }
@@ -114,60 +120,20 @@ public class Menus {
    * Parses the contents of reading the given url, which points to a 'details.json' file and loads
    * its contents into a predefined W3WObject static class.
    *
-   * @param localhost localhost address pointing to our server address.
-   * @param port port pointing to our server access port.
+   * Example of a W3W(What Three Words) formatted location is: "butter.climb.talk".
    * @param locations String representing the location formatted as a W3W address String.
    * @return W3WObject created from the reading the contents of the W3W address.
    */
-  public W3WObject parseW3WObject(String localhost, String port, String locations) {
+  public static GeneratedJsonObjects.W3WObject parseW3WObject(String locations) {
     String addressUrl =
         Settings.getDefaultUrlPrefix()
-            + localhost
+            + Settings.getDefaultHost()
             + ":"
-            + port
+            + Settings.getDefaultPort()
             + Settings.getDefaultW3wContentRootDirectory()
             + locations.replace(".", "/")
             + "/"
             + Settings.getDefaultW3wContentFilename();
-    return gson.fromJson(UrlDownLoader.loadUrlContents(addressUrl), W3WObject.class);
-  }
-
-  /**
-   * Static class acting a blueprint for a generic W3W details file containing details associated
-   * with a specified W3W address.
-   */
-  static class W3WObject {
-    String country;
-    Square square;
-    String nearestPlace;
-    Coords coordinates;
-    String words;
-    String language;
-    String map;
-
-    static class Coords {
-      String lng;
-      String lat;
-    }
-
-    static class Square {
-      Coords southwest;
-      Coords northwest;
-    }
-  }
-
-  /**
-   * Static class acting a blueprint for a generic 'menus.json' file containing a list of menus
-   * associated with individual restaurants.
-   */
-  static class Menu {
-    public String name;
-    public String location;
-    public ArrayList<Item> menu;
-
-    static class Item {
-      public String item;
-      public int pence;
-    }
+    return gson.fromJson(UrlDownLoader.loadUrlContents(addressUrl), GeneratedJsonObjects.W3WObject.class);
   }
 }

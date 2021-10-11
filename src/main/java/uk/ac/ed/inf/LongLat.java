@@ -6,7 +6,7 @@ package uk.ac.ed.inf;
  * representing the longitude and latitude values respectively.
  *
  * <p>Further utility functions are provided within the class to enable easier operations on an
- * instances of this class</>
+ * instance of this class</>
  *
  * @author Martin Namukombo
  */
@@ -21,8 +21,8 @@ public class LongLat {
   }
 
   /**
-   * Returns true if the current instance of the LongLat object is within the confinement area
-   * is defined by longitude and latitude values specified in our settings file.
+   * Returns true if the current instance of the LongLat object is within the confinement area.
+   * Confinement area is defined by the longitude and latitude values specified in our settings file.
    *
    * <p>Location coordinates must be exclusively within the bounds defined in our settings file.
    * Points that lie at the boundary will not count as confined.
@@ -74,12 +74,17 @@ public class LongLat {
 
   /**
    * This method returns a new LongLat object whose new location coordinates are the coordinates
-   * resulting from take single step from the current instances' location in the direction of the
-   * provided angle.
+   * resulting from taking single step from the current instances' location in the direction of the
+   * provided angle. The default step distance is specified in the settings file.
    *
    * <p>Instance returned as output will only have new coordinates if the provided angle is a valid
    * 'Move' angle (with an exception to the 'hover' angle) otherwise generated instance will have
    * the same coordinates as the instance it is called on.
+   *
+   * <p> A valid 'Move' angle meets the following criteria:
+   *  <li> * Is an int that falls exclusively between -1 and 351. </li>
+   *  <li> * Is a multiple of 10. </li>
+   * </p>
    *
    * @param angle angle direction to take a single step in.
    * @return new LongLat instance resulting from taking a step in provided angle direction.
@@ -111,8 +116,8 @@ public class LongLat {
    * Helper function that checks if a given value falls within the range of the provided boundary
    * values.
    *
-   * <p>Value falls within the range of two bounds if it falls in between them but is not equal to
-   * either of them
+   * <p> A value is considered to fall within the range of two bounds if it falls in between the provided boundaries
+   * but is not equal to either of them.
    *
    * @param lowerBound lower bound double value
    * @param upperBound upper bound double value

@@ -9,15 +9,15 @@ public final class Settings {
   /**
    * Bounding box coordinates
    *
-   *  (NW_BOUND)        (NE_BOUND)
-   *   +----------------+
-   *   |                |
-   *   |                |
-   *   |                |
-   *   |                |
-   *   |                |
-   *   +----------------+
-   *  (SW_BOUND)        (SE_BOUND)
+   * (NORTHWEST_BOUND)
+   *          +-----------------+
+   *          |        N        |
+   *          |                 |
+   *          | W             E |
+   *          |                 |
+   *          |        S        |
+   *          +-----------------+
+   *                       (SOUTHEAST_BOUND)
    *
    *  Below are the value denoting the coordinates of bounds shown in the diagram.
    */
@@ -147,6 +147,8 @@ public final class Settings {
    *
    * URL HTTP REQUEST CONFIGURATIONS
    */
+  public static String DEFAULT_HOST = "localhost";
+  public static String DEFAULT_PORT = "9898";
   public static String DEFAULT_URL_PREFIX = "http://";
   public static boolean CACHE_URL_CONTENT = true;
   public static int DEFAULT_URL_CACHE_SIZE = 5;
@@ -154,6 +156,12 @@ public final class Settings {
   /**
    * Set methods for the url http request configurations.
    */
+  public static void setDefaultHost(String defaultHost) {
+    DEFAULT_HOST = defaultHost;
+  }
+  public static void setDefaultPort(String defaultPort) {
+    DEFAULT_PORT = defaultPort;
+  }
   public static void setDefaultUrlPrefix(String urlPrefix) {
     DEFAULT_URL_PREFIX = urlPrefix;
   }
@@ -167,6 +175,12 @@ public final class Settings {
   /**
    * Get methods for the url http request configurations.
    */
+  public static String getDefaultHost() {
+    return DEFAULT_HOST;
+  }
+  public static String getDefaultPort() {
+    return DEFAULT_PORT;
+  }
   public static String getDefaultUrlPrefix() {
     return DEFAULT_URL_PREFIX;
   }
