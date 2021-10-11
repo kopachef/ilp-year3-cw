@@ -84,7 +84,6 @@ public final class Settings {
   public static double getDefaultClosenessTolerance() {
     return DEFAULT_CLOSENESS_TOLERANCE;
   }
-
   public static double getDefaultMovementStepDistance() {
     return DEFAULT_MOVEMENT_STEP_DISTANCE;
   }
@@ -211,5 +210,4 @@ public final class Settings {
                     + "\nURL_CACHE_SIZE: " + getDefaultUrlCacheSize()
     );
   }
-
 }

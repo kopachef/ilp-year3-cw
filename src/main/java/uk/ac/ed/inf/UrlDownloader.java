@@ -1,11 +1,13 @@
 package uk.ac.ed.inf;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.Set;
 
 class UrlDownLoader {
 
@@ -31,17 +33,11 @@ class UrlDownLoader {
    */
   public static String loadUrlContents(String url) {
     if (jsonLookUpTable.get(url) == null) {
-      try {
-        updateCache(url);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      updateCache(url);
     }
-    String response = jsonLookUpTable.get(url) == null ? "" : jsonLookUpTable.get(url);
-    if (!Settings.isCacheUrlContentEnabled()) {
-      jsonLookUpTable.clear();
-    }
-    return response;
+    //if cache is disabled we completely remove the cached value.
+    return Settings.isCacheUrlContentEnabled() ?
+            jsonLookUpTable.get(url) : jsonLookUpTable.remove(url);
   }
 
   /**
@@ -52,14 +48,22 @@ class UrlDownLoader {
    */
   private static void updateCache(String url) {
     synchronized (lock) {
-      HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
       try {
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
           jsonLookUpTable.put(url, response.body());
+        } else {
+          System.err.println("\nNothing found(Error 404)! at:\n\t " + url);
+          System.exit(1);
         }
       } catch (IOException | InterruptedException e) {
-        e.printStackTrace();
+        System.err.println("\nFatal error: Unable to connect to: '" + Settings.getDefaultHost()
+                + "' at port: '" + Settings.getDefaultPort() + "'.");
+        System.exit(1);
+      } catch (IllegalArgumentException e) {
+        System.err.println("\nWrong URL format found in: " + url);
+        System.exit(1);
       }
     }
   }
