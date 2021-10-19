@@ -2,9 +2,6 @@ package uk.ac.ed.inf;
 
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import static org.junit.Assert.*;
 
 public class AppTest {
@@ -31,15 +28,10 @@ public class AppTest {
     assertFalse(greyfriarsKirkyard.isConfined());
   }
 
-  @Test
-  public void testIsConfinedBoundaryFalse(){
-    LongLat locationOnBoundary = new LongLat(Settings.DEFAULT_NORTHWEST_BOUND_LONGITUDE, Settings.DEFAULT_NORTHWEST_BOUND_LATITUDE);
-    assertFalse(locationOnBoundary.isConfined());
-  }
-
   private boolean approxEq(double d1, double d2) {
     return Math.abs(d1 - d2) < 1e-12;
   }
+
   @Test
   public void testDistanceTo(){
     double calculatedDistance = 0.0015535481968716011;
@@ -135,13 +127,6 @@ public class AppTest {
   }
 
   @Test
-  public void testAngleInvalidMove(){
-    int invalidAngle = 888;
-    LongLat nextPosition = appletonTower.nextPosition(invalidAngle);
-    assertEquals(appletonTower, nextPosition);
-  }
-
-  @Test
   public void testMenusOne() {
     // The webserver must be running on port 9898 to run this test.
     Menus menus = new Menus("localhost", "9898");
@@ -205,47 +190,5 @@ public class AppTest {
     assertEquals(4 * 460 + 50, totalCost);
   }
 
-  @Test
-  public void testMenusDetails() {
-    Menus menus = new Menus("localhost", "9898");
-    String testItem = "Flaming tiger latte";
-    String testItemLocation = "looks.clouds.daring";
-    int testItemPrice = 460;
 
-    assertEquals(menus.getItemLocation(testItem), testItemLocation);
-    assertEquals(menus.getItemPrice(testItem), testItemPrice);
-  }
-
-  @Test
-  public void testMenusAllItemsLoaded() {
-    Menus menus = new Menus("localhost", "9898");
-    int menuSize = 181;
-    assertEquals(menuSize, menus.getAvailableItems().size());
-  }
-
-  @Test
-  public void testMenusParseW3WObject() {
-    Menus menus = new Menus("localhost", "9898");
-    String testItemLocation = "looks.clouds.daring";
-    String nearestPlace = "Edinburgh";
-    String country = "GB";
-    GeneratedJsonObjects.W3WObject w3wObject = Menus.parseW3WObject(testItemLocation);
-
-    assertEquals(testItemLocation, w3wObject.words);
-    assertEquals(nearestPlace, w3wObject.nearestPlace);
-    assertEquals(country, w3wObject.country);
-  }
-
-  @Test
-  public void testLongLatDump() {
-    String expectedOutput = "Longitude: " + appletonTower.longitude + "\nLatitude: " + appletonTower.latitude + "\n";
-
-    PrintStream standardOut = System.out;
-    ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(outputStreamCaptor));
-
-    appletonTower.dump();
-
-    assertEquals(expectedOutput, outputStreamCaptor.toString());
-  }
 }

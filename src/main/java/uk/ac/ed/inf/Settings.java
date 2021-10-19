@@ -112,15 +112,15 @@ public final class Settings {
    *
    * SERVER FILE DIRECTORY CONSTANTS
    */
-  public static String DEFAULT_MENUS_ADDRESS_URL = "/menus/menus.json";
+  public static String DEFAULT_MENUS_ADDRESS_RESOURCE = "/menus/menus.json";
   public static String DEFAULT_W3W_CONTENT_FILENAME = "details.json";
   public static String DEFAULT_W3W_CONTENT_ROOT_DIRECTORY = "/words/";
 
   /**
    * Set methods for the server file directory constants.
    */
-  public static void setDefaultMenusAddressUrl(String menusAddressUrl){
-    DEFAULT_MENUS_ADDRESS_URL = menusAddressUrl;
+  public static void setDefaultMenusAddressResource(String menusAddressUrl){
+    DEFAULT_MENUS_ADDRESS_RESOURCE = menusAddressUrl;
   }
   public static void setDefaultW3wContentFilename(String w3wContentFilename){
     DEFAULT_W3W_CONTENT_FILENAME = w3wContentFilename;
@@ -132,8 +132,8 @@ public final class Settings {
   /**
    * Get methods for the server file directory constants.
    */
-  public static String getDefaultMenusAddressUrl() {
-    return DEFAULT_MENUS_ADDRESS_URL;
+  public static String getDefaultMenusAddressResource() {
+    return DEFAULT_MENUS_ADDRESS_RESOURCE;
   }
   public static String getDefaultW3wContentFilename() {
     return DEFAULT_W3W_CONTENT_FILENAME;
@@ -146,23 +146,23 @@ public final class Settings {
    *
    * URL HTTP REQUEST CONFIGURATIONS
    */
-  public static String DEFAULT_HOST = "localhost";
-  public static String DEFAULT_PORT = "9898";
-  public static String DEFAULT_URL_PREFIX = "http://";
+  public static String DEFAULT_SERVER_HOST = "localhost";
+  public static String DEFAULT_SERVER_PORT = "9898";
+  public static String DEFAULT_SERVER_URL_PROTOCOL = "http://";
   public static boolean CACHE_URL_CONTENT = true;
   public static int DEFAULT_URL_CACHE_SIZE = 5;
 
   /**
    * Set methods for the url http request configurations.
    */
-  public static void setDefaultHost(String defaultHost) {
-    DEFAULT_HOST = defaultHost;
+  public static void setDefaultServerHost(String defaultServerHost) {
+    DEFAULT_SERVER_HOST = defaultServerHost;
   }
-  public static void setDefaultPort(String defaultPort) {
-    DEFAULT_PORT = defaultPort;
+  public static void setDefaultServerPort(String defaultServerPort) {
+    DEFAULT_SERVER_PORT = defaultServerPort;
   }
-  public static void setDefaultUrlPrefix(String urlPrefix) {
-    DEFAULT_URL_PREFIX = urlPrefix;
+  public static void setDefaultServerUrlProtocol(String urlPrefix) {
+    DEFAULT_SERVER_URL_PROTOCOL = urlPrefix;
   }
   public static void setCacheUrlContent(boolean cacheUrlContent) {
     CACHE_URL_CONTENT = cacheUrlContent;
@@ -174,14 +174,14 @@ public final class Settings {
   /**
    * Get methods for the url http request configurations.
    */
-  public static String getDefaultHost() {
-    return DEFAULT_HOST;
+  public static String getDefaultServerHost() {
+    return DEFAULT_SERVER_HOST;
   }
-  public static String getDefaultPort() {
-    return DEFAULT_PORT;
+  public static String getDefaultServerPort() {
+    return DEFAULT_SERVER_PORT;
   }
-  public static String getDefaultUrlPrefix() {
-    return DEFAULT_URL_PREFIX;
+  public static String getDefaultServerUrlProtocol() {
+    return DEFAULT_SERVER_URL_PROTOCOL;
   }
   public static boolean isCacheUrlContentEnabled() {
     return CACHE_URL_CONTENT;
@@ -190,8 +190,46 @@ public final class Settings {
     return DEFAULT_URL_CACHE_SIZE;
   }
 
+  /*****************************************************************
+   *
+   * DATABASE ACCESS CONFIGURATIONS
+   */
+
+  public static String DEFAULT_DATABASE_PROTOCOL = "jdbc:derby://";
+  public static String DEFAULT_DATABASE_HOST = "localhost";
+  public static String DEFAULT_DATABASE_PORT = "9876";
+  public static String DEFAULT_DATABASE_ADDRESS = "derbyDB";
+
+
   /**
-   * Dump methods to print current state and parameters of our configurations.
+   * Set methods for the database access confgurations
+   */
+
+  public static void setDefaultDatabaseProtocol(String defaultDatabaseProtocol) {
+    DEFAULT_DATABASE_PROTOCOL = defaultDatabaseProtocol;
+  }
+  public static void setDefaultDatabaseHost(String defaultDatabaseHost) {
+    DEFAULT_DATABASE_HOST = defaultDatabaseHost;
+  }
+  public static void setDefaultDatabasePort(String defaultDatabasePort) {
+    DEFAULT_DATABASE_PORT = defaultDatabasePort;
+  }
+  public static void setDefaultDatabaseAddress(String defaultDatabaseAddress) {
+    DEFAULT_DATABASE_ADDRESS = defaultDatabaseAddress;
+  }
+
+  /**
+   * Get methods for the database access configurations
+   */
+
+  public static String getDefaultDatabaseProtocol() {return DEFAULT_DATABASE_PROTOCOL;}
+  public static String getDefaultDatabaseHost() {return DEFAULT_DATABASE_HOST;}
+  public static String getDefaultDatabasePort() {return DEFAULT_DATABASE_PORT;}
+  public static String getDefaultDatabaseAddress() {return DEFAULT_DATABASE_ADDRESS;}
+
+
+  /**
+   * Dump methods to print current state and constants of our configuration.
    */
   public static void dump() {
     System.out.println(
@@ -202,10 +240,10 @@ public final class Settings {
                     + "\nCLOSENESS_TOLERANCE: " + getDefaultClosenessTolerance()
                     + "\nMOVEMENT_STEP_DISTANCE: " + getDefaultMovementStepDistance()
                     + "\nSTANDARD_CHARGE: " + getDefaultStandardCharge()
-                    + "\nMENUS_ADDRESS_URL: " + getDefaultMenusAddressUrl()
+                    + "\nMENUS_ADDRESS_URL: " + getDefaultMenusAddressResource()
                     + "\nW3W_CONTENT_FILENAME: " + getDefaultW3wContentFilename()
                     + "\nW3W_CONTENT_ROOT_DIRECTORY: " + getDefaultW3wContentRootDirectory()
-                    + "\nURL_PREFIX: " + getDefaultUrlPrefix()
+                    + "\nURL_PREFIX: " + getDefaultServerUrlProtocol()
                     + "\nCACHE_URL_CONTENT: " + isCacheUrlContentEnabled()
                     + "\nURL_CACHE_SIZE: " + getDefaultUrlCacheSize()
     );

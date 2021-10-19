@@ -96,7 +96,7 @@ public class MenuItem {
    */
   @Override
   public String toString() {
-    GeneratedJsonObjects.W3WObject w3wObject = Menus.parseW3WObject(location);
+    JsonObjectManager.W3WObject w3wObject = JsonObjectManager.parseW3WObject(location);
     return "Name: " + name +
             "\nLocation: " + location +
             "\nPrice: " + price +
