@@ -22,6 +22,11 @@ public final class Settings {
    *  Below are the value denoting the coordinates of bounds shown in the diagram.
    */
 
+
+  public static int GRID_GRANULARITY = 4;
+  /**
+   ****************************************************************
+   */
   public static double DEFAULT_NORTHWEST_BOUND_LONGITUDE = -3.192473;
   public static double DEFAULT_NORTHWEST_BOUND_LATITUDE = 55.946233;
   public static double DEFAULT_SOUTHEAST_BOUND_LONGITUDE = -3.184319;
@@ -115,6 +120,8 @@ public final class Settings {
   public static String DEFAULT_MENUS_ADDRESS_RESOURCE = "/menus/menus.json";
   public static String DEFAULT_W3W_CONTENT_FILENAME = "details.json";
   public static String DEFAULT_W3W_CONTENT_ROOT_DIRECTORY = "/words/";
+  public static String DEFAULT_RESTRICTED_BUILDINGS_FILENAME = "/buildings/no-fly-zones.geojson";
+  public static String DEFAULT_LANDMARKS_FILENAME = "/buildings/landmarks.geojsono";
 
   /**
    * Set methods for the server file directory constants.
@@ -128,6 +135,12 @@ public final class Settings {
   public static void setDefaultW3wContentRootDirectory(String w3wContentRootDirectory){
     DEFAULT_W3W_CONTENT_ROOT_DIRECTORY = w3wContentRootDirectory;
   }
+  public static void setDefaultRestrictedBuildingsFilename(String defaultRestrictedBuildingsFilename) {
+    DEFAULT_RESTRICTED_BUILDINGS_FILENAME = defaultRestrictedBuildingsFilename;
+  }
+  public static void setDefaultLandmarksFilename(String defaultLandmarksFilename) {
+    DEFAULT_LANDMARKS_FILENAME = defaultLandmarksFilename;
+  }
 
   /**
    * Get methods for the server file directory constants.
@@ -138,9 +151,9 @@ public final class Settings {
   public static String getDefaultW3wContentFilename() {
     return DEFAULT_W3W_CONTENT_FILENAME;
   }
-  public static String getDefaultW3wContentRootDirectory() {
-    return DEFAULT_W3W_CONTENT_ROOT_DIRECTORY;
-  }
+  public static String getDefaultW3wContentRootDirectory() { return DEFAULT_W3W_CONTENT_ROOT_DIRECTORY;}
+  public static String getDefaultRestrictedBuildingsFilename() { return DEFAULT_RESTRICTED_BUILDINGS_FILENAME; }
+  public static String getDefaultLandmarksFilename() { return DEFAULT_LANDMARKS_FILENAME; }
 
   /*****************************************************************
    *
