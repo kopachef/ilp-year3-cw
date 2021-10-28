@@ -54,6 +54,11 @@ public class Graph {
                 grid[i][j] = new Node(i, j);
                 grid[i][j].setLongLat(nodeLongLat);
                 grid[i][j].setRestricted(GeoJsonManager.isInRestrictedArea(nodeLongLat));
+                /**
+                 *
+                 * grid[i][j].setRestricted(GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance));
+                 * Alterniative  ethod s to be used if we dont  want to exclude node sthat a clise the resyturceted nodes.
+                 */
             }
         }
     }
@@ -112,6 +117,17 @@ public class Graph {
         }
         AStar aStar = new AStar(getGrid(), startNode, endNode);
         return aStar.findPath();
+    }
+
+    public double distanceBetweenNodes(List<Node> nodes) {
+        if (nodes.isEmpty() || nodes.size() < 2) {return 0;}
+        double total = 0;
+        Node currentNode = nodes.get(0);
+        for(int i = 1; i < nodes.size(); i++) {
+            total += currentNode.getLongLat().distanceTo(nodes.get(i).getLongLat());
+            currentNode = nodes.get(i);
+        }
+        return total;
     }
 
 }

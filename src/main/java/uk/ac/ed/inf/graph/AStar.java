@@ -1,5 +1,7 @@
 package uk.ac.ed.inf.graph;
 
+import uk.ac.ed.inf.GeoJsonManager;
+
 import java.util.*;
 
 public class AStar {
@@ -113,6 +115,7 @@ public class AStar {
         }
     }
 
+    /* --- add a check here to make the formed line segment not intersect a  restricetd area ----n*/
     private void checkNode(Node currentNode, int col, int row, double cost) {
         Node adjacentNode = getSearchArea()[row][col];
         if (!adjacentNode.isRestricted() && !getClosedSet().contains(adjacentNode)) {

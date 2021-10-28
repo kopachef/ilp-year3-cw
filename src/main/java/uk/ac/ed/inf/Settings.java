@@ -67,8 +67,9 @@ public final class Settings {
 
   /***************************************************************
    *
-   * DRONE MOVEMENT CONSTANTS
+   * DRONE MOVEMENT ATTRIBUTES AND ASSOCIATED CONSTANTS
    */
+  public static LongLat DEFAULT_HOME_LOCATION = new LongLat(-3.186874, 55.944494);
   public static double DEFAULT_CLOSENESS_TOLERANCE = 0.00015;
   public static double DEFAULT_MOVEMENT_STEP_DISTANCE = 0.00015;
 
@@ -76,6 +77,9 @@ public final class Settings {
    * Set methods for the drone movement parameters.
    */
 
+  public static void setHomeLocation(LongLat homeLocation) {
+    DEFAULT_HOME_LOCATION = homeLocation;
+  }
   public static void setDefaultClosenessTolerance(double closenessTolerance) {
     DEFAULT_CLOSENESS_TOLERANCE = closenessTolerance;
   }
@@ -86,6 +90,7 @@ public final class Settings {
   /**
    * Get methods for the drone movement parameters.
    */
+  public static LongLat getDefaultHomeLocation() { return DEFAULT_HOME_LOCATION; }
   public static double getDefaultClosenessTolerance() {
     return DEFAULT_CLOSENESS_TOLERANCE;
   }
@@ -210,7 +215,7 @@ public final class Settings {
 
   public static String DEFAULT_DATABASE_PROTOCOL = "jdbc:derby://";
   public static String DEFAULT_DATABASE_HOST = "localhost";
-  public static String DEFAULT_DATABASE_PORT = "9876";
+  public static String DEFAULT_DATABASE_PORT = "1527";
   public static String DEFAULT_DATABASE_ADDRESS = "derbyDB";
 
 

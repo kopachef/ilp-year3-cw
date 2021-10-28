@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +106,7 @@ public class DatabaseIO {
   }
 
   public List<DatabaseOrder> queryOrders(
-      String orderNo, Optional<Date> deliveryDate, String customer, String deliverTo) {
+      String orderNo, Date deliveryDate, String customer, String deliverTo) {
     Connection conn = initialiseDBconnection();
     List<DatabaseOrder> DatabaseOrders = new ArrayList<>();
     ResultSet results;
@@ -117,7 +118,7 @@ public class DatabaseIO {
       PreparedStatement psOrdersQuery = conn.prepareStatement(ordersQuery);
       Date deliveryDate_ =
           Optional.ofNullable(deliveryDate).isPresent()
-              ? deliveryDate.get()
+              ? deliveryDate
               : new Date(Integer.MIN_VALUE);
       psOrdersQuery.setString(1, "%" + orderNo + "%");
       psOrdersQuery.setDate(2, deliveryDate_);
@@ -157,7 +158,6 @@ public class DatabaseIO {
     } catch (SQLException e) {
       System.out.println(url);
       System.out.println("Could not establish database connection");
-      e.printStackTrace();
       System.exit(1);
     }
     return conn;
