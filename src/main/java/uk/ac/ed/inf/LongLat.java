@@ -1,5 +1,7 @@
 package uk.ac.ed.inf;
 
+import org.apache.commons.math3.util.Precision;
+
 /**
  * This class provides a blueprint for the definition of a LongLat object. This object is meant to
  * represent a physical location of the surface of the earth using a pair of coordinates
@@ -48,7 +50,7 @@ public class LongLat {
    * @return returns the calculated distance as double.
    */
   public double distanceTo(LongLat longLat) {
-    return calculateDistance(longitude, latitude, longLat.longitude, longLat.latitude);
+    return Precision.round(calculateDistance(longitude, latitude, longLat.longitude, longLat.latitude), 6);
   }
 
   /**
@@ -139,6 +141,17 @@ public class LongLat {
    */
   private double calculateDistance(double x1, double y1, double x2, double y2) {
     return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
+  }
+
+
+  public double calculateBearing(LongLat longlat) {
+    double dLon = longlat.longitude - longitude;
+    double y = Math.sin(dLon) * Math.cos(longlat.latitude);
+    double x = Math.cos(latitude) * Math.sin(longlat.latitude) - Math.sin(latitude) * Math.cos(longlat.latitude) * Math.cos(dLon);
+    double brng = Math.atan2(y, x);
+    brng = Math.toDegrees(brng);
+    brng = (brng + 360) % 360;
+    return Precision.round(brng, 6);
   }
 
   /**

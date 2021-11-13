@@ -20,17 +20,17 @@ class JsonObjectManager {
      * W3WObject static class object.
      *
      * Example of a W3W(What Three Words) formatted location is: "butter.climb.talk".
-     * @param locations String representing the location formatted as a W3W address String.
+     * @param location String representing the location formatted as a W3W address String.
      * @return W3WObject created from the reading the contents of the W3W address.
      */
-    public static W3WObject parseW3WObject(String locations) {
+    public static W3WObject parseW3WObject(String location) {
       String addressUrl =
           Settings.getDefaultServerUrlProtocol()
               + Settings.getDefaultServerHost()
               + ":"
               + Settings.getDefaultServerPort()
               + Settings.getDefaultW3wContentRootDirectory()
-              + locations.replace(".", "/")
+              + location.replace(".", "/")
               + "/"
               + Settings.getDefaultW3wContentFilename();
       return gson.fromJson(UrlDownloadManager.loadUrlContents(addressUrl), W3WObject.class);
@@ -53,6 +53,19 @@ class JsonObjectManager {
         Type restaurantMenuTypes =
                 new TypeToken<ArrayList<Menu>>() {}.getType();
         return gson.fromJson(UrlDownloadManager.loadUrlContents(jsonMenuListUrl), restaurantMenuTypes);
+    }
+
+    /**
+     * Utility function to convert the Coord attribute of a W3WObjet into a valid LongLat object.
+     * @param coords Coord class under the static W3WObject class holding two string values
+     *               representing the longitude and latitude values of  W3W location.
+     * @return returns a valid LongLat object with longitude and latitude attribute values being equal to the
+     *                  W3WObject.Coords class object given as an argument.
+     */
+    public static LongLat coordToLonglat(W3WObject.Coords coords) {
+        double longitude = Double.valueOf(coords.lng);
+        double latitude = Double.valueOf(coords.lat);
+        return new LongLat(longitude, latitude);
     }
 
     /**

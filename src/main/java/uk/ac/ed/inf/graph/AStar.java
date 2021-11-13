@@ -55,9 +55,10 @@ public class AStar {
         List<Node> path = new ArrayList<Node>();
         path.add(currentNode);
         Node parent;
-        while ((parent = currentNode.getParent()) != null) {
+        while ((parent = currentNode.getParent()) != null && !path.contains(parent)) {
             path.add(0, parent);
             currentNode = parent;
+
         }
         return path;
     }

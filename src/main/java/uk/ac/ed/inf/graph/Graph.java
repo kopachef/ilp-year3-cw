@@ -1,9 +1,9 @@
 package uk.ac.ed.inf.graph;
 
 import org.apache.commons.math3.util.Precision;
-import org.checkerframework.checker.units.qual.A;
 import uk.ac.ed.inf.GeoJsonManager;
 import uk.ac.ed.inf.LongLat;
+import uk.ac.ed.inf.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +34,15 @@ public class Graph {
         this.northWestBoundLatitude = northWestBoundLatitude;
         this.southEastBoundLongitude = southEastBoundLongitude;
         this.southEastBoundLatitude = southEastBoundLatitude;
+        setGrid();
 
+    }
+
+    private void setGrid() {
         double longitudeStepSize = Precision.round((southEastBoundLongitude - northWestBoundLongitude) / gridSize, 6);
         double longitudeOffset = Precision.round((longitudeStepSize / 2), 6);
 
+        System.out.println("longitude step size: " + (southEastBoundLongitude -  northWestBoundLongitude));
         double latitudeStepSize = Precision.round((northWestBoundLatitude - southEastBoundLatitude) / gridSize, 6);
         double latitudeOffset = Precision.round((latitudeStepSize / 2), 6);
 
@@ -53,7 +58,8 @@ public class Graph {
                 LongLat nodeLongLat = new LongLat(longitudeCoordinates.get(j), latitudeCoordinates.get(i));
                 grid[i][j] = new Node(i, j);
                 grid[i][j].setLongLat(nodeLongLat);
-                grid[i][j].setRestricted(GeoJsonManager.isInRestrictedArea(nodeLongLat));
+                //grid[i][j].setRestricted(GeoJsonManager.isInRestrictedArea(nodeLongLat));
+                grid[i][j].setRestricted(GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance));
                 /**
                  *
                  * grid[i][j].setRestricted(GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance));
@@ -99,6 +105,7 @@ public class Graph {
     public List<Node> getShortestPath(LongLat startLocation, LongLat destinationLocation) {
         Node startNode = null;
         Node endNode = null;
+        setGrid();
 
         for(int i = 0; i < gridSize; i++) {
             for(int j = 0; j < gridSize; j++) {
@@ -128,6 +135,56 @@ public class Graph {
             currentNode = nodes.get(i);
         }
         return total;
+    }
+
+    public void printDistanceBetweenNodes(List<Node> nodes) {
+        for(int i = 1; i < nodes.size(); i++) {
+            System.out.println(nodes.get(i-1).getLongLat().distanceTo(nodes.get(i).getLongLat())/Settings.getDefaultMovementStepDistance());
+        }
+
+    }
+
+    public List<Node> smoothenPath(List<Node> fullPath) {
+        if(fullPath.size() > 2) {
+            Node currentNode;
+            Node nextNode;
+            double distanceOffset = 0;
+            double angleOffset = 0;
+            for(int i = 0; i < fullPath.size() - 1; i++) {
+
+                currentNode = fullPath.get(i);
+                nextNode = fullPath.get(i + 1);
+
+                double bearing = currentNode.getLongLat().calculateBearing(nextNode.getLongLat()) + angleOffset;
+                double distance = currentNode.getLongLat().distanceTo(nextNode.getLongLat()) + distanceOffset;
+
+                double roundedDistance = utils.roundOffToNearestMultiple(distance, Settings.getDefaultMovementStepDistance());
+                distanceOffset = distance - roundedDistance;
+
+                System.out.println("distance: " + distance + "\nRounded distance: " + roundedDistance);
+                int roundedBearing = utils.roundOffToNearest10th(bearing);
+                angleOffset = bearing - roundedBearing;
+
+                int stepCount = (int) (roundedDistance / Settings.getDefaultMovementStepDistance());
+                LongLat newNextLongLat = currentNode.getLongLat();
+
+                for(int j = stepCount; j > 0; j--) {
+                    newNextLongLat = newNextLongLat.nextPosition(roundedBearing);
+                    System.out.println("Step count: " + stepCount);
+                }
+
+                System.out.println("Current node: " + currentNode + "\nNext node: " + nextNode);
+                System.out.println("Old distance to next node: " + String.valueOf(nextNode.getLongLat().distanceTo(currentNode.getLongLat())));
+                System.out.println("New distance to next node: " + String.valueOf(nextNode.getLongLat().distanceTo(newNextLongLat)));
+                System.out.println("Old Bearing: "+currentNode.getLongLat().calculateBearing(nextNode.getLongLat()) +
+                        "\nNew Bearing: " + newNextLongLat.calculateBearing(nextNode.getLongLat()));
+
+                System.out.println("-------------" + nextNode.getLongLat() + "\n" + newNextLongLat);
+                nextNode.setLongLat(newNextLongLat);
+                fullPath.set(i + 1, nextNode);
+            }
+        }
+        return fullPath;
     }
 
 }

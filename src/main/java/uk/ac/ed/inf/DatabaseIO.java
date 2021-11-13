@@ -154,10 +154,12 @@ public class DatabaseIO {
             + Settings.getDefaultDatabaseAddress();
     try {
       conn = DriverManager.getConnection(url);
-      System.out.println("Database connection established successfully!");
+      //TODO remove this commented sout print line.
+      //System.out.println("Database connection established successfully!");
     } catch (SQLException e) {
       System.out.println(url);
       System.out.println("Could not establish database connection");
+      e.printStackTrace();
       System.exit(1);
     }
     return conn;

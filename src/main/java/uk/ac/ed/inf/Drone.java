@@ -69,7 +69,7 @@ public class Drone {
     public void hover(){
         droneState = DroneState.HOVERING;
     }
-    public LongLat getCurrentPosiition(){
+    public LongLat getCurrentPosition(){
         return currentPosition;
     }
     public int getBatteryLevel(){
@@ -77,10 +77,9 @@ public class Drone {
     }
     public void hoverDrone() {
         droneState = DroneState.HOVERING;
-        movementCount += 1;
+        batteryLevel -= 1;
     }
-    public void flyDrobe() {
-        movementCount += 1;
+    public void flyDrone() {
         droneState = DroneState.FLYING;
     }
     public void returnToHome() {
@@ -90,7 +89,7 @@ public class Drone {
         if(droneState == DroneState.HOVERING && !hasOrder) {
             droneWeight += 0;
             hasOrder = true;
-            movementCount += 1;
+            batteryLevel -= 1;
             //TODO add wieght from food order
         }
     }
@@ -99,9 +98,12 @@ public class Drone {
         return Calendar.getInstance();
         //TODO modify to reflect actual travel time.
     }
-    public void unloadOrder() {
-        hoverDrone();
-        hasOrder = false;
-        droneWeight = 0;
+    public void setCurrentPosition(LongLat currentPosition) {
+        this.currentPosition = currentPosition;
     }
+
+    public void setBatteryLevel(int batteryLevel) {
+        this.batteryLevel = batteryLevel;
+    }
+
 }

@@ -77,6 +77,15 @@ public class Menus {
   }
 
   /**
+   * Utility function to look up MenuItem object just based on  the name.
+   * @param name name of MenuItem to return
+   * @return return MenuItem object bearing the specified name.
+   */
+  public MenuItem getMenuItem(String name) {
+    return menuItemHashMap.get(name);
+  }
+
+  /**
    * Updates our item lookup cache by iterating through json-unpacked menu items ArrayList and adding or
    * updating the items in our item hashmap with their respective MenuItem objects created from the
    * ArrayList items.

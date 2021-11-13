@@ -22,8 +22,10 @@ public final class Settings {
    *  Below are the value denoting the coordinates of bounds shown in the diagram.
    */
 
+  //TODO seriously remove this location it is only for tests.
+  public static final LongLat businessSchool = new LongLat(-3.1873,55.9430);
 
-  public static int GRID_GRANULARITY = 4;
+  public static int GRID_GRANULARITY = 30;
   /**
    ****************************************************************
    */
