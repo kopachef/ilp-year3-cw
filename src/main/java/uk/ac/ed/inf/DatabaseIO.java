@@ -8,10 +8,25 @@ import java.util.Optional;
 
 public class DatabaseIO {
 
+  /**
+   * Database IO object to act as an access point for our database.
+   *
+   * @param host host address to our database
+   * @param port port to access our database.
+   */
   public DatabaseIO(String host, String port) {
     Settings.setDefaultDatabaseHost(host);
     Settings.setDefaultDatabasePort(port);
   }
+
+  /**
+   * Inserts an order into our database.
+   *
+   * @param orderNo String value of order number to be added.
+   * @param deliveryDate Date value of the associated order.
+   * @param customer Customer to whom the order is to be  delivered to.
+   * @param deliverTo What Three Words string representing delivery address.
+   */
   public void insertOrder(String orderNo, Date deliveryDate, String customer, String deliverTo) {
     Connection conn = initialiseDBconnection();
     final String insertOrderQuery = "INSERT INTO orders (orderNo, deliveryDate, customer, deliverTo) VALUES (?,?,?,?)";
@@ -29,6 +44,13 @@ public class DatabaseIO {
       e.printStackTrace();
     }
   }
+
+  /**
+   * Allows us to insert order details into the order details table of our database.
+   *
+   * @param orderNo Order number to be inserted.
+   * @param item Item associated with the order number.
+   */
   public void insertOrderDetails(String orderNo, String item) {
     Connection conn = initialiseDBconnection();
     final String insertOrderDetailsQuery = "INSERT INTO orderDetails (orderNo, item) VALUES (?,?)";
@@ -44,6 +66,15 @@ public class DatabaseIO {
       e.printStackTrace();
     }
   }
+
+  /**
+   * Allowed us to delete an order in teh database.
+   *
+   * @param orderNo order number associated with item tob e deleted.
+   * @param deliveryDate delivery date associated with item to be deleted.
+   * @param customer customer associated with item to be deleted.
+   * @param deliverTo delivery location associated with item to be deleted.
+   */
   public void deleteOrder(String orderNo, Date deliveryDate, String customer, String deliverTo){
     Connection conn = initialiseDBconnection();
     final String deleteQuery = "DELETE FROM orders WHERE orderNo=? AND deliveryDate=? AND customer=? AND deliverTo=?";
@@ -60,8 +91,14 @@ public class DatabaseIO {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-
   }
+
+  /**
+   * Allows us to delete order details in our database.
+   *
+   * @param orderNo order number associated with item to be deleted.
+   * @param item item name associated with item to be deleted.
+   */
   public void deleteOrderDetails(String orderNo, String item){
     Connection conn = initialiseDBconnection();
     final String deleteQuery = "DELETE FROM orders WHERE orderNo=? AND item=?";
@@ -79,6 +116,15 @@ public class DatabaseIO {
 
   }
 
+  /**
+   * Allows to query our OrderDetails table for items matching the specified parameters. Returns the most matching
+   * parameters i.e if only one parameter is specified for example 'orderNo' it would return all the order matching
+   * this order number. Likewise, returns all our orderDetails if empty parameters are given.
+   *
+   * @param orderNo order number to be matched against.
+   * @param item item name to be matched against.
+   * @return  List of <DatabaseOrderDetails> objects.
+   */
   public List<DatabaseOrderDetails> queryOrderDetails(String orderNo, String item) {
     Connection conn = initialiseDBconnection();
     List<DatabaseOrderDetails> databaseOrders = new ArrayList<>();
@@ -105,6 +151,17 @@ public class DatabaseIO {
     return databaseOrders;
   }
 
+  /**
+   * Allows to query our Orders table for items matching the specified parameters. Returns the most matching items with
+   * respect to the parameters i.e if only one parameter is specified for example 'orderNo' it would return all the
+   * order matching this order number. Likewise, returns all our orders if empty parameters are given.
+   *
+   * @param orderNo order number to be matched against.
+   * @param deliveryDate delivery date to be matched against.
+   * @param customer customer to be matched agsinst.
+   * @param deliverTo delivery location ot ve matched against.
+   * @return List of <DatabaseOrders> objects.
+   */
   public List<DatabaseOrder> queryOrders(
       String orderNo, Date deliveryDate, String customer, String deliverTo) {
     Connection conn = initialiseDBconnection();
@@ -143,6 +200,11 @@ public class DatabaseIO {
     return DatabaseOrders;
   }
 
+  /**
+   * Initialises a connection to our database.
+   *
+   * @return returns database connection.
+   */
   private Connection initialiseDBconnection() {
     Connection conn = null;
     String url =
@@ -154,8 +216,6 @@ public class DatabaseIO {
             + Settings.getDefaultDatabaseAddress();
     try {
       conn = DriverManager.getConnection(url);
-      //TODO remove this commented sout print line.
-      //System.out.println("Database connection established successfully!");
     } catch (SQLException e) {
       System.out.println(url);
       System.out.println("Could not establish database connection");
@@ -165,6 +225,9 @@ public class DatabaseIO {
     return conn;
   }
 
+  /**
+   * static classes representing transient DatabaseOrder objects returned from a query.
+   */
   static class DatabaseOrder {
     String orderNo;
     Date deliveryDate;
@@ -172,6 +235,9 @@ public class DatabaseIO {
     String deliverTo;
   }
 
+  /**
+   * static classes representing transient DatabaseOrderDetails objects returned from a query.
+   */
   static class DatabaseOrderDetails {
     String orderNo;
     String item;

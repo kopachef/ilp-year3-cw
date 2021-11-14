@@ -7,90 +7,133 @@ import java.util.stream.Collectors;
 
 public class FoodOrder {
 
-    private List<MenuItem> orderItems;
-    private List<LongLat> deliveryPath;
-    private String customer;
-    private Date deliveryDate;
-    private String deliveryW3wAddress;
-    private String orderNo;
-    private double deliveryCost;
-    private boolean hasBeenDelivered;
-    private LongLat deliveryLocationLongLat;
+  /** Class representing a single food order and all the attributes associated with it. */
+  private List<MenuItem> orderItems;
 
-    public FoodOrder(List<MenuItem> items,
-                     String orderNo,
-                     String customer,
-                     Date deliveryDate,
-                     LongLat deliveryLocationLongLat,
-                     String deliveryW3wAddress,
-                     double deliveryCost) {
-        this.orderItems = items;
-        this.customer = customer;
-        this.deliveryDate = deliveryDate;
-        this.deliveryW3wAddress = deliveryW3wAddress;
-        this.orderNo = orderNo;
-        this.deliveryCost = deliveryCost;
-        this.hasBeenDelivered = false;
-        this.deliveryLocationLongLat = deliveryLocationLongLat;
-        this.deliveryPath = new ArrayList<>();
+  private List<LongLat> deliveryPath;
+  private String customer;
+  private Date deliveryDate;
+  private String deliveryW3wAddress;
+  private String orderNo;
+  private double deliveryCost;
+  private boolean hasBeenDelivered;
+  private LongLat deliveryLocationLongLat;
+
+  public FoodOrder(
+      List<MenuItem> items,
+      String orderNo,
+      String customer,
+      Date deliveryDate,
+      LongLat deliveryLocationLongLat,
+      String deliveryW3wAddress,
+      double deliveryCost) {
+    this.orderItems = items;
+    this.customer = customer;
+    this.deliveryDate = deliveryDate;
+    this.deliveryW3wAddress = deliveryW3wAddress;
+    this.orderNo = orderNo;
+    this.deliveryCost = deliveryCost;
+    this.hasBeenDelivered = false;
+    this.deliveryLocationLongLat = deliveryLocationLongLat;
+    this.deliveryPath = new ArrayList<>();
+  }
+
+  /**
+   * A food order may contain multiple items. This function calculates the total travel distance of
+   * picking up each item in our food order and delivering it to the customer.
+   *
+   * @param startLocation reference location which represents the current location of the drone.
+   * @return returns the total distance travelled to deliver this order.
+   */
+  public double calculateTravelDistance(LongLat startLocation) {
+    double totalDistance = 0;
+    LongLat currentLocation = startLocation;
+    for (MenuItem item : this.orderItems) {
+      LongLat pickUpLocation =
+          JsonObjectManager.coordToLonglat(
+              JsonObjectManager.parseW3WObject(item.getLocation()).coordinates);
+      totalDistance += startLocation.distanceTo(pickUpLocation);
+      currentLocation = pickUpLocation;
     }
-
-    private List<LongLat> generateDeliveryPath(List<MenuItem> menuItems) {
-        List<LongLat> result = new ArrayList<>();
-        for(MenuItem item : menuItems) {
-            result.add(
-                    JsonObjectManager.coordToLonglat(
-                            JsonObjectManager.parseW3WObject(item.getLocation()).coordinates));
-        }
-        return result;
-    }
-
-    public List<MenuItem> getOrderItems() {
-        return orderItems;
-    }
-
-    public double calculateTravelDistance(LongLat startLocation) {
-        double totalDistance = 0;
-        LongLat currentLocation = startLocation;
-        for(MenuItem item: this.orderItems) {
-            LongLat destination = JsonObjectManager.coordToLonglat(
-                    JsonObjectManager.parseW3WObject(item.getLocation()).coordinates);
-            totalDistance += startLocation.distanceTo(destination);
-            currentLocation = destination;
-        }
     return totalDistance += currentLocation.distanceTo(this.getDeliveryLocationLongLat());
-    }
+  }
 
-    public List<LongLat> getPickUpLocations() {
-        return getOrderItems().stream().map(x -> JsonObjectManager.coordToLonglat(
-                JsonObjectManager.parseW3WObject(x.getLocation()).coordinates)).collect(Collectors.toList());
-    }
+  /**
+   * Returns a list of LongLat objects representing each pickup location for the items in order.
+   *
+   * @return List of LongLat objects.
+   */
+  public List<LongLat> getPickUpLocations() {
+    return getOrderItems().stream()
+        .map(
+            x ->
+                JsonObjectManager.coordToLonglat(
+                    JsonObjectManager.parseW3WObject(x.getLocation()).coordinates))
+        .collect(Collectors.toList());
+  }
 
-    public String getCustomer() {
-        return customer;
-    }
+  /**
+   * Returns all the MenuItems contained in this order.
+   *
+   * @return List  of <MenuItem> objects.
+   */
+  public List<MenuItem> getOrderItems() {
+    return orderItems;
+  }
 
-    public Date getDeliveryDate() {
-        return deliveryDate;
-    }
+  /**
+   * Returns the customer id for the customer associated wiht this order. In this case, the id is just the students'
+   * student numbers pre-appended wiht an 's'.
+   *
+   * @return String representing the students' student number.
+   */
+  public String getCustomer() {
+    return customer;
+  }
 
-    public String getDeliveryW3wAddress() {
-        return deliveryW3wAddress;
-    }
+  /**
+   * Return the W3W(What 3 Words) formatted delivery address of this order.
+   *
+   * @return String representing what three words address of the delivery location.
+   */
+  public String getDeliveryW3wAddress() {
+    return deliveryW3wAddress;
+  }
 
-    public String getOrderNo() {
-        return orderNo;
-    }
+  /**
+   * Return the order number associated with this order.
+   *
+   * @return String representing the order number.
+   */
+  public String getOrderNo() {
+    return orderNo;
+  }
 
-    public double getDeliveryCost() {
-        return deliveryCost;
-    }
+  /**
+   * Returns the delivery cost associated with this order. This is essentially the total item value of all the
+   * items in this order in addition to the delivery charge.
+   *
+   * @return double representing the total cost of this order.
+   */
+  public double getDeliveryCost() {
+    return deliveryCost;
+  }
 
-    public boolean isHasBeenDelivered() {
-        return hasBeenDelivered;
-    }
+  /**
+   * Boolean representing whether an item has been delivered.
+   *
+   * @return True if the order has been delivered, fFlse otherwise.
+   */
+  public boolean isHasBeenDelivered() {
+    return hasBeenDelivered;
+  }
 
-    public LongLat getDeliveryLocationLongLat() {
-        return deliveryLocationLongLat;
-    }
+  /**
+   * Returns a LongLat object representing the What Three Words delivery location of this order.
+   *
+   * @return LongLat object representing the delivery location.
+   */
+  public LongLat getDeliveryLocationLongLat() {
+    return deliveryLocationLongLat;
+  }
 }

@@ -10,15 +10,30 @@ import java.sql.Date;
 import java.util.*;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 public class DeliveryPlanner {
 
+    /**
+     * Delivery Planner manages drones delivery by keeping track of the following:
+     *
+     *  - Creates an instance of the OrderDeliveryWorker which is used to get FoodOrders.
+     *  - Checking if the drone can fulfill and order before deploying it(including checking that it will have
+     *      enough battery capacity to get back home)
+     *   - Updating the FoodOrder Queue based on the drone's location.
+     *   - Generating the delivery path as json output file.
+     *   - Keeping a hashmap of the partial delivery path to avoid recalculation.
+     */
     private final Date deliveryDate;
     private LinkedList<FoodOrder> deliverableOrders = new LinkedList<>();
     private HashMap<FoodOrder, List<Node>> deliveryPaths = new HashMap<>();
-    private Drone drone = new Drone(1, 1500);
+    private Drone drone = new Drone(1500);
     private List<Node> pathToHome = new LinkedList<>();
     private OrderDeliveryWorker orderDeliveryWorker;
-  private Graph graph =
+    private double totalOrderValue = 0;
+    //TODO remove ony for graphing purposes
+    List<Node> pickupNodes = new ArrayList<>();
+    private Graph graph =
       new Graph(
           Settings.getDefaultNorthWestBound().longitude,
           Settings.getDefaultNorthWestBound().latitude,
@@ -33,6 +48,9 @@ public class DeliveryPlanner {
         updateFoodDeliveryList();
     }
 
+    /**
+     *
+     */
     private void updateFoodDeliveryList() {
         boolean canDeliver = true;
         orderDeliveryWorker.updateFoodOrders(drone, orderDeliveryWorker.getFoodOrderQueue());
@@ -44,13 +62,21 @@ public class DeliveryPlanner {
             for (LongLat longlat : pickUpLocations) {
                 pathToClient.addAll(graph.getShortestPath(startLocation, longlat));
                 startLocation = longlat;
+                Node temo  = new Node(0,0);
+                temo.setLongLat(longlat);
+                if(!pickupNodes.contains(temo)) {
+                    pickupNodes.add(temo);
+                }
             }
             List<Node> pathFromClientToHome =
                     graph.getShortestPath(foodOrder.getDeliveryLocationLongLat(), Settings.getDefaultHomeLocation());
-            graph.printDistanceBetweenNodes(pathFromClientToHome);
 
-            graph.printDistanceBetweenNodes(pathToClient);
+            //TODO can get rid of this print statement
+            //graph.printDistanceBetweenNodes(pathToClient);
+            //graph.printDistanceBetweenNodes(pathFromClientToHome);
 
+
+            //TODO modify this to be more reflective of what the dor eisactually doiubg.
             double travelDistance = graph.distanceBetweenNodes(pathToClient) + graph.distanceBetweenNodes(pathFromClientToHome);
             int batteryUsage = drone.calculateMovementStepCost(travelDistance);
             if(drone.getBatteryLevel() - batteryUsage > 0) {
@@ -95,12 +121,11 @@ public class DeliveryPlanner {
     public List<Feature> convertPathsToGeojsonFeatures() {
         List<Feature> features = new ArrayList<>();
         features.addAll(GeoJsonManager.getRestrictedAreasFeatures());
-//        features.addAll(
-//                GeoJsonManager.generatePointsFromNodes(graph.getAllNodes()).stream()
-//                .map(x -> Feature.fromGeometry((Geometry) x))
-//                .collect(toList()));
+        features.addAll(
+                GeoJsonManager.generatePointsFromNodes(pickupNodes).stream()
+                .map(x -> Feature.fromGeometry((Geometry) x))
+                .collect(toList()));
         int counter = 0;
-        System.out.println(deliverableOrders.size());
         for(FoodOrder foodOrder : deliverableOrders) {
             Point deliveryPoint = GeoJsonManager.createPointFromLongLat(foodOrder.getDeliveryLocationLongLat());
             LineString lineString =
@@ -110,9 +135,10 @@ public class DeliveryPlanner {
                 features.add(Feature.fromGeometry((Geometry) deliveryPoint));
                 features.add(Feature.fromGeometry((Geometry) lineString));
             }
+            totalOrderValue += foodOrder.getDeliveryCost();
             counter += 1;
 
-            System.out.println("delivery to be made: " + deliverableOrders.size()+ "\ndelivery number: " + counter);
+            System.out.println("Delivery no: " +counter+"/"+ deliverableOrders.size()+"\nMonetary value: " + 100*totalOrderValue/orderDeliveryWorker.getTotalOrderValue());
         }
         //Add final path to home and home marker.
         //Point homeMarker = GeoJsonManager.createPointFromLongLat(Settings.getDefaultHomeLocation());

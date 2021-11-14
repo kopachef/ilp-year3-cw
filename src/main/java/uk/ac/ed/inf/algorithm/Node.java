@@ -3,96 +3,227 @@ package uk.ac.ed.inf.algorithm;
 import uk.ac.ed.inf.LongLat;
 
 public class Node {
-    public double stepCost = 5;
-    public int  row, col;
-    double g, h, f;
-    private LongLat longLat;
-    private boolean isRestricted;
-    private Node parent;
 
-    public Node(int row, int col) {
-        super();
-        this.col = col;
-        this.row = row;
-    }
-    public LongLat getLongLat() {
-        return longLat;
-    }
-    public void setLongLat(LongLat longLat) {
-        this.longLat = longLat;
-    }
-    public void calculateHeuristic(Node destination) {
-        this.h = this.longLat.distanceTo(destination.getLongLat());
-    }
-    public void setNodeData(Node currentNode, double cost) {
-        double gTotal = currentNode.getG() + cost;
-        setParent(currentNode);
-        setG(gTotal);
-        calculateTotalCost();
-    }
-    public void calculateTotalCost() {
-        double totalCost = getG() + getH();
-        setF(totalCost);
-    }
+  /**
+   * A node object represents a single node on our groan which also represents a location on our
+   * map.
+   */
+  //TODO trying using different tsp cost for this.
+  public double stepCost = 5;
+  public int row, col;
+  double g, h, f;
+  private LongLat longLat;
+  private boolean isRestricted;
+  private Node parent;
 
-    public boolean lookUpBetterPath(Node currentNode, double cost) {
-        double gTotal = currentNode.getG() + cost;
-        if(gTotal < getG()) {
-            setNodeData(currentNode, cost);
-            return true;
-        }
-        return false;
-    }
+  public Node(int row, int col) {
+    super();
+    this.col = col;
+    this.row = row;
+  }
 
-    @Override
-    public boolean equals(Object node) {
-        Node inputNode = (Node) node;
-        return this.getRow() == inputNode.getRow() &&
-                this.getCol() == inputNode.getCol() &&
-                inputNode.getLongLat().equals(this.getLongLat());
-    }
 
-    @Override
-    public String toString() {
-        return "Node [row = " + row + ", col = " + col + "]\n" + longLat.toString()+"\n";
-    }
+  /**
+   * The getLongLat() method returns a longitude value. It is a read-only property.
+   *
+   * @return associated nodes LongLat
+   */
+  public LongLat getLongLat() {
+    return longLat;
+  }
 
-    public int getRow() {
-        return this.row;
-    }
-    public int getCol() {
-        return this.col;
-    }
+  /**
+   * The setLongLat() method sets the longitude for this Node. It is a setter method.
+   *
+   * @param longLat
+   */
+  public void setLongLat(LongLat longLat) {
+    this.longLat = longLat;
+  }
 
-    public double getG() {
-        return this.g;
-    }
-    public double getH() {
-        return this.h;
-    }
-    public void setG(double g) {
-        this.g = g;
-    }
-    public void setH(double h) {
-        this.h = h;
-    }
-    public Node getParent() {
-        return parent;
-    }
-    public void setParent(Node parent) {
-        this.parent = parent;
-    }
-    public void setF(double f) {
-        this.f = f;
-    }
-    public double getF() {
-        return this.f;
-    }
+  /**
+   *   The calculateHeuristic() method calculates the heuristic for the node. It uses the distance between
+   *   the node's longitude and the destination's longitude to calculate the heuristic.
+   *
+   * @param destination
+   */
+  public void calculateHeuristic(Node destination) {
+    this.h = this.longLat.distanceTo(destination.getLongLat());
+  }
 
-    public boolean isRestricted() {
-        return isRestricted;
+  /**
+   *   The setNodeData() method sets the node's G cost value if it is not already set. It also sets the
+   *   parent node of the node. It calculates the total cost of the node.
+   *
+   * @param currentNode
+   * @param cost
+   */
+  public void setNodeData(Node currentNode, double cost) {
+    double gTotal = currentNode.getG() + cost;
+    setParent(currentNode);
+    setG(gTotal);
+    calculateTotalCost();
+  }
+
+  /**
+   * The calculateTotalCost method will be used to calculate the total cost of a purchase. The
+   * calculateTotalCost method adds the cost of the two products that have been selected. Then the
+   * totalCost is set to this value.
+   *
+   */
+  public void calculateTotalCost() {
+    double totalCost = getG() + getH();
+    setF(totalCost);
+  }
+
+  /**
+   * The lookUpBetterPath is a function that is used to determine if a better path is available. If the cost
+   * of the product is less than the current cost of the product, it will replace the current product.
+   *
+   * @param currentNode
+   * @param cost
+   * @return True if lower cost path is found, False otherwise.
+   */
+  public boolean lookUpBetterPath(Node currentNode, double cost) {
+    double gTotal = currentNode.getG() + cost;
+    if (gTotal < getG()) {
+      setNodeData(currentNode, cost);
+      return true;
     }
-    public void setRestricted(boolean restricted) {
-        isRestricted = restricted;
-    }
+    return false;
+  }
+
+  /**
+   * The equals function checks to see if the locations are the same, the rows are the same,
+   * and the columns are the same.
+   *
+   * @param node
+   * @return
+   */
+  @Override
+  public boolean equals(Object node) {
+    Node inputNode = (Node) node;
+    return this.getRow() == inputNode.getRow()
+        && this.getCol() == inputNode.getCol()
+        && inputNode.getLongLat().equals(this.getLongLat());
+  }
+
+  /**
+   *  The toString() method returns a string containing the row, column, latitude,
+   *  and longitude of the square's location.
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "Node [row = " + row + ", col = " + col + "]\n" + longLat.toString() + "\n";
+  }
+
+  /**
+   * The getRow() method returns the row of the square
+   *
+   * @return
+   */
+  public int getRow() {
+    return this.row;
+  }
+
+  /**
+   * the getCol() method returns the column of the square
+   *
+   * @return
+   */
+  public int getCol() {
+    return this.col;
+  }
+
+  /**
+   *  the getG() method returns the square's g-value.
+   *
+   * @return
+   */
+  public double getG() {
+    return this.g;
+  }
+
+  /**
+   * The setG() method sets the square's g-value.
+   *
+   * @param g
+   */
+  public void setG(double g) {
+    this.g = g;
+  }
+
+  /**
+   * The getH() method returns the square's h-value
+   *
+   * @return
+   */
+  public double getH() {
+    return this.h;
+  }
+
+  /**
+   * the setH() method sets the square's h-value.
+   *
+   * @param h
+   */
+  public void setH(double h) {
+    this.h = h;
+  }
+
+  /**
+   * The getParent() method returns the square's parent
+   *
+   * @return
+   */
+  public Node getParent() {
+    return parent;
+  }
+
+  /**
+   *  the setParent() method sets the square's parent.
+   *
+   * @param parent
+   */
+  public void setParent(Node parent) {
+    this.parent = parent;
+  }
+
+  /**
+   * the setF() method sets the square's f-value.
+   *
+   * @return
+   */
+  public double getF() {
+    return this.f;
+  }
+
+  /**
+   * the setF() method sets the square's f-value.
+   *
+   * @param f
+   */
+  public void setF(double f) {
+    this.f = f;
+  }
+
+  /**
+   * The isRestricted() method returns a boolean indicating whether the square is restricted
+   *
+   * @return
+   */
+  public boolean isRestricted() {
+    return isRestricted;
+  }
+
+  /**
+   *  the setRestricted() method sets the square's restricted status.
+   *
+   * @param restricted
+   */
+  public void setRestricted(boolean restricted) {
+    isRestricted = restricted;
+  }
 }

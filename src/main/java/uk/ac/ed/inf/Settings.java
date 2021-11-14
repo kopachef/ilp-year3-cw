@@ -41,15 +41,13 @@ public final class Settings {
   public static void setDefaultNorthwestBound(LongLat northwestBound) {
     DEFAULT_NORTHWEST_BOUND = northwestBound;
   }
-  public static void setDefaultNorthEestBound(LongLat northEestBound) {
-    DEFAULT_NORTHEAST_BOUND = northEestBound;
+  public static void setDefaultNorthEastBound(LongLat northEastBound) {
+    DEFAULT_NORTHEAST_BOUND = northEastBound;
   }
   public static void setDefaultSouthEastBound(LongLat southEastBound) {
     DEFAULT_SOUTHEAST_BOUND = southEastBound;
   }
-  public static void setDefaultSouthWastBoundLatitude(LongLat southWestBoundLatitude) {
-    DEFAULT_SOUTHWEST_BOUND = southWestBoundLatitude;
-  }
+  public static void setDefaultSouthWastBound(LongLat southWestBound) { DEFAULT_SOUTHWEST_BOUND = southWestBound; }
 
   /**
    * Get methods for bounding box parameters
