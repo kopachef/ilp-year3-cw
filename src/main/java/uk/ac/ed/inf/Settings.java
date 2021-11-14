@@ -9,7 +9,7 @@ public final class Settings {
   /**
    * Bounding box coordinates
    *
-   * (NORTHWEST_BOUND)
+   * (NORTHWEST_BOUND)            (NORTHEAST_BOUND)
    *          +-----------------+
    *          |        N        |
    *          |                 |
@@ -17,7 +17,7 @@ public final class Settings {
    *          |                 |
    *          |        S        |
    *          +-----------------+
-   *                       (SOUTHEAST_BOUND)
+   * (SOUTHWEST_BOUND)           (SOUTHEAST_BOUND)
    *
    *  Below are the value denoting the coordinates of bounds shown in the diagram.
    */
@@ -25,46 +25,47 @@ public final class Settings {
   //TODO seriously remove this location it is only for tests.
   public static final LongLat businessSchool = new LongLat(-3.1873,55.9430);
 
-  public static int GRID_GRANULARITY = 30;
+  public static int GRID_GRANULARITY = 54;
   /**
    ****************************************************************
    */
-  public static double DEFAULT_NORTHWEST_BOUND_LONGITUDE = -3.192473;
-  public static double DEFAULT_NORTHWEST_BOUND_LATITUDE = 55.946233;
-  public static double DEFAULT_SOUTHEAST_BOUND_LONGITUDE = -3.184319;
-  public static double DEFAULT_SOUTHEAST_BOUND_LATITUDE = 55.942617;
+
+  public static LongLat DEFAULT_NORTHWEST_BOUND = new LongLat(-3.192473, 55.946233);
+  public static LongLat DEFAULT_NORTHEAST_BOUND = new LongLat(-3.184319, 55.946233);
+  public static LongLat DEFAULT_SOUTHWEST_BOUND = new LongLat(-3.192473, 55.942617);
+  public static LongLat DEFAULT_SOUTHEAST_BOUND = new LongLat(-3.184319, 55.942617);
 
   /**
    * Set methods for bounding box parameters.
    */
-  public static void setDefaultNorthwestBoundLongitude(double longitude) {
-    DEFAULT_NORTHWEST_BOUND_LONGITUDE = longitude;
+  public static void setDefaultNorthwestBound(LongLat northwestBound) {
+    DEFAULT_NORTHWEST_BOUND = northwestBound;
   }
-  public static void setDefaultNorthwestBoundLatitude(double latitude) {
-    DEFAULT_NORTHWEST_BOUND_LATITUDE = latitude;
+  public static void setDefaultNorthEestBound(LongLat northEestBound) {
+    DEFAULT_NORTHEAST_BOUND = northEestBound;
   }
-  public static void setDefaultSoutheastBoundLongitude(double longitude) {
-    DEFAULT_SOUTHEAST_BOUND_LONGITUDE = longitude;
+  public static void setDefaultSouthEastBound(LongLat southEastBound) {
+    DEFAULT_SOUTHEAST_BOUND = southEastBound;
   }
-  public static void setDefaultSoutheastBoundLatitude(double latitude) {
-    DEFAULT_SOUTHEAST_BOUND_LATITUDE = latitude;
+  public static void setDefaultSouthWastBoundLatitude(LongLat southWestBoundLatitude) {
+    DEFAULT_SOUTHWEST_BOUND = southWestBoundLatitude;
   }
 
   /**
    * Get methods for bounding box parameters
    */
 
-  public static double getDefaultNorthwestBoundLongitude() {
-    return DEFAULT_NORTHWEST_BOUND_LONGITUDE;
+  public static LongLat getDefaultNorthWestBound() {
+    return DEFAULT_NORTHWEST_BOUND;
   }
-  public static double getDefaultNorthwestBoundLatitude() {
-    return DEFAULT_NORTHWEST_BOUND_LATITUDE;
+  public static LongLat getDefaultNorthEastBound() {
+    return DEFAULT_NORTHEAST_BOUND;
   }
-  public static double getDefaultSoutheastBoundLongitude() {
-    return DEFAULT_SOUTHEAST_BOUND_LONGITUDE;
+  public static LongLat getDefaultSouthEastBound() {
+    return DEFAULT_SOUTHEAST_BOUND;
   }
-  public static double getDefaultSoutheastBoundLatitude() {
-    return DEFAULT_SOUTHEAST_BOUND_LATITUDE;
+  public static LongLat getDefaultSouthWestBound() {
+    return DEFAULT_SOUTHWEST_BOUND;
   }
 
   /***************************************************************
@@ -253,10 +254,10 @@ public final class Settings {
    */
   public static void dump() {
     System.out.println(
-                    "NORTHWEST_BOUND_LONGITUDE: " + getDefaultNorthwestBoundLongitude()
-                    + "\nNORTHWEST_BOUND_LATITUDE: " + getDefaultNorthwestBoundLatitude()
-                    + "\nSOUTHEAST_BOUND_LONGITUDE: " + getDefaultSoutheastBoundLongitude()
-                    + "\nSOUTHEAST_BOUND_LATITUDE: " + getDefaultSoutheastBoundLatitude()
+                    "NORTHEAST_BOUND: " + getDefaultNorthEastBound()
+                    + "\nNORTHWEST_BOUND: " + getDefaultNorthWestBound()
+                    + "\nSOUTHEAST_BOUND: " + getDefaultSouthEastBound()
+                    + "\nSOUTHWEST_BOUND: " + getDefaultSouthWestBound()
                     + "\nCLOSENESS_TOLERANCE: " + getDefaultClosenessTolerance()
                     + "\nMOVEMENT_STEP_DISTANCE: " + getDefaultMovementStepDistance()
                     + "\nSTANDARD_CHARGE: " + getDefaultStandardCharge()

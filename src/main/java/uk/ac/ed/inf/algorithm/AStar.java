@@ -1,6 +1,4 @@
-package uk.ac.ed.inf.graph;
-
-import uk.ac.ed.inf.GeoJsonManager;
+package uk.ac.ed.inf.algorithm;
 
 import java.util.*;
 
@@ -74,11 +72,15 @@ public class AStar {
         if (lowerRow < getSearchArea().length) {
             if (col - 1 >= 0) {
                 double cost = getSearchArea()[lowerRow][col-1].stepCost;
-                checkNode(currentNode, col - 1, lowerRow, cost); // Comment this line if diagonal movements are not allowed
+                if(row % 2 == 0) {
+                    checkNode(currentNode, col - 1, lowerRow, cost); // Comment this line if diagonal movements are not allowed
+                }
             }
             if (col + 1 < getSearchArea()[0].length) {
                 double cost = getSearchArea()[lowerRow][col+1].stepCost;
-                checkNode(currentNode, col + 1, lowerRow, cost); // Comment this line if diagonal movements are not allowed
+                if(row % 2 == 1) {
+                    checkNode(currentNode, col + 1, lowerRow, cost); // Comment this line if diagonal movements are not allowed
+                }
             }
             double cost = getSearchArea()[lowerRow][col].stepCost;
             checkNode(currentNode, col, lowerRow, cost);
@@ -105,12 +107,17 @@ public class AStar {
         if (upperRow >= 0) {
             if (col - 1 >= 0) {
                 double cost = getSearchArea()[upperRow][col-1].stepCost;
-                checkNode(currentNode, col - 1, upperRow, cost); // Comment this if diagonal movements are not allowed
+                if(row % 2 == 0) {
+                    checkNode(currentNode, col - 1, upperRow, cost); // Comment this if diagonal movements are not allowed
+                }
             }
             if (col + 1 < getSearchArea()[0].length) {
                 double cost = getSearchArea()[upperRow][col+1].stepCost;
-                checkNode(currentNode, col + 1, upperRow, cost); // Comment this if diagonal movements are not allowed
+                if(row % 2 == 1) {
+                    checkNode(currentNode, col + 1, upperRow, cost); // Comment this if diagonal movements are not allowed
+                }
             }
+
             double cost = getSearchArea()[upperRow][col].stepCost;
             checkNode(currentNode, col, upperRow, cost);
         }

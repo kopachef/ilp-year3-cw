@@ -1,12 +1,12 @@
-package uk.ac.ed.inf.graph;
+package uk.ac.ed.inf.algorithm;
 
 import org.apache.commons.math3.util.Precision;
 
-public class utils {
+public class Utils {
 
     public static double roundOffToNearestMultiple(double value, double multiple) {
         System.out.println("Rounded bearing: " + Precision.round((Math.round(value / multiple) * multiple), 6));
-        return (Math.round(value / multiple) * multiple);
+        return Precision.round((Math.round(value / multiple) * multiple), 6);
     }
 
     public static int roundOffToNearest10th(double value) {

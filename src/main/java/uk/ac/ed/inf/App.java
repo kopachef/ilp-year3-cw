@@ -1,19 +1,10 @@
 package uk.ac.ed.inf;
 
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.Geometry;
-import com.mapbox.geojson.LineString;
-import com.mapbox.geojson.Polygon;
-import com.mapbox.turf.TurfJoins;
-import com.mapbox.turf.TurfMeasurement;
-import com.mapbox.turf.TurfTransformation;
+import com.mapbox.geojson.*;
 import org.apache.commons.math3.util.Precision;
-import uk.ac.ed.inf.graph.Graph;
-import uk.ac.ed.inf.graph.Node;
+import uk.ac.ed.inf.algorithm.Graph;
+import uk.ac.ed.inf.algorithm.Node;
 
-import javax.sound.sampled.Line;
-import java.sql.Date;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.DoubleStream;
 
@@ -33,7 +24,7 @@ public class App {
     }
 
   public static void main(String[] args) {
-    int granularity = 55;
+    int granularity = 54;
 
     LongLat home = Settings.getDefaultHomeLocation();
     LongLat devloc = new LongLat(-3.187837, 55.943497);
@@ -45,43 +36,48 @@ public class App {
 
     Graph g =
             new Graph(
-                Settings.getDefaultNorthwestBoundLongitude(),
-                Settings.getDefaultNorthwestBoundLatitude(),
-                Settings.getDefaultSoutheastBoundLongitude(),
-                Settings.getDefaultSoutheastBoundLatitude(),
+                Settings.getDefaultNorthWestBound().longitude,
+                Settings.getDefaultNorthWestBound().latitude,
+                Settings.getDefaultSouthEastBound().longitude,
+                Settings.getDefaultSouthEastBound().latitude,
                 granularity);
 
-    //List<Node> path = g.getShortestPath(home, devloc);
-//    List<Node> adjusted = g.smoothenPath(path);
-//    System.out.println(path);
-//    for(int i = 0; i < path.size()-1; i++) {
-//        Node st = path.get(i);
-//        Node ed = path.get(i + 1);
-//        System.out.println(st.getLongLat() + "\n" + ed.getLongLat());
-//        System.out.println(st.getLongLat().distanceTo(ed.getLongLat()));
-//    }
+   List<Node> path = g.getAllNodes();
+    System.out.println(path);
+    for(int i = 0; i < path.size()-1; i++) {
+        Node st = path.get(i);
+        Node ed = path.get(i + 1);
+        System.out.println("Bearing: " + st.getLongLat().calculateBearing(ed.getLongLat()));
+        System.out.println(Precision.round(st.getLongLat().distanceTo(ed.getLongLat())/Settings.getDefaultMovementStepDistance(), 0));
+    }
     //
     //    List<Feature> path =
     //        GeoJsonManager.generatePointsFromNodes(g.getRestrictedNodes()).stream()
     //            .map(x -> Feature.fromGeometry((Geometry) x))
     //            .collect(toList());
     //
-        List<Feature> feats = GeoJsonManager.getRestrictedAreasFeatures();
-        //feats.addAll(path);
+        //List<Feature> feats = GeoJsonManager.getRestrictedAreasFeatures();
+      List<Feature> feats = new ArrayList<>();
+        feats.addAll(GeoJsonManager.generatePointsFromNodes(g.getRestrictedNodes()).stream().map(x -> Feature.fromGeometry((Geometry) x)).collect(toList()));
 
-      LineString ls =
-     LineString.fromLngLats(GeoJsonManager.generatePointsFromNodes(g.getShortestPath(home,
-     devloc)));
+      //LineString ls =
+     //LineString.fromLngLats(GeoJsonManager.generatePointsFromNodes(g.getShortestPath(home,
+     //devloc)));
     //    LineString ls2 =
     // LineString.fromLngLats(GeoJsonManager.generatePointsFromNodes(g.getShortestPath(devloc,
     // home)));
     //
     //
-    feats.add(Feature.fromGeometry((Geometry) ls));
+    //feats.add(Feature.fromGeometry((Geometry) ls));
     //    feats.add(Feature.fromGeometry((Geometry) ls2));
     //    feats.add(Feature.fromGeometry((Geometry)
     // TurfTransformation.circle(GeoJsonManager.createPointFromLongLat(dest2), 0.00015)));
-    //System.out.println(GeoJsonManager.createFeatureCollection(feats).toJson());
+      LineString ls1 = LineString.fromLngLats(List.of(
+              Point.fromLngLat(
+              Settings.getDefaultNorthWestBound().longitude, Settings.getDefaultNorthWestBound().latitude),
+              Point.fromLngLat(Settings.getDefaultSouthEastBound().longitude, Settings.getDefaultSouthEastBound().latitude)));
+      feats.add(Feature.fromGeometry((Geometry) ls1));
+    //ystem.out.println(GeoJsonManager.createFeatureCollection(feats).toJson());
 
     // Polygon pp = TurfTransformation.circle(GeoJsonManager.createPointFromLongLat(dest2),
     // 0.00015);
@@ -139,8 +135,8 @@ public class App {
     // x.getName()).collect(toList()));
     //    }
 
-     DeliveryPlanner deliveryPlanner = new DeliveryPlanner(Date.valueOf("2023-12-15"));
-     deliveryPlanner.generatePathMap();
+     //DeliveryPlanner deliveryPlanner = new DeliveryPlanner(Date.valueOf("2023-12-15"));
+     //deliveryPlanner.generatePathMap();
      //System.out.println(deliveryPlanner.getDeliveryPaths());
 
 //      List<Node> path = g.getShortestPath(home, devloc);

@@ -1,8 +1,6 @@
-package uk.ac.ed.inf.graph;
+package uk.ac.ed.inf.algorithm;
 
 import uk.ac.ed.inf.LongLat;
-
-import java.util.ArrayList;
 
 public class Node {
     public double stepCost = 5;

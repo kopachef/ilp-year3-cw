@@ -1,16 +1,14 @@
 package uk.ac.ed.inf;
 
 import com.mapbox.geojson.*;
-import uk.ac.ed.inf.graph.Graph;
-import uk.ac.ed.inf.graph.Node;
+import uk.ac.ed.inf.algorithm.Graph;
+import uk.ac.ed.inf.algorithm.Node;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.*;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 public class DeliveryPlanner {
 
@@ -20,12 +18,13 @@ public class DeliveryPlanner {
     private Drone drone = new Drone(1, 1500);
     private List<Node> pathToHome = new LinkedList<>();
     private OrderDeliveryWorker orderDeliveryWorker;
-    private Graph graph = new Graph(
-            Settings.getDefaultNorthwestBoundLongitude(),
-            Settings.getDefaultNorthwestBoundLatitude(),
-            Settings.getDefaultSoutheastBoundLongitude(),
-            Settings.getDefaultSoutheastBoundLatitude(),
-            Settings.GRID_GRANULARITY);
+  private Graph graph =
+      new Graph(
+          Settings.getDefaultNorthWestBound().longitude,
+          Settings.getDefaultNorthWestBound().latitude,
+          Settings.getDefaultSouthEastBound().longitude,
+          Settings.getDefaultSouthEastBound().latitude,
+          Settings.GRID_GRANULARITY);
 
     public DeliveryPlanner(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
@@ -42,15 +41,16 @@ public class DeliveryPlanner {
             List<LongLat> pickUpLocations = foodOrder.getPickUpLocations();
             List<Node> pathToClient = new ArrayList<>();
             LongLat startLocation = drone.getCurrentPosition();
-            System.out.println("pickp locations");
             for (LongLat longlat : pickUpLocations) {
                 pathToClient.addAll(graph.getShortestPath(startLocation, longlat));
                 startLocation = longlat;
-                System.out.println("reached a node!!!");
             }
-            graph.printDistanceBetweenNodes(graph.smoothenPath(pathToHome));
             List<Node> pathFromClientToHome =
                     graph.getShortestPath(foodOrder.getDeliveryLocationLongLat(), Settings.getDefaultHomeLocation());
+            graph.printDistanceBetweenNodes(pathFromClientToHome);
+
+            graph.printDistanceBetweenNodes(pathToClient);
+
             double travelDistance = graph.distanceBetweenNodes(pathToClient) + graph.distanceBetweenNodes(pathFromClientToHome);
             int batteryUsage = drone.calculateMovementStepCost(travelDistance);
             if(drone.getBatteryLevel() - batteryUsage > 0) {
@@ -105,12 +105,14 @@ public class DeliveryPlanner {
             Point deliveryPoint = GeoJsonManager.createPointFromLongLat(foodOrder.getDeliveryLocationLongLat());
             LineString lineString =
                     LineString.fromLngLats(GeoJsonManager.generatePointsFromNodes(deliveryPaths.get(foodOrder)));
-            if (counter == 30) {
-                System.out.println(foodOrder.getOrderItems() + "\n" + foodOrder.getDeliveryCost()+"\n" + foodOrder.getDeliveryW3wAddress() + "\n" + foodOrder.getDeliveryLocationLongLat());
+            if (counter != 30) {
+                //System.out.println(foodOrder.getOrderItems() + "\n" + foodOrder.getDeliveryCost()+"\n" + foodOrder.getDeliveryW3wAddress() + "\n" + foodOrder.getDeliveryLocationLongLat());
                 features.add(Feature.fromGeometry((Geometry) deliveryPoint));
                 features.add(Feature.fromGeometry((Geometry) lineString));
             }
             counter += 1;
+
+            System.out.println("delivery to be made: " + deliverableOrders.size()+ "\ndelivery number: " + counter);
         }
         //Add final path to home and home marker.
         //Point homeMarker = GeoJsonManager.createPointFromLongLat(Settings.getDefaultHomeLocation());

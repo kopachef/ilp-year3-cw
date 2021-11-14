@@ -33,12 +33,12 @@ public class LongLat {
    */
   public boolean isConfined() {
     return isInRange(
-            Settings.getDefaultNorthwestBoundLongitude(),
-            Settings.getDefaultSoutheastBoundLongitude(),
+            Settings.getDefaultNorthWestBound().longitude,
+            Settings.getDefaultSouthEastBound().longitude,
             longitude)
         && isInRange(
-            Settings.getDefaultSoutheastBoundLatitude(),
-            Settings.getDefaultNorthwestBoundLatitude(),
+            Settings.getDefaultSouthEastBound().latitude,
+            Settings.getDefaultNorthWestBound().latitude,
             latitude);
   }
 
@@ -151,7 +151,7 @@ public class LongLat {
     double brng = Math.atan2(y, x);
     brng = Math.toDegrees(brng);
     brng = (brng + 360) % 360;
-    return Precision.round(brng, 6);
+    return Precision.round(brng, 0);
   }
 
   /**
