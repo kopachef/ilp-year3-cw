@@ -201,6 +201,46 @@ public class DatabaseIO {
   }
 
   /**
+   *  Creates the delivery and flightpath tables in the database.
+   *
+   * @throws SQLException if the database connection fails.
+   *
+   */
+  public void recreateFlightAndDeliveryTables() {
+    Connection conn = initialiseDBconnection();
+
+    final String createDeliveryTableQuery =
+        "create table " +
+                "deliveries(orderNo char(8)," +
+                "deliveredTo varchar(19), " +
+                "costInPence int);";
+    final String createFlightPathTable =
+            "create table" +
+                    "flightpath(orderNo char(8)," +
+                    "fromLongitude double," +
+                    "fromLatitude double," +
+                    "angle integer," +
+                    "toLongitude double," +
+                    "toLatitude double)";
+    final String dropDeliveryTableQuery = " drop if exists deliveries;";
+    final String dropFlightPathTable = "drop if exists flightpath;";
+
+    try {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(dropDeliveryTableQuery);
+      stmt.executeUpdate(dropFlightPathTable);
+      stmt.executeUpdate(createDeliveryTableQuery);
+      stmt.executeUpdate(createFlightPathTable);
+      stmt.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+
+
+  }
+
+  /**
    * Initialises a connection to our database.
    *
    * @return returns database connection.

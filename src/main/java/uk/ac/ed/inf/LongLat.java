@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import org.apache.commons.math3.util.Precision;
 
+import javax.print.attribute.SetOfIntegerSyntax;
+
 /**
  * This class provides a blueprint for the definition of a LongLat object. This object is meant to
  * represent a physical location of the surface of the earth using a pair of coordinates
@@ -93,14 +95,32 @@ public class LongLat {
    */
   public LongLat nextPosition(int angle) {
     if (validMove(angle)) {
+      LongLat longlat;
+      LongLat old = this;
       double destination_longitude =
-          longitude + Settings.getDefaultMovementStepDistance() * Math.cos(angle * Math.PI / 180);
+          longitude + (Settings.getDefaultMovementStepDistance() * Math.cos(Math.toRadians((angle))));
       double destination_latitude =
-          latitude + Settings.getDefaultMovementStepDistance() * Math.sin(angle * Math.PI / 180);
+          latitude + (Settings.getDefaultMovementStepDistance() * Math.sin(Math.toRadians(angle)));
       return new LongLat(destination_longitude, destination_latitude);
     } else {
       return new LongLat(longitude, latitude);
     }
+  }
+
+  /**
+   * This in an unrestricted variant of the nextPosition function. While the previous function is useful in
+   * calculating the restricted jump from a start node, there are use cases where we wish to find the target node
+   * without being restricted by the rule that requires only angles that are multiples of 10.
+   *
+   * @param angle any given angle
+   * @return returns new LongLat location are taking a single step in the direction of the angle.
+   */
+  public LongLat nextPositionUnrestricted(int angle) {
+    double destination_longitude =
+            longitude + Settings.getDefaultMovementStepDistance() * Math.cos(angle * Math.PI / 180);
+    double destination_latitude =
+            latitude + Settings.getDefaultMovementStepDistance() * Math.sin(angle * Math.PI / 180);
+    return new LongLat(destination_longitude, destination_latitude);
   }
 
   /**
@@ -143,14 +163,24 @@ public class LongLat {
     return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
   }
 
-
+  /**
+   * This functions calculates the bearing angle from the longitude and latitude of two points. The
+   * function calculates the bearing angle by calculating the difference of the two points
+   * longitudes. The angle is calculated with the equation: y = sin(dL1) * cos(lat2) and x =
+   * cos(lat1) * sin(dL2) - sin(lat1) * cos(dL2) * cos(lat2). The angle is calculated in radians, so
+   * it is converted to degrees with the atan2 function. The bearing angle is rounded to the nearest
+   * degree.
+   *
+   * @param longlat point to which we are calculating the bearing to.
+   * @return angle bearing in degrees.
+   */
   public double calculateBearing(LongLat longlat) {
     double dLon = longlat.longitude - longitude;
     double y = Math.sin(dLon) * Math.cos(longlat.latitude);
     double x = Math.cos(latitude) * Math.sin(longlat.latitude) - Math.sin(latitude) * Math.cos(longlat.latitude) * Math.cos(dLon);
     double brng = Math.atan2(y, x);
     brng = Math.toDegrees(brng);
-    brng = (brng + 360) % 360;
+    brng = (brng + 270) % 360;
     return Precision.round(brng, 0);
   }
 

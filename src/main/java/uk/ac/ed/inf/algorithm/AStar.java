@@ -124,21 +124,13 @@ public class AStar {
       if (col - 1 >= 0) {
         double cost = getSearchArea()[lowerRow][col - 1].stepCost;
         if (row % 2 == 0) {
-          checkNode(
-              currentNode,
-              col - 1,
-              lowerRow,
-              cost); // Comment this line if diagonal movements are not allowed
+          checkNode(currentNode, col - 1, lowerRow, cost); // Comment this line if left diagonal movement is not allowed
         }
       }
       if (col + 1 < getSearchArea()[0].length) {
         double cost = getSearchArea()[lowerRow][col + 1].stepCost;
         if (row % 2 == 1) {
-          checkNode(
-              currentNode,
-              col + 1,
-              lowerRow,
-              cost); // Comment this line if diagonal movements are not allowed
+          checkNode( currentNode, col + 1, lowerRow, cost); // Comment this line if right diagonal movement is not allowed
         }
       }
       double cost = getSearchArea()[lowerRow][col].stepCost;
@@ -178,21 +170,13 @@ public class AStar {
       if (col - 1 >= 0) {
         double cost = getSearchArea()[upperRow][col - 1].stepCost;
         if (row % 2 == 0) {
-          checkNode(
-              currentNode,
-              col - 1,
-              upperRow,
-              cost); // Comment this if diagonal movements are not allowed
+          checkNode(currentNode, col - 1, upperRow, cost); // Comment this if left diagonal movements is not allowed
         }
       }
       if (col + 1 < getSearchArea()[0].length) {
         double cost = getSearchArea()[upperRow][col + 1].stepCost;
         if (row % 2 == 1) {
-          checkNode(
-              currentNode,
-              col + 1,
-              upperRow,
-              cost); // Comment this if diagonal movements are not allowed
+          checkNode(currentNode, col + 1, upperRow, cost); // Comment this if right diagonal movements is not allowed
         }
       }
 

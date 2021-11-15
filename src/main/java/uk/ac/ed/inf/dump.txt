@@ -1,8 +1,6 @@
 package uk.ac.ed.inf.algorithm;
 
 import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Geometry;
 import org.apache.commons.math3.util.Precision;
 import uk.ac.ed.inf.GeoJsonManager;
 import uk.ac.ed.inf.LongLat;
@@ -23,11 +21,11 @@ public class Graph {
   private double southEastBoundLongitude;
   private double southEastBoundLatitude;
   public Graph(
-          double northWestBoundLongitude,
-          double northWestBoundLatitude,
-          double southEastBoundLongitude,
-          double southEastBoundLatitude,
-          int gridSize) {
+      double northWestBoundLongitude,
+      double northWestBoundLatitude,
+      double southEastBoundLongitude,
+      double southEastBoundLatitude,
+      int gridSize) {
     this.gridSize = gridSize;
     this.grid = new Node[gridSize][gridSize];
     this.northWestBoundLongitude = northWestBoundLongitude;
@@ -38,11 +36,11 @@ public class Graph {
   }
 
   public static List<Double> generateDoubleSequence(
-          double start, double end, double step, double offset) {
+      double start, double end, double step, double offset) {
     return DoubleStream.iterate(start + offset, d -> d <= end, d -> d + step)
-            .boxed()
-            .map(x -> Precision.round(x, 6))
-            .collect(toList());
+        .boxed()
+        .map(x -> Precision.round(x, 6))
+        .collect(toList());
   }
 
   public int getGridSize() {
@@ -70,31 +68,16 @@ public class Graph {
 
 
     List<LongLat> topRowCoords = new ArrayList<>();
-    List<LongLat> twoRowCoords = new ArrayList<>();
-    List<LongLat> botRowCoords = new ArrayList<>();
-
     double res = Math.abs((northWestBoundLongitude - southEastBoundLongitude) /
             Settings.getDefaultMovementStepDistance());
     int coordListLength = (int) Math.round(res);
 
     LongLat nxt = Settings.getDefaultNorthWestBound();
     for(int i = 0; i < coordListLength; i++) {
-      //System.out.println("Distance to next: " + nxt.distanceTo(nxt.nextPosition(0))+"     new: "+nxt.distanceTo(nxt.nextPosition(0)));
-      //System.out.println("Distance to bott: " + nxt.distanceTo(nxt.nextPosition(240))+ "      new: "+nxt.distanceTo(nxt.nextPosition(240)));
-      //System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(10)) + "    new: " +nxt.AngleBetweenThreePoints(nxt.nextPosition(10), nxt.nextPosition(300)));
-      //System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(240))+ "    new: " +nxt.AngleBetweenThreePoints(nxt.nextPosition(40), nxt.nextPosition(180)));
-      //System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(100)) + "    new: " +nxt.calculateBearing(nxt.nextPosition(100)));
       nxt = nxt.nextPosition(0);
       topRowCoords.add(nxt);
-      //twoRowCoords.add(nxt.nextPosition(300));
-      //botRowCoords.add(nxt.nextPosition(300).nextPosition(240));
-
       //System.out.println(nxt);
     }
-
-//    for(int i = 1; i < botRowCoords.size(); i++) {
-//      System.out.println("Bott row idx: " + botRowCoords.get(i-1).distanceTo(botRowCoords.get(i)));
-//
 
 //    for(int i = 1; i<topRowCoords.size(); i++) {
 //      System.out.println(topRowCoords.get(i-1).distanceTo(topRowCoords.get(i)));
@@ -103,18 +86,18 @@ public class Graph {
     //System.out.println(Math.abs(Math.round((northWestBoundLongitude - southEastBoundLongitude)/Settings.getDefaultMovementStepDistance())));
     this.nearestNodeDistance = longitudeStepSize;
 
-    // For what could possibly be some due to a mapping error, directing adding the full offset to our points shifts
-    // our degrees to the neighbouring node. Using only 0.9 of the offset seems to fix this.
-
-    double gridOffset = 0.9*Settings.getDefaultMovementStepDistance() - (Settings.getDefaultMovementStepDistance() * Math.sin(Math.toRadians(60)));
-
-    int rightRotationAngle = 240;
-    int leftRotationAngle = rightRotationAngle  + 60;
-    LongLat nodeLongLat;
+    int rightRotationAngle = 320;
+    int leftRotationAngle = 220;
 
     for (int i = 0; i < gridSize; i++) {
       for (int j = 0; j < gridSize; j++) {
-
+        /*
+        As we wish to create a triangular mesh, we add the gridOffset to every odd row. Excluding this will result in
+        square mesh which is not what we want to create. Further simply shifting odd rows does not result in an
+        equilateral triangle mesh. We have to add a slight incremental Offset to latitude values to shift them up
+         slightly thus forming an equilateral triangle mesh.
+        */
+        LongLat nodeLongLat;
         if(i == 0) {
 
           nodeLongLat = topRowCoords.get(j);
@@ -129,15 +112,6 @@ public class Graph {
           } else {
             nodeLongLat = grid[i - 1][j].getLongLat().nextPositionUnrestricted(leftRotationAngle);
           }
-
-          /*
-        As we wish to create a triangular mesh, we add the gridOffset to every odd row. Excluding this will result in
-        square mesh which is not what we want to create. Further simply shifting odd rows does not result in an
-        equilateral triangle mesh. We have to add a slight incremental Offset to latitude values to shift them up
-         slightly thus forming an equilateral triangle mesh.
-        */
-          nodeLongLat =
-                  new LongLat(nodeLongLat.longitude, nodeLongLat.latitude + gridOffset);
           grid[i][j] = new Node(i, j);
           grid[i][j].setLongLat(nodeLongLat);
           grid[i][j].setRestricted(
@@ -231,12 +205,12 @@ public class Graph {
         we reassign to current node.
          */
         if ((grid[i][j].getLongLat().closeTo(startLocation))
-                && (grid[i][j].getLongLat().distanceTo(startLocation)
+            && (grid[i][j].getLongLat().distanceTo(startLocation)
                 <= startNode.getLongLat().distanceTo(startLocation))) {
           startNode = grid[i][j];
 
         } else if ((grid[i][j].getLongLat().closeTo(destinationLocation))
-                && (grid[i][j].getLongLat().distanceTo(destinationLocation)
+            && (grid[i][j].getLongLat().distanceTo(destinationLocation)
                 <= endNode.getLongLat().distanceTo(destinationLocation))) {
           endNode = grid[i][j];
         }

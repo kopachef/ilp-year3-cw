@@ -3,7 +3,6 @@ package uk.ac.ed.inf;
 import com.mapbox.geojson.*;
 import uk.ac.ed.inf.algorithm.Graph;
 import uk.ac.ed.inf.algorithm.Node;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Date;
@@ -17,13 +16,14 @@ public class DeliveryPlanner {
     /**
      * Delivery Planner manages drones delivery by keeping track of the following:
      *
-     *  - Creates an instance of the OrderDeliveryWorker which is used to get FoodOrders.
-     *  - Checking if the drone can fulfill and order before deploying it(including checking that it will have
+     *   - Creates an instance of the OrderDeliveryWorker which is used to get FoodOrders.
+     *   - Checking if the drone can fulfill and order before deploying it(including checking that it will have
      *      enough battery capacity to get back home)
      *   - Updating the FoodOrder Queue based on the drone's location.
      *   - Generating the delivery path as json output file.
      *   - Keeping a hashmap of the partial delivery path to avoid recalculation.
      */
+
     private final Date deliveryDate;
     private LinkedList<FoodOrder> deliverableOrders = new LinkedList<>();
     private HashMap<FoodOrder, List<Node>> deliveryPaths = new HashMap<>();
@@ -48,9 +48,7 @@ public class DeliveryPlanner {
         updateFoodDeliveryList();
     }
 
-    /**
-     *
-     */
+
     private void updateFoodDeliveryList() {
         boolean canDeliver = true;
         orderDeliveryWorker.updateFoodOrders(drone, orderDeliveryWorker.getFoodOrderQueue());
@@ -62,14 +60,15 @@ public class DeliveryPlanner {
             for (LongLat longlat : pickUpLocations) {
                 pathToClient.addAll(graph.getShortestPath(startLocation, longlat));
                 startLocation = longlat;
-                Node temo  = new Node(0,0);
-                temo.setLongLat(longlat);
-                if(!pickupNodes.contains(temo)) {
-                    pickupNodes.add(temo);
+                Node placeHolderNode  = new Node(0,0);
+                placeHolderNode.setLongLat(longlat);
+                if(!pickupNodes.contains(placeHolderNode)) {
+                    pickupNodes.add(placeHolderNode);
                 }
             }
             List<Node> pathFromClientToHome =
                     graph.getShortestPath(foodOrder.getDeliveryLocationLongLat(), Settings.getDefaultHomeLocation());
+            graph.printDistanceBetweenNodes(pathFromClientToHome);
 
             //TODO can get rid of this print statement
             //graph.printDistanceBetweenNodes(pathToClient);
@@ -78,7 +77,7 @@ public class DeliveryPlanner {
 
             //TODO modify this to be more reflective of what the dor eisactually doiubg.
             double travelDistance = graph.distanceBetweenNodes(pathToClient) + graph.distanceBetweenNodes(pathFromClientToHome);
-            int batteryUsage = drone.calculateMovementStepCost(travelDistance);
+            int batteryUsage = drone.calculateMovementStepCost(travelDistance)+10;
             if(drone.getBatteryLevel() - batteryUsage > 0) {
                 drone.setCurrentPosition(foodOrder.getDeliveryLocationLongLat());
                 drone.setBatteryLevel(drone.getBatteryLevel() - batteryUsage);
@@ -89,7 +88,10 @@ public class DeliveryPlanner {
                 deliveryPaths.put(foodOrder, pathToClient);
                 pathToHome = pathFromClientToHome;
             } else {
+                drone.returnToHome();
                 canDeliver = false;
+                System.out.println("Final battery level: " + drone.getBatteryLevel() + "\nDelivery success: " + 100*totalOrderValue/orderDeliveryWorker.getTotalOrderValue());
+
             }
         }
         drone.setBatteryLevel((int) (drone.getBatteryLevel() - graph.distanceBetweenNodes(pathToHome)));

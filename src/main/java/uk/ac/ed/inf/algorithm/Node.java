@@ -76,6 +76,12 @@ public class Node {
     setF(totalCost);
   }
 
+  public double calculateAngleTo(Node node) {
+    double real = this.getLongLat().calculateBearing(node.getLongLat());
+    int angle = Utils.roundOffToNearest10th(real);
+    return angle;
+  }
+
   /**
    * The lookUpBetterPath is a function that is used to determine if a better path is available. If the cost
    * of the product is less than the current cost of the product, it will replace the current product.
@@ -226,4 +232,11 @@ public class Node {
   public void setRestricted(boolean restricted) {
     isRestricted = restricted;
   }
+
+  /**
+   * Checks if our Longlat has been set.
+   *
+   * @return True if set, False otherwise.
+   */
+  public boolean isLongLatSet() {return !(longLat == null);}
 }
