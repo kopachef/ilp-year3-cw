@@ -84,7 +84,7 @@ public class DroneTest {
         FoodOrder foodOrder = new FoodOrder(items, "Order No", "Customer", deliveryDate, new LongLat(10.0, 10.0),
                 "42 Main St", 10.0);
 
-        drone.loadItems(foodOrder);
+        drone.loadItems();
         assertEquals("Customer", foodOrder.getCustomer());
         assertFalse(foodOrder.isHasBeenDelivered());
         assertEquals("Order No", foodOrder.getOrderNo());

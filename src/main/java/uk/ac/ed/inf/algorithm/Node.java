@@ -2,7 +2,7 @@ package uk.ac.ed.inf.algorithm;
 
 import uk.ac.ed.inf.LongLat;
 
-public class Node {
+public class Node implements Cloneable {
 
   /**
    * A node object represents a single node on our groan which also represents a location on our
@@ -15,6 +15,7 @@ public class Node {
   private LongLat longLat;
   private boolean isRestricted;
   private Node parent;
+  private NodeUsage  usage = NodeUsage.ORDINARY;
 
   public Node(int row, int col) {
     super();
@@ -22,6 +23,12 @@ public class Node {
     this.row = row;
   }
 
+  /**
+   * Enum representing the different usage states of a node.
+   */
+  public enum NodeUsage {
+    PICKUP, DROPOFF, HOME, ORDINARY
+  }
 
   /**
    * The getLongLat() method returns a longitude value. It is a read-only property.
@@ -122,7 +129,7 @@ public class Node {
    */
   @Override
   public String toString() {
-    return "Node [row = " + row + ", col = " + col + "]\n" + longLat.toString() + "\n";
+    return "Node [row = " + row + ", col = " + col + "]\n";// + longLat.toString() + "\n";
   }
 
   /**
@@ -239,4 +246,29 @@ public class Node {
    * @return True if set, False otherwise.
    */
   public boolean isLongLatSet() {return !(longLat == null);}
+
+  /**
+   * Not all nodes on the graph are the same. We use this to denote nodes that are pickup or delivery nodes.
+   * This is done because drone behaviour is different on these nodes(HOVER required). We could have avoided this
+   * by checking if the longlat values of a Node match a pickup or delivery node but that would be computationally
+   * expensive and this is an easy efficient solution.
+   *
+   * @return Node usage value
+   */
+  public NodeUsage getUsage() {
+    return usage;
+  }
+
+  /**
+   * Sets whether a node is a ordinary, pickup or delivery node.
+   *
+   * @param usage
+   */
+  public void setNodeUsage(NodeUsage usage) {
+    this.usage = usage;
+  }
+
+  public Object clone() throws CloneNotSupportedException {
+    return super.clone();
+  }
 }

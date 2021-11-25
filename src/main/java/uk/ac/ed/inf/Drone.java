@@ -13,6 +13,7 @@ public class Drone {
     private int batteryCapacity;
     private LongLat currentPosition;
     private double movementStepDistance;
+    private int currentDirection;
 
     public Drone(int batteryCapacity) {
         movementCount = 0;
@@ -22,10 +23,11 @@ public class Drone {
         batteryLevel = this.batteryCapacity;
         currentPosition = Settings.getDefaultHomeLocation();
         movementStepDistance = Settings.getDefaultMovementStepDistance();
+        currentDirection = 0;
     }
 
     /**
-     * Calculate and return the battery cost of traversing the given distance. Distance is given and degrees
+     * Calculate and return the battery cost of traversing the given distance. Distance is given in degrees
      *
      * @param distanceInDegrees distance for which battery cost is to calculated. This is expected to be in degrees.
      * @return return the battery units incurred by travelling the given distance.
@@ -42,9 +44,11 @@ public class Drone {
      */
     public void moveTo(LongLat destination){
         int stepCost = calculateMovementStepCost(currentPosition.distanceTo(destination));
-        if(stepCost >= batteryLevel) {
+        if(stepCost <= batteryLevel) {
             batteryLevel -= stepCost;
+            //System.out.println("end battery: " + batteryLevel + "   angle: " + currentPosition.calculateBearing(destination));
             currentPosition = destination;
+            movementCount += stepCost;
         }
     }
 
@@ -55,7 +59,7 @@ public class Drone {
      * @param angle angle that the drone will be facing and turning.
      */
     public void turn(int angle) {
-        return;
+        this.currentDirection = angle;
     }
 
     /**
@@ -107,6 +111,7 @@ public class Drone {
      * Hovers the drone for a single step. Each hover costs one step and will be updated by this function.
      */
     public void hoverDrone() {
+        //System.out.println("Hovered: " + batteryLevel);
         droneState = DroneState.HOVERING;
         batteryLevel -= 1;
     }
@@ -122,15 +127,14 @@ public class Drone {
      * Return the drone to a stationary state which is the default state for when  the drone is not flying.
      */
     public void returnToHome() {
+        //System.out.println("retunred home with final battery :" + batteryLevel);
         droneState = DroneState.STATIONARY;
     }
 
     /**
      * Loads a food order onto the drone. Loading an item costs a single step and is reflected here.
-     *
-     * @param order FoodOrder to be loaded onto the drone.
      */
-    public void loadItems(FoodOrder order) {
+    public void loadItems() {
         if(droneState == DroneState.HOVERING && !hasOrder) {
             hasOrder = true;
             batteryLevel -= 1;
@@ -143,5 +147,8 @@ public class Drone {
     private enum DroneState {
         FLYING, STATIONARY, HOVERING
     }
+
+    public void unloadItems(){ hasOrder = false;}
+    public DroneState getDroneState() { return droneState;}
 
 }

@@ -125,6 +125,7 @@ public class AStar {
         double cost = getSearchArea()[lowerRow][col - 1].stepCost;
         if (row % 2 == 0) {
           checkNode(currentNode, col - 1, lowerRow, cost); // Comment this line if left diagonal movement is not allowed
+          //System.out.println("current node: " + currentNode + "checking: " + );
         }
       }
       if (col + 1 < getSearchArea()[0].length) {

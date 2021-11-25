@@ -175,13 +175,28 @@ public class LongLat {
    * @return angle bearing in degrees.
    */
   public double calculateBearing(LongLat longlat) {
-    double dLon = longlat.longitude - longitude;
-    double y = Math.sin(dLon) * Math.cos(longlat.latitude);
-    double x = Math.cos(latitude) * Math.sin(longlat.latitude) - Math.sin(latitude) * Math.cos(longlat.latitude) * Math.cos(dLon);
-    double brng = Math.atan2(y, x);
-    brng = Math.toDegrees(brng);
-    brng = (brng + 270) % 360;
-    return Precision.round(brng, 0);
+    double hypotenuse = this.distanceTo(longlat);
+    double opposite = Math.abs(longlat.latitude - this.latitude);
+    double angle = Math.toDegrees(Math.asin(opposite/hypotenuse));
+
+    if(this.equals(longlat)) {return 0;}
+    if(longlat.longitude > longitude) {
+      if(longlat.latitude > this.latitude) {
+        //1
+        return (angle) % 360;
+      } else {
+        //Q4
+        return (360 - angle) % 360;
+      }
+    } else {
+      if(longlat.latitude > this.latitude){
+        //Q2
+        return (90 + (90 - angle)) % 360;
+      } else {
+        //Q3
+        return (180 + angle) % 360;
+      }
+    }
   }
 
   /**

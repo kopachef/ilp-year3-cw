@@ -79,11 +79,11 @@ public class Graph {
 
     LongLat nxt = Settings.getDefaultNorthWestBound();
     for(int i = 0; i < coordListLength; i++) {
-      //System.out.println("Distance to next: " + nxt.distanceTo(nxt.nextPosition(0))+"     new: "+nxt.distanceTo(nxt.nextPosition(0)));
-      //System.out.println("Distance to bott: " + nxt.distanceTo(nxt.nextPosition(240))+ "      new: "+nxt.distanceTo(nxt.nextPosition(240)));
-      //System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(10)) + "    new: " +nxt.AngleBetweenThreePoints(nxt.nextPosition(10), nxt.nextPosition(300)));
-      //System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(240))+ "    new: " +nxt.AngleBetweenThreePoints(nxt.nextPosition(40), nxt.nextPosition(180)));
-      //System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(100)) + "    new: " +nxt.calculateBearing(nxt.nextPosition(100)));
+//      System.out.println("Distance to next: " + nxt.distanceTo(nxt.nextPosition(0))+"     new: "+nxt.distanceTo(nxt.nextPosition(0)));
+//      System.out.println("Distance to bott: " + nxt.distanceTo(nxt.nextPosition(240))+ "      new: "+nxt.distanceTo(nxt.nextPosition(240)));
+//      System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(10)) + "    new: " +nxt.AngleBetweenThreePoints(nxt.nextPosition(10), nxt.nextPosition(300)));
+//      System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(240))+ "    new: " +nxt.AngleBetweenThreePoints(nxt.nextPosition(40), nxt.nextPosition(180)));
+//      System.out.println("Bearings: " + nxt.calculateBearing(nxt.nextPosition(100)) + "    new: " +nxt.calculateBearing(nxt.nextPosition(100)));
       nxt = nxt.nextPosition(0);
       topRowCoords.add(nxt);
       //twoRowCoords.add(nxt.nextPosition(300));
@@ -106,7 +106,7 @@ public class Graph {
     // For what could possibly be some due to a mapping error, directing adding the full offset to our points shifts
     // our degrees to the neighbouring node. Using only 0.9 of the offset seems to fix this.
 
-    double gridOffset = 0.9*Settings.getDefaultMovementStepDistance() - (Settings.getDefaultMovementStepDistance() * Math.sin(Math.toRadians(60)));
+    //double gridOffset = 0.9*Settings.getDefaultMovementStepDistance() - (Settings.getDefaultMovementStepDistance() * Math.sin(Math.toRadians(60)));
 
     int rightRotationAngle = 240;
     int leftRotationAngle = rightRotationAngle  + 60;
@@ -116,7 +116,6 @@ public class Graph {
       for (int j = 0; j < gridSize; j++) {
 
         if(i == 0) {
-
           nodeLongLat = topRowCoords.get(j);
           grid[i][j] = new Node(i, j);
           grid[i][j].setLongLat(nodeLongLat);
@@ -125,9 +124,9 @@ public class Graph {
                           !nodeLongLat.isConfined());
         } else {
           if(i % 2 == 0) {
-            nodeLongLat = grid[i - 1][j].getLongLat().nextPositionUnrestricted(rightRotationAngle);
+            nodeLongLat = grid[i - 1][j].getLongLat().nextPosition(rightRotationAngle);
           } else {
-            nodeLongLat = grid[i - 1][j].getLongLat().nextPositionUnrestricted(leftRotationAngle);
+            nodeLongLat = grid[i - 1][j].getLongLat().nextPosition(leftRotationAngle);
           }
 
           /*
@@ -137,7 +136,7 @@ public class Graph {
          slightly thus forming an equilateral triangle mesh.
         */
           nodeLongLat =
-                  new LongLat(nodeLongLat.longitude, nodeLongLat.latitude + gridOffset);
+                  new LongLat(nodeLongLat.longitude, nodeLongLat.latitude);
           grid[i][j] = new Node(i, j);
           grid[i][j].setLongLat(nodeLongLat);
           grid[i][j].setRestricted(
@@ -217,9 +216,9 @@ public class Graph {
    * @return A list of Nodes forming the shortest path.
    */
   public List<Node> getShortestPath(LongLat startLocation, LongLat destinationLocation) {
-    Node startNode = null;
-    Node endNode = null;
-
+    Node startNode = null;//findNearestNode(startLocation);
+    Node endNode = null;//findNearestNode(destinationLocation);
+    setGrid();
     for (int i = 0; i < gridSize; i++) {
       for (int j = 0; j < gridSize; j++) {
         startNode = startNode == null ? grid[i][j] : startNode;
@@ -246,6 +245,28 @@ public class Graph {
     return aStar.findPath();
   }
 
+  public Node findNearestNode(LongLat longlat) {
+
+    Node node = null;
+
+    for (int i = 0; i < gridSize; i++) {
+      for (int j = 0; j < gridSize; j++) {
+        node = node == null ? grid[i][j] : node;
+        /*
+        If current grid node is close to startLocation and distance to startLocation is shorter that the
+        current one(multiple nodes can be close to a target node, we want to use the one that's the closest) then
+        we reassign to current node.
+         */
+        if ((grid[i][j].getLongLat().closeTo(longlat))
+            && (grid[i][j].getLongLat().distanceTo(longlat)
+                <= node.getLongLat().distanceTo(longlat))) {
+          node = grid[i][j];
+        }
+      }
+    }
+    return node;
+  }
+
   /**
    * Calculates the total distance through a given list of nodes.
    *
@@ -265,6 +286,14 @@ public class Graph {
     return total;
   }
 
+  public void resetNodeUsages() {
+    for (int i = 0; i < gridSize; i++) {
+      for (int j = 0; j < gridSize; j++) {
+        grid[i][j].setNodeUsage(Node.NodeUsage.ORDINARY);
+      }
+    }
+  }
+
   /**
    * Testing utility funtion to calculate the distance and bearing between nodes.
    * @param nodes
@@ -273,9 +302,10 @@ public class Graph {
   public void printDistanceBetweenNodes(List<Node> nodes) {
     List<Feature> feats = new ArrayList();
     for (int i = 1; i < nodes.size(); i++) {
-      System.out.println("BEARING AND DISTANCE");
+      //System.out.println("");
       double div = Precision.round(nodes.get(i - 1).getLongLat().distanceTo(nodes.get(i).getLongLat())/Settings.getDefaultMovementStepDistance(), 6);
-      System.out.println("Distance: " + div);
+      System.out.print("start node: " + nodes.get(i-1) + "end node: " + nodes.get(i));
+      System.out.print("Distance: " + div + "   bearing: ");
       System.out.println(nodes.get(i - 1).getLongLat().calculateBearing(nodes.get(i).getLongLat()));
     }
   }

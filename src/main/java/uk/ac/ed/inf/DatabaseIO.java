@@ -1,6 +1,5 @@
 package uk.ac.ed.inf;
 
-import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class DatabaseIO {
    * @param deliverTo What Three Words string representing delivery address.
    */
   public void insertOrder(String orderNo, Date deliveryDate, String customer, String deliverTo) {
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
     final String insertOrderQuery = "INSERT INTO orders (orderNo, deliveryDate, customer, deliverTo) VALUES (?,?,?,?)";
     try {
       PreparedStatement psInsertQuery = conn.prepareStatement(insertOrderQuery);
@@ -52,7 +51,7 @@ public class DatabaseIO {
    * @param item Item associated with the order number.
    */
   public void insertOrderDetails(String orderNo, String item) {
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
     final String insertOrderDetailsQuery = "INSERT INTO orderDetails (orderNo, item) VALUES (?,?)";
     try {
       PreparedStatement psInsertQuery = conn.prepareStatement(insertOrderDetailsQuery);
@@ -76,7 +75,7 @@ public class DatabaseIO {
    * @param deliverTo delivery location associated with item to be deleted.
    */
   public void deleteOrder(String orderNo, Date deliveryDate, String customer, String deliverTo){
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
     final String deleteQuery = "DELETE FROM orders WHERE orderNo=? AND deliveryDate=? AND customer=? AND deliverTo=?";
     try {
       PreparedStatement psDeleteQuery = conn.prepareStatement(deleteQuery);
@@ -100,7 +99,7 @@ public class DatabaseIO {
    * @param item item name associated with item to be deleted.
    */
   public void deleteOrderDetails(String orderNo, String item){
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
     final String deleteQuery = "DELETE FROM orders WHERE orderNo=? AND item=?";
     try {
       PreparedStatement psDeleteQuery = conn.prepareStatement(deleteQuery);
@@ -126,7 +125,7 @@ public class DatabaseIO {
    * @return  List of <DatabaseOrderDetails> objects.
    */
   public List<DatabaseOrderDetails> queryOrderDetails(String orderNo, String item) {
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
     List<DatabaseOrderDetails> databaseOrders = new ArrayList<>();
     ResultSet results;
     final String orderDetailsQuery = "SELECT * FROM orderDetails WHERE orderNo LIKE ? AND item LIKE ?";
@@ -164,7 +163,7 @@ public class DatabaseIO {
    */
   public List<DatabaseOrder> queryOrders(
       String orderNo, Date deliveryDate, String customer, String deliverTo) {
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
     List<DatabaseOrder> DatabaseOrders = new ArrayList<>();
     ResultSet results;
     final String ordersQuery =
@@ -207,7 +206,7 @@ public class DatabaseIO {
    *
    */
   public void recreateFlightAndDeliveryTables() {
-    Connection conn = initialiseDBconnection();
+    Connection conn = initialiseDBConnection();
 
     final String createDeliveryTableQuery =
         "create table " +
@@ -221,7 +220,7 @@ public class DatabaseIO {
                     "fromLatitude double," +
                     "angle integer," +
                     "toLongitude double," +
-                    "toLatitude double)";
+                    "toLatitude double);";
     final String dropDeliveryTableQuery = " drop if exists deliveries;";
     final String dropFlightPathTable = "drop if exists flightpath;";
 
@@ -235,17 +234,161 @@ public class DatabaseIO {
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
 
+  /**
+   * This function inserts a new delivery into the table of deliveries made. The order numbers and delivery addresses
+   * are given as input, and the cost of the delivery in pence is also given.
+   *
+   * @param orderNos associated order number.
+   * @param deliveryTo associated delivery address.
+   * @param costInPence cost of delivery.
+   */
+  public void insertDelivery(List<String> orderNos, List<String> deliveryTo, List<Integer> costInPence){
+    Connection conn = initialiseDBConnection();
+    StringBuffer insertQuery = new StringBuffer(
+            "insert into deliveries (orderNo, deliveredTo, costInPence) values (?, ?, ?)");
+    for(int i = 0; i < orderNos.size() - 1; i++) {
+      insertQuery.append(", (?, ?)");
+    }
+    insertQuery.append(";");
+    try {
+      PreparedStatement deliveryInsertQuery = conn.prepareStatement(insertQuery.toString());
+      for(int i = 0; i < orderNos.size(); i++) {
+        deliveryInsertQuery.setString((2 * i) + 1, orderNos.get(i));
+        deliveryInsertQuery.setString((2 * i) + 2, deliveryTo.get(i));
+        deliveryInsertQuery.setInt((2 * i) + 3, costInPence.get(i));
+      }
+      int row = deliveryInsertQuery.executeUpdate();
+      System.out.println("Successfully insert into row: " + row);
+      deliveryInsertQuery.close();
+      conn.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
 
+  /**
+   * Returns a list of deliveries for a given order number. Empty string can be given to query all orders.
+   *
+   * @param orderNo The order number to lookup.
+   * @return A list of deliveries for the given order number.
+   *
+   * @throws SQLException if there is a problem inserting the data into the database
+   */
+  public List<Delivery> getDeliveries(String orderNo) {
+    Connection conn = initialiseDBConnection();
+    StringBuffer query = new StringBuffer();
+    List<Delivery> deliveries = new ArrayList<>();
+    query.append("SELECT * FROM deliveries WHERE orderNo LIKE ?;");
+    try {
+      PreparedStatement deliveryQuery = conn.prepareStatement(query.toString());
+      deliveryQuery.setString(1, "%" + orderNo + "%");
+      ResultSet rs = deliveryQuery.executeQuery();
+      while (rs.next()) {
+        Delivery delivery = new Delivery();
+        delivery.orderNo = rs.getString(1);
+        delivery.deliveredTo = rs.getString(2);
+        delivery.costInPence = rs.getInt(3);
+        deliveries.add(delivery);
+      }
+      rs.close();
+      deliveryQuery.close();
+      conn.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return deliveries;
+  }
 
+  /**
+
+   * Inserts a new flight path into the database.
+   *
+   * @param orderNos the order nos of the flights
+   * @param fromLongitudes the longitudes of the starting points
+   * @param fromLatitudes the latitudes of the starting points
+   * @param angles the angles of the flight path
+   * @param toLongitudes the longitudes of the destination points
+   * @param toLatitudes the latitudes of the destination points
+
+   * @throws SQLException if there is a problem inserting the data into the database
+   */
+  public void insertFLightPath(List<String> orderNos, List<Double> fromLongitudes, List<Double> fromLatitudes,
+                               List<Integer> angles, List<Double> toLongitudes, List<Double> toLatitudes){
+    Connection conn = initialiseDBConnection();
+    StringBuffer insertQuery = new StringBuffer(
+            "insert into flightpath (orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude)" +
+                    " values (?, ?, ?, ?, ?)");
+    for(int i = 0; i < orderNos.size() - 1; i++) {
+      insertQuery.append(", (?, ?, ?, ?, ?)");
+    }
+    insertQuery.append(";");
+    try {
+      PreparedStatement flightInsertQuery = conn.prepareStatement(insertQuery.toString());
+      for(int i = 0; i < orderNos.size(); i++) {
+        flightInsertQuery.setString((2 * i) + 1, orderNos.get(i));
+        flightInsertQuery.setDouble((2 * i) + 2, fromLongitudes.get(i));
+        flightInsertQuery.setDouble((2 * i) + 3, fromLatitudes.get(i));
+        flightInsertQuery.setInt((2 * i) + 4, angles.get(i));
+        flightInsertQuery.setDouble((2 * i) + 5, toLongitudes.get(i));
+        flightInsertQuery.setDouble((2 * i) + 6, toLatitudes.get(i));
+      }
+      int row = flightInsertQuery.executeUpdate();
+      System.out.println("Successfully insert into row: " + row);
+      flightInsertQuery.close();
+      conn.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * The getFLightPaths() method retrieves a list of FlightPaths from a given order number. An empty string can be
+   * used to query all flight paths.
+   *
+   * @param orderNo the order number to search for.
+   * @return a list of FlightPath objects
+   *
+   * @throws SQLException if there is a problem inserting the data into the database
+   */
+  public List<FlightPath> getFLightPaths(String orderNo) {
+    Connection conn = initialiseDBConnection();
+    StringBuffer query = new StringBuffer();
+    List<FlightPath> flightPaths = new ArrayList<>();
+    query.append("SELECT orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude " +
+            " FROM flightpath " +
+            " WHERE orderNo = LIKE ?;");
+    try {
+      PreparedStatement flightQuery = conn.prepareStatement(query.toString());
+      flightQuery.setString(1, "%" + orderNo + "%");
+      ResultSet rs = flightQuery.executeQuery();
+      while (rs.next()) {
+        FlightPath fp = new FlightPath();
+        fp.orderNo = rs.getString(1);
+        fp.fromLongitude = rs.getDouble(2);
+        fp.fromLatitude = rs.getDouble(3);
+        fp.angle = rs.getInt(4);
+        fp.toLongitude = rs.getDouble(5);
+        fp.toLatitude = rs.getDouble(6);
+        flightPaths.add(fp);
+      }
+      rs.close();
+      conn.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return flightPaths;
   }
 
   /**
    * Initialises a connection to our database.
    *
    * @return returns database connection.
+   *
+   * @throws SQLException if there is a problem inserting the data into the database
    */
-  private Connection initialiseDBconnection() {
+  private Connection initialiseDBConnection() {
     Connection conn = null;
     String url =
         Settings.getDefaultDatabaseProtocol()
@@ -281,5 +424,26 @@ public class DatabaseIO {
   static class DatabaseOrderDetails {
     String orderNo;
     String item;
+  }
+
+  /**
+   * static class representing transient Delivery objects returned from a database query.
+   */
+  static class Delivery {
+    String orderNo;
+    String deliveredTo;
+    int costInPence;
+  }
+
+  /**
+   * static class representing transient FlightPath objects returned from a database query.
+   */
+  static class FlightPath {
+    String orderNo;
+    double fromLongitude;
+    double fromLatitude;
+    int angle;
+    double toLongitude;
+    double toLatitude;
   }
 }

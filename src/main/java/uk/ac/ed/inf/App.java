@@ -26,31 +26,37 @@ public class App {
     LongLat dest2 = new LongLat(-3.1911610, 55.945572);
 
     Graph g =
-            new Graph(
-                Settings.getDefaultNorthWestBound().longitude,
-                Settings.getDefaultNorthWestBound().latitude,
-                Settings.getDefaultSouthEastBound().longitude,
-                Settings.getDefaultSouthEastBound().latitude,
-                granularity);
+        new Graph(
+            Settings.getDefaultNorthWestBound().longitude,
+            Settings.getDefaultNorthWestBound().latitude,
+            Settings.getDefaultSouthEastBound().longitude,
+            Settings.getDefaultSouthEastBound().latitude,
+            granularity);
 
-     //DeliveryPlanner deliveryPlanner = new DeliveryPlanner(Date.valueOf("2023-12-19"));
-     //deliveryPlanner.generatePathMap();
-     //System.out.println(deliveryPlanner.getDeliveryPaths());
+    DeliveryPlanner deliveryPlanner = new DeliveryPlanner(Date.valueOf("2022-12-19"));
+    deliveryPlanner.generatePathMap();
+    // System.out.println(deliveryPlanner.getDeliveryPaths());
 
-    List<Node> path = g.getShortestPath(devloc, dest2);
-    List<Point> pts = GeoJsonManager.generatePointsFromNodes(path);
-    LineString ls = LineString.fromLngLats(pts);
-    Feature feats = Feature.fromGeometry((Geometry) ls);
-
-    List<Point> pt = GeoJsonManager.generatePointsFromNodes(g.getAllNodes());
-    List<Feature> feats2 = pt.stream().map(x -> Feature.fromGeometry((Geometry) x)).collect(toList());
-    feats2.add(feats);
-
-    FeatureCollection fc = FeatureCollection.fromFeatures(feats2);
-
-    for(int i = 1;i < path.size(); i++) {
-      //System.out.println("Node angle: " + path.get(i-1).calculateAngleTo(path.get(i))+ "LongLat Angle: " + path.get(i-1).getLongLat().calculateBearing(path.get(i).getLongLat()));
-    }
-    System.out.println(fc.toJson());
-    }
+    //    List<Node> path = g.getShortestPath(devloc, dest2);
+    //    List<Point> pts = GeoJsonManager.generatePointsFromNodes(path);
+    //    LineString ls = LineString.fromLngLats(pts);
+    //    Feature feats = Feature.fromGeometry((Geometry) ls);
+    //
+    //    List<Point> pt = GeoJsonManager.generatePointsFromNodes(g.getAllNodes());
+    //    List<Feature> feats2 = pt.stream().map(x -> Feature.fromGeometry((Geometry)
+    // x)).collect(toList());
+    //    feats2.add(feats);
+    //    List<Feature> res = GeoJsonManager.getRestrictedAreasFeatures();
+    //    feats2.addAll(res);
+    //
+    //    FeatureCollection fc = FeatureCollection.fromFeatures(feats2);
+    //
+    //    //g.printDistanceBetweenNodes(path);
+    //    for(int i = 1;i < path.size(); i++) {
+    //      //System.out.println("Node angle: " + path.get(i-1).calculateAngleTo(path.get(i))+
+    // "LongLat Angle: " + path.get(i-1).getLongLat().calculateBearing(path.get(i).getLongLat()));
+    //    }
+    //    //System.out.println(fc.toJson());
+    //    }
+  }
 }

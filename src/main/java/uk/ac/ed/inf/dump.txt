@@ -1,256 +1,214 @@
-package uk.ac.ed.inf.algorithm;
+package uk.ac.ed.inf;
 
-import com.mapbox.geojson.Feature;
-import org.apache.commons.math3.util.Precision;
-import uk.ac.ed.inf.GeoJsonManager;
-import uk.ac.ed.inf.LongLat;
-import uk.ac.ed.inf.Settings;
-
-import java.util.ArrayList;
+import com.mapbox.geojson.*;
+import uk.ac.ed.inf.algorithm.Graph;
+import uk.ac.ed.inf.algorithm.Node;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Date;
+import java.util.*;
 import java.util.List;
-import java.util.stream.DoubleStream;
+
+import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.toList;
 
-public class Graph {
+public class DeliveryPlanner {
 
-  private Node[][] grid;
-  private int gridSize;
-  private double nearestNodeDistance;
-  private double northWestBoundLongitude;
-  private double northWestBoundLatitude;
-  private double southEastBoundLongitude;
-  private double southEastBoundLatitude;
-  public Graph(
-      double northWestBoundLongitude,
-      double northWestBoundLatitude,
-      double southEastBoundLongitude,
-      double southEastBoundLatitude,
-      int gridSize) {
-    this.gridSize = gridSize;
-    this.grid = new Node[gridSize][gridSize];
-    this.northWestBoundLongitude = northWestBoundLongitude;
-    this.northWestBoundLatitude = northWestBoundLatitude;
-    this.southEastBoundLongitude = southEastBoundLongitude;
-    this.southEastBoundLatitude = southEastBoundLatitude;
-    setGrid();
-  }
+    /**
+     * Delivery Planner manages drones delivery by keeping track of the following:
+     *
+     *   - Creates an instance of the OrderDeliveryWorker which is used to get FoodOrders.
+     *   - Checking if the drone can fulfill and order before deploying it(including checking that it will have
+     *      enough battery capacity to get back home)
+     *   - Updating the FoodOrder Queue based on the drone's location.
+     *   - Generating the delivery path as json output file.
+     *   - Keeping a hashmap of the partial delivery path to avoid recalculation.
+     */
 
-  public static List<Double> generateDoubleSequence(
-      double start, double end, double step, double offset) {
-    return DoubleStream.iterate(start + offset, d -> d <= end, d -> d + step)
-        .boxed()
-        .map(x -> Precision.round(x, 6))
-        .collect(toList());
-  }
+    private final Date deliveryDate;
+    private LinkedList<FoodOrder> deliverableOrders = new LinkedList<>();
+    private HashMap<FoodOrder, List<Node>> deliveryPaths = new HashMap<>();
+    private Drone drone = new Drone(1500);
+    private List<Node> pathToHome = new LinkedList<>();
+    private OrderDeliveryWorker orderDeliveryWorker;
+    private double totalOrderValue = 0;
+    private int totalOrderCount;
+    //TODO remove ony for graphing purposes
+    List<Node> pickupNodes = new ArrayList<>();
+    private Graph graph =
+      new Graph(
+          Settings.getDefaultNorthWestBound().longitude,
+          Settings.getDefaultNorthWestBound().latitude,
+          Settings.getDefaultSouthEastBound().longitude,
+          Settings.getDefaultSouthEastBound().latitude,
+          Settings.GRID_GRANULARITY);
 
-  public int getGridSize() {
-    return gridSize;
-  }
-
-  /**
-   * The setGrid() method creates a grid of equidistant points with the distance between each node
-   * being equal to the length of single side of the area divided by the grid granularity.
-   * Tt restricts each of these points to the boundaries of one of the following: the nearest node distance
-   * (set by this.nearestNodeDistance), or the perimeter of a restricted area (set by
-   * GeoJsonManager.isInPerimeterOfRestrictedArea).
-   */
-  private void setGrid() {
-    double longitudeStepSize = Settings.getDefaultMovementStepDistance();//(southEastBoundLongitude - northWestBoundLongitude) / gridSize;
-    double longitudeOffset = 0;//(longitudeStepSize / 2);
-
-    double latitudeStepSize = Settings.getDefaultMovementStepDistance();//(northWestBoundLatitude - southEastBoundLatitude) / gridSize;
-    double latitudeOffset = 0;//(latitudeStepSize / 2);
-
-    List<Double> longitudeCoordinates =
-            generateDoubleSequence(northWestBoundLongitude,southEastBoundLongitude, longitudeStepSize, longitudeOffset);
-    List<Double> latitudeCoordinates =
-            generateDoubleSequence(southEastBoundLatitude,northWestBoundLatitude, latitudeStepSize, latitudeOffset);
-
-
-    List<LongLat> topRowCoords = new ArrayList<>();
-    double res = Math.abs((northWestBoundLongitude - southEastBoundLongitude) /
-            Settings.getDefaultMovementStepDistance());
-    int coordListLength = (int) Math.round(res);
-
-    LongLat nxt = Settings.getDefaultNorthWestBound();
-    for(int i = 0; i < coordListLength; i++) {
-      nxt = nxt.nextPosition(0);
-      topRowCoords.add(nxt);
-      //System.out.println(nxt);
+    public DeliveryPlanner(Date deliveryDate) {
+        this.deliveryDate = deliveryDate;
+        this.orderDeliveryWorker = new OrderDeliveryWorker(drone, deliveryDate);
+        this.orderDeliveryWorker.populateFoodOrders();
+        totalOrderCount = orderDeliveryWorker.getFoodOrderQueueSize();
+        updateFoodDeliveryList();
     }
 
-//    for(int i = 1; i<topRowCoords.size(); i++) {
-//      System.out.println(topRowCoords.get(i-1).distanceTo(topRowCoords.get(i)));
-//    }
-    //System.out.println(topRowCoords.size());
-    //System.out.println(Math.abs(Math.round((northWestBoundLongitude - southEastBoundLongitude)/Settings.getDefaultMovementStepDistance())));
-    this.nearestNodeDistance = longitudeStepSize;
 
-    int rightRotationAngle = 320;
-    int leftRotationAngle = 220;
+    private void updateFoodDeliveryList() {
+        boolean canDeliver = true;
+        while(canDeliver && orderDeliveryWorker.getFoodOrderQueueSize() > 0) {
+            orderDeliveryWorker.updateFoodOrders(drone, orderDeliveryWorker.getFoodOrderQueue());
+            FoodOrder foodOrder = orderDeliveryWorker.getFoodOrder();
+            graph.resetNodeUsages();
+            List<LongLat> pickUpLocations = foodOrder.getPickUpLocations();
+            LongLat deliveryLongLat = foodOrder.getDeliveryLocationLongLat();
+            LongLat startLocation = drone.getCurrentPosition();
+            List<LongLat> visitLocations = new ArrayList<>();
+            visitLocations.add(startLocation);
+            visitLocations.addAll(pickUpLocations);
+            List<Node> pathToClient = new ArrayList<>();
+            List<List<Node>> concat = new ArrayList<>();
+            for (LongLat longlat : pickUpLocations) {
+                List<Node> path = graph.getShortestPath(startLocation, longlat);
+                setLastNodeUsage(path, Node.NodeUsage.PICKUP);
+                concat.add(path);
+                //path.remove(0);
+                pathToClient.addAll(path);
+                startLocation = longlat;
+                Node placeHolderNode  = new Node(0,0);
+                placeHolderNode.setLongLat(longlat);
+                if(!pickupNodes.contains(placeHolderNode)) {
+                    pickupNodes.add(placeHolderNode);
+                }
+            }
+            List<Node> testPath = new ArrayList<>();
+            for(int i = 0; i < visitLocations.size() - 1; i++) {
+                testPath.addAll(graph.getShortestPath(visitLocations.get(i), visitLocations.get(i+1)));
+            }
 
-    for (int i = 0; i < gridSize; i++) {
-      for (int j = 0; j < gridSize; j++) {
-        /*
-        As we wish to create a triangular mesh, we add the gridOffset to every odd row. Excluding this will result in
-        square mesh which is not what we want to create. Further simply shifting odd rows does not result in an
-        equilateral triangle mesh. We have to add a slight incremental Offset to latitude values to shift them up
-         slightly thus forming an equilateral triangle mesh.
-        */
-        LongLat nodeLongLat;
-        if(i == 0) {
 
-          nodeLongLat = topRowCoords.get(j);
-          grid[i][j] = new Node(i, j);
-          grid[i][j].setLongLat(nodeLongLat);
-          grid[i][j].setRestricted(
-                  GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance) ||
-                          !nodeLongLat.isConfined());
-        } else {
-          if(i % 2 == 0) {
-            nodeLongLat = grid[i - 1][j].getLongLat().nextPositionUnrestricted(rightRotationAngle);
-          } else {
-            nodeLongLat = grid[i - 1][j].getLongLat().nextPositionUnrestricted(leftRotationAngle);
+            List<Node> pathToFinalStation = graph.getShortestPath(startLocation, deliveryLongLat);
+            for(int i = 1; i < concat.size()-1; i++){
+                //System.out.println("seq dist: " + concat.get(i-1).get(concat.get(i-1).size()-1).getLongLat().distanceTo(concat.get(i).get(0).getLongLat())/Settings.getDefaultMovementStepDistance());
+            }
+            setLastNodeUsage(pathToFinalStation, Node.NodeUsage.DROPOFF);
+            //pathToFinalStation.remove(0);
+            pathToClient.addAll(pathToFinalStation);
+            List<Node> pathFromClientToHome =
+                    graph.getShortestPath(deliveryLongLat, Settings.getDefaultHomeLocation());
+            //graph.printDistanceBetweenNodes(pathFromClientToHome);
+
+
+            //graph.printDistanceBetweenNodes(pathFromClientToHome);
+
+            //TODO can get rid of this print statement
+            graph.printDistanceBetweenNodes(testPath);
+
+            //TODO modify this to be more reflective of what the dor eisactually doiubg.
+            double travelDistance =
+                    graph.distanceBetweenNodes(pathToClient) +
+                    graph.distanceBetweenNodes(pathFromClientToHome);
+            int estimatedBatteryUsage = drone.calculateMovementStepCost(travelDistance);
+            if(drone.getBatteryLevel() - estimatedBatteryUsage > 0) {
+                //executeMoves(drone, pathToClient);
+                drone.setCurrentPosition(pathToClient.get(pathToClient.size()-1).getLongLat());
+                deliverableOrders.add(foodOrder);
+                deliveryPaths.put(foodOrder, pathToClient);
+                pathToHome = pathFromClientToHome;
+                //System.out.println("can deliver drone loc: " + drone.getCurrentPosition().calculateBearing(pathToClient.get(pathToClient.size()-1).getLongLat()));
+
+            } else {
+                canDeliver = false;
+                setLastNodeUsage(pathToHome, Node.NodeUsage.HOME);
+                executeMoves(drone, pathToHome);
+                //System.out.println(drone.getCurrentPosition() + "state is: " + drone.getDroneState());
+            }
+        }
+    }
+    public void executeMoves(Drone drone, List<Node> pathNodes){
+        for(Node node: pathNodes) {
+            switch(node.getUsage()) {
+                case PICKUP:
+                    drone.hoverDrone();
+                    drone.loadItems();
+                    drone.flyDrone();
+                    //System.out.println("picked order");
+                    break;
+                case DROPOFF:
+                    drone.hoverDrone();
+                    drone.unloadItems();
+                    drone.flyDrone();
+                    //System.out.println("dropped order");
+                    break;
+                case HOME:
+                    drone.returnToHome();
+                    //System.out.println("got home safe");
+                    break;
+                default:
+                    drone.moveTo(node.getLongLat());
+                    //System.out.println("ordinary move");
           }
-          grid[i][j] = new Node(i, j);
-          grid[i][j].setLongLat(nodeLongLat);
-          grid[i][j].setRestricted(
-                  GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance) ||
-                          !nodeLongLat.isConfined());
+          }
         }
-      }
+
+    public void setLastNodeUsage(List<Node> nodes, Node.NodeUsage usage) {
+        nodes.get(nodes.size() - 1).setNodeUsage(usage);
     }
-
-//    for(int i = 1; i < gridSize-1; i++) {
-//      if (i % 2 != 0) {
-//        System.out.println(
-//            "distance between: "
-//                + grid[i][i].getLongLat().distanceTo(grid[i + 1][i].getLongLat())
-//                + "      distance below        : "
-//                + grid[i][i].getLongLat().distanceTo(grid[i][i - 1].getLongLat())
-//                + "    bearings right: "
-//                + grid[i+1][i+1].getLongLat().calculateBearing(grid[i][i].getLongLat())
-//                + "  left: "
-//                + grid[i-1][i-1].getLongLat().calculateBearing(grid[i][i].getLongLat()));
-//        }
-//    }
-  }
-
-  /**
-   * Returns the grid mesh.
-   *
-   * @return
-   */
-  public Node[][] getGrid() {
-    return grid;
-  }
-
-  /**
-   * Returns all the nodes that have been marked as restricted.
-   *
-   * @return List of restricted nodes.
-   */
-  public List<Node> getRestrictedNodes() {
-    List<Node> result = new ArrayList<>();
-    for (int i = 0; i < gridSize; i++) {
-      for (int j = 0; j < gridSize; j++) {
-        if (grid[i][j].isRestricted()) {
-          result.add(grid[i][j]);
+    public void generatePathMap() {
+        FeatureCollection featureCollection = GeoJsonManager.createFeatureCollection(convertPathsToGeojsonFeatures());
+        String filePrefix = "src/main/java/uk/ac/ed/inf/";
+        try {
+            FileWriter myWriter = new FileWriter(filePrefix + "geojson-" + String.valueOf(deliveryDate) + ".geojson");
+            myWriter.write(featureCollection.toJson());
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
-      }
+
     }
-    return result;
-  }
 
-  /**
-   * Returns all the nodes on our grid.
-   *
-   * @return List of nodes.
-   */
-  public List<Node> getAllNodes() {
-    List<Node> result = new ArrayList<>();
-    for (int i = 0; i < gridSize; i++) {
-      for (int j = 0; j < gridSize; j++) {
-        result.add(grid[i][j]);
-      }
-    }
-    return result;
-  }
+    public List<Feature> convertPathsToGeojsonFeatures() {
+        List<Feature> features = new ArrayList<>();
+        features.addAll(GeoJsonManager.getRestrictedAreasFeatures());
+//        features.addAll(
+//                GeoJsonManager.generatePointsFromNodes(pickupNodes).stream()
+//                .map(x -> Feature.fromGeometry((Geometry) x))
+//                .collect(toList()));
+        int counter = 0;
+        for(FoodOrder foodOrder : deliverableOrders) {
+            Point deliveryPoint = GeoJsonManager.createPointFromLongLat(foodOrder.getDeliveryLocationLongLat());
+            LineString lineString =
+                    LineString.fromLngLats(GeoJsonManager.generatePointsFromNodes(deliveryPaths.get(foodOrder)));
+            if (counter == 0) {
+                //System.out.println(foodOrder.getOrderItems() + "\n" + foodOrder.getDeliveryCost()+"\n" + foodOrder.getDeliveryW3wAddress() + "\n" + foodOrder.getDeliveryLocationLongLat());
+                features.add(Feature.fromGeometry((Geometry) deliveryPoint));
+                features.add(Feature.fromGeometry((Geometry) lineString));
+            }
+            totalOrderValue += foodOrder.getDeliveryCost();
+            counter += 1;
 
-
-  /**
-   * The getShortestPath() method finds the shortest path between two points on a two-dimensional grid. The grid
-   * in this case will be our graph. The startLocation and destinationLocation will be the nodes being traversed.
-   * As a preprocessing step, the getShortestPath() method will iterate through all nodes in the grid and find the
-   * nodes that are the closest to the startLocation and destinationLocation. It will then choose the node that is
-   * closest to the startLocation and destinationLocation on our graph and call the AStar algorithm to find the
-   * shortest path between these.
-   *
-   * @param startLocation
-   * @param destinationLocation
-   * @return A list of Nodes forming the shortest path.
-   */
-  public List<Node> getShortestPath(LongLat startLocation, LongLat destinationLocation) {
-    Node startNode = null;
-    Node endNode = null;
-
-    for (int i = 0; i < gridSize; i++) {
-      for (int j = 0; j < gridSize; j++) {
-        startNode = startNode == null ? grid[i][j] : startNode;
-        endNode = endNode == null ? grid[i][j] : endNode;
-
-        /*
-        If current grid node is close to startLocation and distance to startLocation is shorter that the
-        current one(multiple nodes can be close to a target node, we want to use the one that's the closest) then
-        we reassign to current node.
-         */
-        if ((grid[i][j].getLongLat().closeTo(startLocation))
-            && (grid[i][j].getLongLat().distanceTo(startLocation)
-                <= startNode.getLongLat().distanceTo(startLocation))) {
-          startNode = grid[i][j];
-
-        } else if ((grid[i][j].getLongLat().closeTo(destinationLocation))
-            && (grid[i][j].getLongLat().distanceTo(destinationLocation)
-                <= endNode.getLongLat().distanceTo(destinationLocation))) {
-          endNode = grid[i][j];
+            //System.out.println("Delivery no: " +counter+"/"+ deliverableOrders.size()+"\nMonetary value: " +
+            //        100*totalOrderValue/orderDeliveryWorker.getTotalOrderValue());
         }
-      }
+        //Add final path to home and home marker.
+        //Point homeMarker = GeoJsonManager.createPointFromLongLat(Settings.getDefaultHomeLocation());
+        LineString lineStringToHome = LineString.fromLngLats(GeoJsonManager.generatePointsFromNodes(pathToHome));
+        //features.add(Feature.fromGeometry((Geometry) lineStringToHome));
+        //features.add(Feature.fromGeometry((Geometry) homeMarker));
+        Point homeMarker = GeoJsonManager.createPointFromLongLat(drone.getCurrentPosition());
+        //Point test = GeoJsonManager.createPointFromLongLat(drone.getCurrentPosition().nextPosition(10));
+        //LineString ls = LineString.fromLngLats(List.of(homeMarker, test));
+        //features.add(Feature.fromGeometry((Geometry) ls));
+        //features.add(Feature.fromGeometry((Geometry) test));
+        //features.add(Feature.fromGeometry((Geometry) homeMarker));
+        return features;
     }
-    AStar aStar = new AStar(getGrid(), startNode, endNode);
-    return aStar.findPath();
-  }
 
-  /**
-   * Calculates the total distance through a given list of nodes.
-   *
-   * @param nodes List of nodes to calculate the distance between.
-   * @return double value as the total distance.
-   */
-  public double distanceBetweenNodes(List<Node> nodes) {
-    if (nodes.isEmpty() || nodes.size() < 2) {
-      return 0;
+    public LinkedList<FoodOrder> getDeliverableOrders() {
+        return deliverableOrders;
     }
-    double total = 0;
-    Node currentNode = nodes.get(0);
-    for (int i = 1; i < nodes.size(); i++) {
-      total += currentNode.getLongLat().distanceTo(nodes.get(i).getLongLat());
-      currentNode = nodes.get(i);
-    }
-    return total;
-  }
 
-  /**
-   * Testing utility funtion to calculate the distance and bearing between nodes.
-   * @param nodes
-   * TODO remove this function
-   */
-  public void printDistanceBetweenNodes(List<Node> nodes) {
-    List<Feature> feats = new ArrayList();
-    for (int i = 1; i < nodes.size(); i++) {
-      System.out.println("BEARING AND DISTANCE");
-      double div = Precision.round(nodes.get(i - 1).getLongLat().distanceTo(nodes.get(i).getLongLat())/Settings.getDefaultMovementStepDistance(), 6);
-      System.out.println("Distance: " + div);
-      System.out.println(nodes.get(i - 1).getLongLat().calculateBearing(nodes.get(i).getLongLat()));
+    public HashMap<FoodOrder, List<Node>> getDeliveryPaths() {
+        return deliveryPaths;
     }
-  }
 }
