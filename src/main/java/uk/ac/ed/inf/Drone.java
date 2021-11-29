@@ -158,4 +158,8 @@ public class Drone {
     public FoodOrder getCurrentFoodOrder() {
         return currentFoodOrder;
     }
+
+    public void resetBatterLevel() {
+        this.setBatteryLevel(Settings.getDefaultBatteryLevel());
+    }
 }

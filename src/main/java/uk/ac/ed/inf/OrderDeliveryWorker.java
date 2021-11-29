@@ -23,14 +23,11 @@ public class OrderDeliveryWorker {
 
   private final Drone drone;
   private final Date orderProcessingDate;
-  private final DatabaseIO databaseAccess;
   private PriorityQueue<FoodOrder> foodOrderQueue;
   private double totalOrderValue = 0;
   public OrderDeliveryWorker(Drone droneObject, Date orderProcessingDate) {
     this.orderProcessingDate = orderProcessingDate;
     this.drone = droneObject;
-    this.databaseAccess =
-        new DatabaseIO(Settings.getDefaultDatabaseHost(), Settings.getDefaultDatabasePort());
     this.foodOrderQueue =
         new PriorityQueue<FoodOrder>(
             new Comparator<FoodOrder>() {
@@ -50,14 +47,14 @@ public class OrderDeliveryWorker {
    * It then creates FoodOrders objects with these details which are then added to our priority queue.
    */
   public void populateFoodOrders() {
-    List<DatabaseOrder> dbOrders = databaseAccess.queryOrders("", this.orderProcessingDate, "", "");
+    List<DatabaseOrder> dbOrders = DatabaseIO.queryOrders("", this.orderProcessingDate, "", "");
     List<FoodOrder> foodOrders = new ArrayList<>();
     Menus menus = new Menus(Settings.getDefaultServerHost(), Settings.getDefaultServerPort());
     if (!dbOrders.isEmpty()) {
       for (DatabaseOrder dbOrder : dbOrders) {
         List<MenuItem> items = new ArrayList<>();
         List<DatabaseOrderDetails> dbOrderDetails =
-            databaseAccess.queryOrderDetails(dbOrder.orderNo, "");
+            DatabaseIO.queryOrderDetails(dbOrder.orderNo, "");
         for (DatabaseOrderDetails databaseOrderDetails : dbOrderDetails) {
           String itemName = databaseOrderDetails.item;
           items.add(menus.getMenuItem(itemName));

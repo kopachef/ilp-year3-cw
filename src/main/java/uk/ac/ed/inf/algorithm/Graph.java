@@ -300,7 +300,6 @@ public class Graph {
   public HashMap<LongLat, LongLat> getNodeLonglatToTargetLonglat() {
     return nodeLonglatToTargetLonglat;
   }
-
   /**
    * Testing utility funtion to calculate the distance and bearing between nodes.
    * @param nodes

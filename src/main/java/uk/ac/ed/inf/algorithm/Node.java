@@ -268,7 +268,7 @@ public class Node implements Cloneable {
     this.usage = usage;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
+  public Node clone() throws CloneNotSupportedException {
+    return (Node) super.clone();
   }
 }

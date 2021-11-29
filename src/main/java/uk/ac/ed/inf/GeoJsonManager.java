@@ -115,6 +115,22 @@ public class GeoJsonManager {
     return false;
   }
 
+
+  public static boolean isInConfinementZone(LongLat longLat) {
+    List<Point> corners = List.of(
+                    Settings.getDefaultNorthWestBound(),
+                    Settings.getDefaultNorthEastBound(),
+                    Settings.getDefaultSouthEastBound(),
+                    Settings.getDefaultSouthWestBound(),
+                    Settings.getDefaultNorthWestBound())
+            .stream().map(x -> createPointFromLongLat(x)).collect(Collectors.toList());
+
+    LineString boundingLineString = LineString.fromLngLats(corners);
+    Polygon boundingBox = Polygon.fromOuterInner(boundingLineString);
+
+    return TurfJoins.inside(createPointFromLongLat(longLat), boundingBox);
+  }
+
   /**
    * Creates a Point object from a given LongLat object.
    *

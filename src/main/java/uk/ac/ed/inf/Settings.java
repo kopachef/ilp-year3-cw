@@ -74,6 +74,8 @@ public final class Settings {
   private static double DEFAULT_CLOSENESS_TOLERANCE = 0.00015;
   private static double DEFAULT_MOVEMENT_STEP_DISTANCE = 0.00015;
   private static int DEFAULT_HOVER_ANGLE = -999;
+  private static int DEFAULT_BATTERY_LEVEL = 1500;
+  private static int DEFAULT_PATH_SMOOTHING_THRESHOLD = 2;
 
   /**
    * Set methods for the drone movement parameters.
@@ -85,11 +87,17 @@ public final class Settings {
   public static void setDefaultClosenessTolerance(double closenessTolerance) {
     DEFAULT_CLOSENESS_TOLERANCE = closenessTolerance;
   }
+  public static void setDefaultPathSmoothingThreshold(int pathSmoothingThreshold) {
+    DEFAULT_PATH_SMOOTHING_THRESHOLD = pathSmoothingThreshold;
+  }
   public static void setDefaultMovementStepDistance(double movementStepDistance) {
     DEFAULT_MOVEMENT_STEP_DISTANCE = movementStepDistance;
   }
   public static void setDefaultHoverAngle(int defaultHoverAngle) {
     DEFAULT_HOVER_ANGLE = defaultHoverAngle;
+  }
+  public static void setDefaultBatteryLevel(int batteryLevel) {
+    DEFAULT_BATTERY_LEVEL = batteryLevel;
   }
 
   /**
@@ -103,6 +111,8 @@ public final class Settings {
     return DEFAULT_MOVEMENT_STEP_DISTANCE;
   }
   public static int getDefaultHoverAngle() { return DEFAULT_HOVER_ANGLE; }
+  public static int getDefaultBatteryLevel() {return DEFAULT_BATTERY_LEVEL;}
+  public static int getDefaultPathSmoothingThreshold() {return DEFAULT_PATH_SMOOTHING_THRESHOLD;}
 
   /*****************************************************************
    *
@@ -219,12 +229,14 @@ public final class Settings {
    * DATABASE ACCESS CONFIGURATIONS
    */
 
+
   private static String DEFAULT_DATABASE_PROTOCOL = "jdbc:derby://";
   private static String DEFAULT_DATABASE_HOST = "localhost";
   private static String DEFAULT_DATABASE_PORT = "1527";
   private static String DEFAULT_DATABASE_ADDRESS = "derbyDB";
   private static boolean RECORD_FLIGHTS_TO_DB = false;
   private static boolean RECORD_DELIVERIES_TO_DB = false;
+  private static int DEFAULT_INSERT_BUFFER_SIZE = 50;
 
 
   /**
@@ -249,6 +261,9 @@ public final class Settings {
   public static void setRecordDeliveriesToDb(boolean recordDeliveriesToDb) {
     RECORD_DELIVERIES_TO_DB = recordDeliveriesToDb;
   }
+  public static void setDefaultInsertBufferSize(int defaultInsertBufferSize) {
+    DEFAULT_INSERT_BUFFER_SIZE = defaultInsertBufferSize;
+  }
 
   /**
    * Get methods for the database access configurations
@@ -260,6 +275,7 @@ public final class Settings {
   public static String getDefaultDatabaseAddress() {return DEFAULT_DATABASE_ADDRESS;}
   public static boolean isRecordFlightsToDbEnabled() {return RECORD_FLIGHTS_TO_DB;}
   public static boolean isRecordDeliveriesToDbEnabled() {return RECORD_DELIVERIES_TO_DB;}
+  public static int getDefaultInsertBufferSize() {return DEFAULT_INSERT_BUFFER_SIZE;}
 
 
   /**
