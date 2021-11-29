@@ -1,14 +1,13 @@
 package uk.ac.ed.inf.algorithm;
 
 import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Geometry;
 import org.apache.commons.math3.util.Precision;
 import uk.ac.ed.inf.GeoJsonManager;
 import uk.ac.ed.inf.LongLat;
 import uk.ac.ed.inf.Settings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.DoubleStream;
 import static java.util.stream.Collectors.toList;
@@ -17,6 +16,7 @@ public class Graph {
 
   private Node[][] grid;
   private int gridSize;
+  private HashMap<LongLat, LongLat> nodeLonglatToTargetLonglat = new HashMap<>();
   private double nearestNodeDistance;
   private double northWestBoundLongitude;
   private double northWestBoundLatitude;
@@ -238,9 +238,12 @@ public class Graph {
                 && (grid[i][j].getLongLat().distanceTo(destinationLocation)
                 <= endNode.getLongLat().distanceTo(destinationLocation))) {
           endNode = grid[i][j];
+
         }
       }
     }
+    nodeLonglatToTargetLonglat.put(startNode.getLongLat(), startLocation);
+    nodeLonglatToTargetLonglat.put(endNode.getLongLat(), destinationLocation);
     AStar aStar = new AStar(getGrid(), startNode, endNode);
     return aStar.findPath();
   }
@@ -294,6 +297,10 @@ public class Graph {
     }
   }
 
+  public HashMap<LongLat, LongLat> getNodeLonglatToTargetLonglat() {
+    return nodeLonglatToTargetLonglat;
+  }
+
   /**
    * Testing utility funtion to calculate the distance and bearing between nodes.
    * @param nodes
@@ -302,10 +309,10 @@ public class Graph {
   public void printDistanceBetweenNodes(List<Node> nodes) {
     List<Feature> feats = new ArrayList();
     for (int i = 1; i < nodes.size(); i++) {
-      //System.out.println("");
+      System.out.println("");
       double div = Precision.round(nodes.get(i - 1).getLongLat().distanceTo(nodes.get(i).getLongLat())/Settings.getDefaultMovementStepDistance(), 6);
-      System.out.print("start node: " + nodes.get(i-1) + "end node: " + nodes.get(i));
-      System.out.print("Distance: " + div + "   bearing: ");
+      System.out.print("start node: " + nodes.get(i-1) + "end node: " + nodes.get(i) + "  usage: " + nodes.get(i).getUsage());
+      System.out.print("    Distance: " + div + "   bearing: ");
       System.out.println(nodes.get(i - 1).getLongLat().calculateBearing(nodes.get(i).getLongLat()));
     }
   }

@@ -23,4 +23,13 @@ public class Utils {
     public static int roundOffToNearest10th(double value) {
         return (int) (Math.round(value / 10) * 10);
     }
+
+    public static boolean isAMulitpleOf10(double angle) {
+        return Precision.round(angle, 2) == Precision.round(roundOffToNearest10th(angle), 2);
+    }
+
+    public static boolean isWholeNumber(double d) {
+        return d % 1 == 0;
+    }
+
 }

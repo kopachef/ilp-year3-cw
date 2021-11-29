@@ -15,7 +15,7 @@ public class FoodOrder {
   private Date deliveryDate;
   private String deliveryW3wAddress;
   private String orderNo;
-  private double deliveryCost;
+  private int deliveryCost;
   private boolean hasBeenDelivered;
   private LongLat deliveryLocationLongLat;
 
@@ -26,7 +26,7 @@ public class FoodOrder {
       Date deliveryDate,
       LongLat deliveryLocationLongLat,
       String deliveryW3wAddress,
-      double deliveryCost) {
+      int deliveryCost) {
     this.orderItems = items;
     this.customer = customer;
     this.deliveryDate = deliveryDate;
@@ -115,7 +115,7 @@ public class FoodOrder {
    *
    * @return double representing the total cost of this order.
    */
-  public double getDeliveryCost() {
+  public int getDeliveryCost() {
     return deliveryCost;
   }
 

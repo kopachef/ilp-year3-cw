@@ -14,6 +14,7 @@ public class Drone {
     private LongLat currentPosition;
     private double movementStepDistance;
     private int currentDirection;
+    private FoodOrder currentFoodOrder;
 
     public Drone(int batteryCapacity) {
         movementCount = 0;
@@ -137,7 +138,6 @@ public class Drone {
     public void loadItems() {
         if(droneState == DroneState.HOVERING && !hasOrder) {
             hasOrder = true;
-            batteryLevel -= 1;
         }
     }
 
@@ -148,7 +148,14 @@ public class Drone {
         FLYING, STATIONARY, HOVERING
     }
 
-    public void unloadItems(){ hasOrder = false;}
+    public void unloadItems(){
+        hasOrder = false;
+    }
     public DroneState getDroneState() { return droneState;}
 
+    public void setCurrentFoodOrder(FoodOrder foodOrder) {currentFoodOrder = foodOrder;}
+
+    public FoodOrder getCurrentFoodOrder() {
+        return currentFoodOrder;
+    }
 }

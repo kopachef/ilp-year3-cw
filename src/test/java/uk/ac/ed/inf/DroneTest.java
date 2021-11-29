@@ -82,8 +82,9 @@ public class DroneTest {
         ArrayList<MenuItem> items = new ArrayList<MenuItem>();
         Date deliveryDate = mock(Date.class);
         FoodOrder foodOrder = new FoodOrder(items, "Order No", "Customer", deliveryDate, new LongLat(10.0, 10.0),
-                "42 Main St", 10.0);
+                "42 Main St", 10);
 
+        drone.setCurrentFoodOrder(foodOrder);
         drone.loadItems();
         assertEquals("Customer", foodOrder.getCustomer());
         assertFalse(foodOrder.isHasBeenDelivered());

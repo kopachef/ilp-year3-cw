@@ -30,10 +30,10 @@ public final class Settings {
    ****************************************************************
    */
 
-  public static LongLat DEFAULT_NORTHWEST_BOUND = new LongLat(-3.192473, 55.946233);
-  public static LongLat DEFAULT_NORTHEAST_BOUND = new LongLat(-3.184319, 55.946233);
-  public static LongLat DEFAULT_SOUTHWEST_BOUND = new LongLat(-3.192473, 55.942617);
-  public static LongLat DEFAULT_SOUTHEAST_BOUND = new LongLat(-3.184319, 55.942617);
+  private static LongLat DEFAULT_NORTHWEST_BOUND = new LongLat(-3.192473, 55.946233);
+  private static LongLat DEFAULT_NORTHEAST_BOUND = new LongLat(-3.184319, 55.946233);
+  private static LongLat DEFAULT_SOUTHWEST_BOUND = new LongLat(-3.192473, 55.942617);
+  private static LongLat DEFAULT_SOUTHEAST_BOUND = new LongLat(-3.184319, 55.942617);
 
   /**
    * Set methods for bounding box parameters.
@@ -70,9 +70,10 @@ public final class Settings {
    *
    * DRONE MOVEMENT ATTRIBUTES AND ASSOCIATED CONSTANTS
    */
-  public static LongLat DEFAULT_HOME_LOCATION = new LongLat(-3.186874, 55.944494);
-  public static double DEFAULT_CLOSENESS_TOLERANCE = 0.00015;
-  public static double DEFAULT_MOVEMENT_STEP_DISTANCE = 0.00015;
+  private static LongLat DEFAULT_HOME_LOCATION = new LongLat(-3.186874, 55.944494);
+  private static double DEFAULT_CLOSENESS_TOLERANCE = 0.00015;
+  private static double DEFAULT_MOVEMENT_STEP_DISTANCE = 0.00015;
+  private static int DEFAULT_HOVER_ANGLE = -999;
 
   /**
    * Set methods for the drone movement parameters.
@@ -87,6 +88,9 @@ public final class Settings {
   public static void setDefaultMovementStepDistance(double movementStepDistance) {
     DEFAULT_MOVEMENT_STEP_DISTANCE = movementStepDistance;
   }
+  public static void setDefaultHoverAngle(int defaultHoverAngle) {
+    DEFAULT_HOVER_ANGLE = defaultHoverAngle;
+  }
 
   /**
    * Get methods for the drone movement parameters.
@@ -98,12 +102,13 @@ public final class Settings {
   public static double getDefaultMovementStepDistance() {
     return DEFAULT_MOVEMENT_STEP_DISTANCE;
   }
+  public static int getDefaultHoverAngle() { return DEFAULT_HOVER_ANGLE; }
 
   /*****************************************************************
    *
    * FOOD ORDER AND DELIVERY CONSTANTS
    */
-  public static int DEFAULT_STANDARD_CHARGE = 50;
+  private static int DEFAULT_STANDARD_CHARGE = 50;
 
   /**
    * Set methods for our food order and delivery constants.
@@ -165,11 +170,11 @@ public final class Settings {
    *
    * URL HTTP REQUEST CONFIGURATIONS
    */
-  public static String DEFAULT_SERVER_HOST = "localhost";
-  public static String DEFAULT_SERVER_PORT = "9898";
-  public static String DEFAULT_SERVER_URL_PROTOCOL = "http://";
-  public static boolean CACHE_URL_CONTENT = true;
-  public static int DEFAULT_URL_CACHE_SIZE = 5;
+  private static String DEFAULT_SERVER_HOST = "localhost";
+  private static String DEFAULT_SERVER_PORT = "9898";
+  private static String DEFAULT_SERVER_URL_PROTOCOL = "http://";
+  private static boolean CACHE_URL_CONTENT = true;
+  private static int DEFAULT_URL_CACHE_SIZE = 5;
 
   /**
    * Set methods for the url http request configurations.
@@ -214,14 +219,16 @@ public final class Settings {
    * DATABASE ACCESS CONFIGURATIONS
    */
 
-  public static String DEFAULT_DATABASE_PROTOCOL = "jdbc:derby://";
-  public static String DEFAULT_DATABASE_HOST = "localhost";
-  public static String DEFAULT_DATABASE_PORT = "1527";
-  public static String DEFAULT_DATABASE_ADDRESS = "derbyDB";
+  private static String DEFAULT_DATABASE_PROTOCOL = "jdbc:derby://";
+  private static String DEFAULT_DATABASE_HOST = "localhost";
+  private static String DEFAULT_DATABASE_PORT = "1527";
+  private static String DEFAULT_DATABASE_ADDRESS = "derbyDB";
+  private static boolean RECORD_FLIGHTS_TO_DB = false;
+  private static boolean RECORD_DELIVERIES_TO_DB = false;
 
 
   /**
-   * Set methods for the database access confgurations
+   * Set methods for the database access configurations
    */
 
   public static void setDefaultDatabaseProtocol(String defaultDatabaseProtocol) {
@@ -236,6 +243,12 @@ public final class Settings {
   public static void setDefaultDatabaseAddress(String defaultDatabaseAddress) {
     DEFAULT_DATABASE_ADDRESS = defaultDatabaseAddress;
   }
+  public static void setRecordFlightsToDb(boolean recordFlightsToDb) {
+    RECORD_FLIGHTS_TO_DB = recordFlightsToDb;
+  }
+  public static void setRecordDeliveriesToDb(boolean recordDeliveriesToDb) {
+    RECORD_DELIVERIES_TO_DB = recordDeliveriesToDb;
+  }
 
   /**
    * Get methods for the database access configurations
@@ -245,6 +258,8 @@ public final class Settings {
   public static String getDefaultDatabaseHost() {return DEFAULT_DATABASE_HOST;}
   public static String getDefaultDatabasePort() {return DEFAULT_DATABASE_PORT;}
   public static String getDefaultDatabaseAddress() {return DEFAULT_DATABASE_ADDRESS;}
+  public static boolean isRecordFlightsToDbEnabled() {return RECORD_FLIGHTS_TO_DB;}
+  public static boolean isRecordDeliveriesToDbEnabled() {return RECORD_DELIVERIES_TO_DB;}
 
 
   /**

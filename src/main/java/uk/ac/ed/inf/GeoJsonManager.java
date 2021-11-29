@@ -1,13 +1,13 @@
 package uk.ac.ed.inf;
 
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Point;
-import com.mapbox.geojson.Polygon;
+import com.mapbox.geojson.*;
 import com.mapbox.turf.TurfJoins;
 import uk.ac.ed.inf.algorithm.Node;
 
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,6 +89,32 @@ public class GeoJsonManager {
     return false;
   }
 
+  public static Area createAreaFromPolygon(Polygon polygon) {
+    Path2D polyA = new Path2D.Double();
+    boolean isFirst = true;
+    for (Point p : polygon.outer().coordinates()) {
+      if(isFirst) {
+        polyA.moveTo(p.longitude(), p.latitude());
+        isFirst = false;
+      } else {
+        polyA.lineTo(p.longitude(), p.latitude());
+      }
+    }
+    polyA.closePath();
+    return new Area(polyA);
+  }
+  public static boolean intersectsRestrictedArea(Polygon inputPolygon) {
+    Area polygonA = createAreaFromPolygon(inputPolygon);
+    for(Polygon p : restrictedAreas) {
+      Area polygonB = createAreaFromPolygon(p);
+      polygonB.intersect(polygonA);
+      if(!polygonB.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Creates a Point object from a given LongLat object.
    *
@@ -111,6 +137,21 @@ public class GeoJsonManager {
       result.add(createPointFromLongLat(n.getLongLat()));
     }
     return result;
+  }
+
+  public static boolean lineOfSight(Node a, Node b, Node c) {
+    List<Point> pts = GeoJsonManager.generatePointsFromNodes(Arrays.asList(a, b, c, a));
+    LineString line = LineString.fromLngLats(pts);
+    return intersectsRestrictedArea(Polygon.fromOuterInner(line));
+  }
+
+  public static boolean crossesRestricedArea(LongLat start, LongLat end) {
+    double offset = 0.05 * Settings.getDefaultMovementStepDistance();
+    LongLat mid = new LongLat(start.longitude + offset, start.latitude + offset);
+    List<LongLat> coords = Arrays.asList(start, mid, end, start);
+    List<Point> pts = coords.stream().map(x -> GeoJsonManager.createPointFromLongLat(x)).collect(Collectors.toList());
+    LineString line = LineString.fromLngLats(pts);
+    return intersectsRestrictedArea(Polygon.fromOuterInner(line));
   }
 
   /**

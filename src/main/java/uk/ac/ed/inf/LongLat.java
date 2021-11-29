@@ -107,6 +107,14 @@ public class LongLat {
     }
   }
 
+  public LongLat nextPosition(double angle, double distance) {
+    double destination_longitude =
+              longitude + (distance * Math.cos(Math.toRadians((angle))));
+    double destination_latitude =
+              latitude + (distance * Math.sin(Math.toRadians(angle)));
+    return new LongLat(destination_longitude, destination_latitude);
+  }
+
   /**
    * This in an unrestricted variant of the nextPosition function. While the previous function is useful in
    * calculating the restricted jump from a start node, there are use cases where we wish to find the target node

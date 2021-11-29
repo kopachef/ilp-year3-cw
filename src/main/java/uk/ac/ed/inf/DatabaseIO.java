@@ -237,27 +237,25 @@ public class DatabaseIO {
   }
 
   /**
-   * This function inserts a new delivery into the table of deliveries made. The order numbers and delivery addresses
-   * are given as input, and the cost of the delivery in pence is also given.
+   * This function inserts a new deliveries into the table of deliveries made. The deliveries are  given as
+   * Delivery objects as outlined by our Delivery static class.
    *
-   * @param orderNos associated order number.
-   * @param deliveryTo associated delivery address.
-   * @param costInPence cost of delivery.
+   * @param deliveries list of deliveries ot be added.
    */
-  public void insertDelivery(List<String> orderNos, List<String> deliveryTo, List<Integer> costInPence){
+  public void insertDelivery(List<Delivery> deliveries){
     Connection conn = initialiseDBConnection();
     StringBuffer insertQuery = new StringBuffer(
             "insert into deliveries (orderNo, deliveredTo, costInPence) values (?, ?, ?)");
-    for(int i = 0; i < orderNos.size() - 1; i++) {
-      insertQuery.append(", (?, ?)");
+    for(int i = 0; i < deliveries.size() - 1; i++) {
+      insertQuery.append(", (?, ?, ?)");
     }
     insertQuery.append(";");
     try {
       PreparedStatement deliveryInsertQuery = conn.prepareStatement(insertQuery.toString());
-      for(int i = 0; i < orderNos.size(); i++) {
-        deliveryInsertQuery.setString((2 * i) + 1, orderNos.get(i));
-        deliveryInsertQuery.setString((2 * i) + 2, deliveryTo.get(i));
-        deliveryInsertQuery.setInt((2 * i) + 3, costInPence.get(i));
+      for(int i = 0; i < deliveries.size(); i++) {
+        deliveryInsertQuery.setString((2 * i) + 1, deliveries.get(i).orderNo);
+        deliveryInsertQuery.setString((2 * i) + 2, deliveries.get(i).deliveredTo);
+        deliveryInsertQuery.setInt((2 * i) + 3, deliveries.get(i).costInPence);
       }
       int row = deliveryInsertQuery.executeUpdate();
       System.out.println("Successfully insert into row: " + row);
@@ -303,36 +301,29 @@ public class DatabaseIO {
 
   /**
 
-   * Inserts a new flight path into the database.
+   * Inserts a new flight paths into the database.
    *
-   * @param orderNos the order nos of the flights
-   * @param fromLongitudes the longitudes of the starting points
-   * @param fromLatitudes the latitudes of the starting points
-   * @param angles the angles of the flight path
-   * @param toLongitudes the longitudes of the destination points
-   * @param toLatitudes the latitudes of the destination points
-
+   * @param flightPaths list of flight paths to be added.
    * @throws SQLException if there is a problem inserting the data into the database
    */
-  public void insertFLightPath(List<String> orderNos, List<Double> fromLongitudes, List<Double> fromLatitudes,
-                               List<Integer> angles, List<Double> toLongitudes, List<Double> toLatitudes){
+  public void insertFLightPath(List<FlightPath> flightPaths){
     Connection conn = initialiseDBConnection();
     StringBuffer insertQuery = new StringBuffer(
             "insert into flightpath (orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude)" +
                     " values (?, ?, ?, ?, ?)");
-    for(int i = 0; i < orderNos.size() - 1; i++) {
+    for(int i = 0; i < flightPaths.size() - 1; i++) {
       insertQuery.append(", (?, ?, ?, ?, ?)");
     }
     insertQuery.append(";");
     try {
       PreparedStatement flightInsertQuery = conn.prepareStatement(insertQuery.toString());
-      for(int i = 0; i < orderNos.size(); i++) {
-        flightInsertQuery.setString((2 * i) + 1, orderNos.get(i));
-        flightInsertQuery.setDouble((2 * i) + 2, fromLongitudes.get(i));
-        flightInsertQuery.setDouble((2 * i) + 3, fromLatitudes.get(i));
-        flightInsertQuery.setInt((2 * i) + 4, angles.get(i));
-        flightInsertQuery.setDouble((2 * i) + 5, toLongitudes.get(i));
-        flightInsertQuery.setDouble((2 * i) + 6, toLatitudes.get(i));
+      for(int i = 0; i < flightPaths.size(); i++) {
+        flightInsertQuery.setString((2 * i) + 1, flightPaths.get(i).orderNo);
+        flightInsertQuery.setDouble((2 * i) + 2, flightPaths.get(i).fromLongitude);
+        flightInsertQuery.setDouble((2 * i) + 3, flightPaths.get(i).fromLatitude);
+        flightInsertQuery.setInt((2 * i) + 4, flightPaths.get(i).angle);
+        flightInsertQuery.setDouble((2 * i) + 5, flightPaths.get(i).toLongitude);
+        flightInsertQuery.setDouble((2 * i) + 6, flightPaths.get(i).toLatitude);
       }
       int row = flightInsertQuery.executeUpdate();
       System.out.println("Successfully insert into row: " + row);
