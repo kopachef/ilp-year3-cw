@@ -8,7 +8,6 @@ import uk.ac.ed.inf.utils.Settings;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
@@ -32,17 +31,14 @@ public class OrderDeliveryWorker {
     this.orderProcessingDate = orderProcessingDate;
     this.drone = droneObject;
     this.foodOrderQueue =
-        new PriorityQueue<FoodOrder>(
-            new Comparator<FoodOrder>() {
-              @Override
-              public int compare(FoodOrder o2, FoodOrder o1) {
-                double travelDistanceToO1 = o1.calculateTravelDistance(drone.getCurrentPosition());
-                double travelDistanceToO2 = o2.calculateTravelDistance(drone.getCurrentPosition());
-                return Double.compare(
-                    (o1.getDeliveryCost() / travelDistanceToO1),
-                    (o2.getDeliveryCost() / travelDistanceToO2));
-              }
-            });
+            new PriorityQueue<>(
+                    (o2, o1) -> {
+                      double travelDistanceToO1 = o1.calculateTravelDistance(drone.getCurrentPosition());
+                      double travelDistanceToO2 = o2.calculateTravelDistance(drone.getCurrentPosition());
+                      return Double.compare(
+                              (o1.getDeliveryCost() / travelDistanceToO1),
+                              (o2.getDeliveryCost() / travelDistanceToO2));
+                    });
   }
 
   /**
@@ -75,7 +71,7 @@ public class OrderDeliveryWorker {
                 dbOrder.deliverTo,
                 menus.getDeliveryCost(
                     items.stream()
-                        .map(x -> x.getName())
+                        .map(MenuItem::getName)
                         .collect(Collectors.toList())
                         .toArray(String[]::new)));
         totalOrderValue += currentFoodOrder.getDeliveryCost();
@@ -95,17 +91,14 @@ public class OrderDeliveryWorker {
    */
   public void updateFoodOrders(Drone drone, PriorityQueue<FoodOrder> currentFoodOrderQueue) {
     this.foodOrderQueue =
-        new PriorityQueue<FoodOrder>(
-            new Comparator<FoodOrder>() {
-              @Override
-              public int compare(FoodOrder o2, FoodOrder o1) {
-                double travelDistanceToO1 = o1.calculateTravelDistance(drone.getCurrentPosition());
-                double travelDistanceToO2 = o2.calculateTravelDistance(drone.getCurrentPosition());
-                return Double.compare(
-                    (o1.getDeliveryCost() / travelDistanceToO1),
-                    (o2.getDeliveryCost() / travelDistanceToO2));
-              }
-            });
+            new PriorityQueue<>(
+                    (o2, o1) -> {
+                      double travelDistanceToO1 = o1.calculateTravelDistance(drone.getCurrentPosition());
+                      double travelDistanceToO2 = o2.calculateTravelDistance(drone.getCurrentPosition());
+                      return Double.compare(
+                              (o1.getDeliveryCost() / travelDistanceToO1),
+                              (o2.getDeliveryCost() / travelDistanceToO2));
+                    });
     this.foodOrderQueue.addAll(currentFoodOrderQueue);
   }
 
@@ -140,7 +133,7 @@ public class OrderDeliveryWorker {
   /**
    * Return total cost of orders
    *
-   * @return
+   * @return returns summed total of the value of all the orders.
    */
   public double getTotalOrderValue() {
     return totalOrderValue;
