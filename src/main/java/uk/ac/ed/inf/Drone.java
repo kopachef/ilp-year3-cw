@@ -1,6 +1,6 @@
 package uk.ac.ed.inf;
 
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 public class Drone {
 

@@ -1,7 +1,7 @@
 package uk.ac.ed.inf;
 
 import org.apache.commons.math3.util.Precision;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 /**
  * This class provides a blueprint for the definition of a LongLat object. This object is meant to

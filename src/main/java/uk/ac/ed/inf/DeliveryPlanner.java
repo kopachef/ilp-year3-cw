@@ -8,7 +8,7 @@ import uk.ac.ed.inf.algorithm.Node;
 import uk.ac.ed.inf.algorithm.PathSmoothing;
 import uk.ac.ed.inf.dataio.DatabaseIO;
 import uk.ac.ed.inf.dataio.GeoJsonManager;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -172,7 +172,6 @@ public class DeliveryPlanner {
     fullPath.addAll(pathToHome);
     smoothedPath = pathSmoothing.smoothenPath(getFullPath());
     createDatabaseEntries();
-    graph.printDistanceBetweenNodes(smoothedPath);
   }
 
   /**
@@ -290,7 +289,6 @@ public class DeliveryPlanner {
       FileWriter myWriter = new FileWriter(filePrefix + "geojson-" + deliveryDate + ".geojson");
       myWriter.write(featureCollection.toJson());
       myWriter.close();
-      System.out.println("Successfully wrote to the file.");
     } catch (IOException e) {
       System.out.println("An error occurred.");
       e.printStackTrace();

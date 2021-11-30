@@ -1,6 +1,6 @@
 package uk.ac.ed.inf.dataio;
 
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class DatabaseIO {
       psInsertQuery.setString(3, customer);
       psInsertQuery.setString(4, deliverTo);
       int row = psInsertQuery.executeUpdate();
-      System.out.println("Successfully insert into row: " + row);
+      //System.out.println("Successfully insert into row: " + row);
       psInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -51,7 +51,7 @@ public class DatabaseIO {
       psInsertQuery.setString(1, orderNo);
       psInsertQuery.setString(2, item);
       int row = psInsertQuery.executeUpdate();
-      System.out.println("Successfully insert into row: " + row);
+      //System.out.println("Successfully insert into row: " + row);
       psInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -79,7 +79,7 @@ public class DatabaseIO {
       psDeleteQuery.setString(3, customer);
       psDeleteQuery.setString(4, deliverTo);
       int row = psDeleteQuery.executeUpdate();
-      System.out.println("Successfully deleted entry at row: " + row);
+      //System.out.println("Successfully deleted entry at row: " + row);
       psDeleteQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -101,7 +101,7 @@ public class DatabaseIO {
       psDeleteQuery.setString(1, orderNo);
       psDeleteQuery.setString(2, item);
       int row = psDeleteQuery.executeUpdate();
-      System.out.println("Successfully deleted entry at row: " + row);
+      //System.out.println("Successfully deleted entry at row: " + row);
       psDeleteQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -273,7 +273,7 @@ public class DatabaseIO {
         deliveryInsertQuery.setInt((2 * i) + i + 3, deliveries.get(i).costInPence);
       }
       int row = deliveryInsertQuery.executeUpdate();
-      System.out.println("Successfully inserted deliveries count: " + row);
+      //System.out.println("Successfully inserted deliveries count: " + row);
       deliveryInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -340,7 +340,7 @@ public class DatabaseIO {
         flightInsertQuery.setDouble((5 * i) + i + 6, flightPaths.get(i).toLatitude);
       }
       int row = flightInsertQuery.executeUpdate();
-      System.out.println("Successfully inserted flights count: " + row);
+      //System.out.println("Successfully inserted flights count: " + row);
       flightInsertQuery.close();
       conn.close();
     } catch (SQLException e) {

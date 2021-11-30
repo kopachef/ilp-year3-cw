@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import uk.ac.ed.inf.LongLat;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

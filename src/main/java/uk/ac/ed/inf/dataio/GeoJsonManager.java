@@ -3,7 +3,7 @@ package uk.ac.ed.inf.dataio;
 import com.mapbox.geojson.*;
 import com.mapbox.turf.TurfJoins;
 import uk.ac.ed.inf.LongLat;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 import uk.ac.ed.inf.algorithm.Node;
 
 import java.awt.geom.Area;

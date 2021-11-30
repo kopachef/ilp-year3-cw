@@ -4,7 +4,7 @@ import uk.ac.ed.inf.dataio.DatabaseIO;
 import uk.ac.ed.inf.dataio.DatabaseIO.DatabaseOrder;
 import uk.ac.ed.inf.dataio.DatabaseIO.DatabaseOrderDetails;
 import uk.ac.ed.inf.dataio.JsonObjectManager;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.sql.Date;
 import java.util.ArrayList;

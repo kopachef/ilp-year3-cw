@@ -1,6 +1,6 @@
 package uk.ac.ed.inf.dataio;
 
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.io.IOException;
 import java.net.URI;

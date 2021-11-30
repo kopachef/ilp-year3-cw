@@ -4,7 +4,7 @@ import com.mapbox.geojson.Feature;
 import org.apache.commons.math3.util.Precision;
 import uk.ac.ed.inf.dataio.GeoJsonManager;
 import uk.ac.ed.inf.LongLat;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,7 +2,7 @@ package uk.ac.ed.inf.algorithm;
 
 import uk.ac.ed.inf.dataio.GeoJsonManager;
 import uk.ac.ed.inf.LongLat;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import com.google.common.annotations.VisibleForTesting;
 

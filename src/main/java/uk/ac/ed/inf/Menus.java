@@ -1,7 +1,7 @@
 package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.dataio.JsonObjectManager;
-import uk.ac.ed.inf.deliveryutils.Settings;
+import uk.ac.ed.inf.utils.Settings;
 
 import java.util.ArrayList;
 import java.util.HashMap;

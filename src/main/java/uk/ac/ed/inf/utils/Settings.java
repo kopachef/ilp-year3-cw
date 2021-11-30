@@ -1,4 +1,4 @@
-package uk.ac.ed.inf.deliveryutils;
+package uk.ac.ed.inf.utils;
 
 import uk.ac.ed.inf.LongLat;
 
