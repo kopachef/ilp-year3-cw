@@ -38,6 +38,16 @@ public class App {
     }
   }
 
+  /**
+   * The writeFlightAndDeliveryData() function writes the flightPathLinkedList and the deliveryLinkedList to the
+   * FlightPath and Delivery tables, respectively. The writeBufferSize is set to the default value of
+   * Settings.getDefaultInsertBufferSize(). If the writeBufferSize is reached, the function will insert the
+   * FlightPath and Delivery lists into the tables and reset the buffer to load more entries if available.
+   *
+   * @param flightPathLinkedList linked list of flight paths.
+   * @param deliveryLinkedList linked list of deliveries.
+   */
+
   public static void writeFlightAndDeliveryData(
       LinkedList<DatabaseIO.FlightPath> flightPathLinkedList,
       LinkedList<DatabaseIO.Delivery> deliveryLinkedList) {
