@@ -34,6 +34,8 @@ public final class Settings {
   private static LongLat DEFAULT_SOUTHWEST_BOUND = new LongLat(-3.192473, 55.942617);
   private static LongLat DEFAULT_SOUTHEAST_BOUND = new LongLat(-3.184319, 55.942617);
 
+  private static int GRID_GRANULARITY = 54;
+
   /**
    * Get methods for bounding box parameters
    * */
@@ -51,6 +53,10 @@ public final class Settings {
 
   public static LongLat getDefaultSouthWestBound() {
     return DEFAULT_SOUTHWEST_BOUND;
+  }
+
+  public static int getGridGranularity() {
+    return GRID_GRANULARITY;
   }
 
   /**
@@ -72,6 +78,9 @@ public final class Settings {
     DEFAULT_NORTHEAST_BOUND = northEastBound;
   }
 
+  public static void setGridGranularity(int gridGranularity) {
+    GRID_GRANULARITY = gridGranularity;
+  }
 
   /*****************************************************************
    * SERVER FILE DIRECTORY CONSTANTS

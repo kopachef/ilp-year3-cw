@@ -100,7 +100,6 @@ public class Drone {
    * function.
    */
   public void hoverDrone() {
-    // System.out.println("Hovered: " + batteryLevel);
     droneState = DroneState.HOVERING;
     batteryLevel -= 1;
   }
@@ -115,7 +114,6 @@ public class Drone {
    * flying.
    */
   public void returnToHome() {
-    // System.out.println("retunred home with final battery :" + batteryLevel);
     droneState = DroneState.STATIONARY;
   }
 

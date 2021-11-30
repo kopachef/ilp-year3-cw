@@ -8,7 +8,7 @@ public class Node implements Cloneable {
    * A node object represents a single node on our groan which also represents a location on our
    * map.
    */
-  public double stepCost = 5;
+  public double stepCost = 1;
 
   public int row, col;
   double g, h, f;
@@ -77,7 +77,7 @@ public class Node implements Cloneable {
 
   public double calculateAngleTo(Node node) {
     double real = this.getLongLat().calculateBearing(node.getLongLat());
-    int angle = Utils.roundOffToNearest10th(real);
+    int angle = GraphUtils.roundOffToNearest10th(real);
     return angle;
   }
 

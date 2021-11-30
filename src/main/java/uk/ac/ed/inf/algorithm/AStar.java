@@ -4,7 +4,7 @@ import java.util.*;
 
 public class AStar {
   private Node[][] searchArea;
-    private PriorityQueue<Node> openList;
+  private PriorityQueue<Node> openList;
   private Set<Node> closedSet;
   private Node initialNode;
   private Node finalNode;
@@ -311,7 +311,7 @@ public class AStar {
   }
 
   /**
-   * Returns the opine list of nodes to be traversed.
+   * Returns the open list of nodes to be traversed.
    *
    * @return
    */

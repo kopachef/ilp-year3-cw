@@ -2,7 +2,7 @@ package uk.ac.ed.inf.algorithm;
 
 import org.apache.commons.math3.util.Precision;
 
-public class Utils {
+public class GraphUtils {
 
   /**
    * The roundOffToNearestMultiple() method rounds off the given number to the nearest multiple

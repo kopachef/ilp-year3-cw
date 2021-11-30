@@ -113,9 +113,9 @@ public class PathSmoothing {
       double bearing = curr.getLongLat().calculateBearing(next.getLongLat());
       double distance = curr.getLongLat().distanceTo(next.getLongLat());
 
-      int roundedAngle = Utils.roundOffToNearest10th(bearing);
+      int roundedAngle = GraphUtils.roundOffToNearest10th(bearing);
       double roundedDistance =
-          Utils.roundOffToNearestMultiple(distance, Settings.getDefaultMovementStepDistance());
+          GraphUtils.roundOffToNearestMultiple(distance, Settings.getDefaultMovementStepDistance());
       int stepCount = (int) (roundedDistance / Settings.getDefaultMovementStepDistance());
 
       LongLat pos1 = curr.getLongLat();

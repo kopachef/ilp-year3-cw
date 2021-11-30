@@ -53,7 +53,7 @@ public class DeliveryPlanner {
           Settings.getDefaultNorthWestBound().latitude,
           Settings.getDefaultSouthEastBound().longitude,
           Settings.getDefaultSouthEastBound().latitude,
-          Settings.GRID_GRANULARITY);
+          Settings.getGridGranularity());
   private List<Node> pathToHome = new LinkedList<>();
   private List<Node> smoothedPath;
   private int fulfilledOrderCount = 0;
@@ -296,7 +296,8 @@ public class DeliveryPlanner {
   }
 
   /**
-   * Gets a list of features that includes restricted areas and grid nodes.
+   * Gets a list of features that includes restricted areas and grid nodes. Can be used when want to incorporate
+   * there features with a path.
    *
    * @return list of features
    */
@@ -315,7 +316,7 @@ public class DeliveryPlanner {
    *
    * @return
    */
-  public Feature generatePathLineString() {
+  private Feature generatePathLineString() {
     List<LongLat> visitedLongLats = new ArrayList<>();
     visitedLongLats.add(
         new LongLat(flightPaths.get(0).fromLongitude, flightPaths.get(0).fromLatitude));
