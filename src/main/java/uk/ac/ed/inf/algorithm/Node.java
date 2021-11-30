@@ -8,7 +8,6 @@ public class Node implements Cloneable {
    * A node object represents a single node on our groan which also represents a location on our
    * map.
    */
-  // TODO trying using different tsp cost for this.
   public double stepCost = 5;
 
   public int row, col;
