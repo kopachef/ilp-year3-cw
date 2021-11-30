@@ -22,22 +22,17 @@ public class AStar {
     setFinalNode(finalNode);
     this.searchArea = grid;
     this.openList =
-        new PriorityQueue<Node>(
-            new Comparator<Node>() {
-              @Override
-              public int compare(Node node0, Node node1) {
-                return Double.compare(node0.getF(), node1.getF());
-              }
-            });
+            new PriorityQueue<>(
+                    Comparator.comparingDouble(Node::getF));
     setNodes();
     this.closedSet = new HashSet<>();
   }
 
   /** Sets the straight line heuristic from each node to the destination node. */
   private void setNodes() {
-    for (int i = 0; i < searchArea.length; i++) {
+    for (Node[] nodes : searchArea) {
       for (int j = 0; j < searchArea[0].length; j++) {
-        searchArea[i][j].calculateHeuristic(getFinalNode());
+        nodes[j].calculateHeuristic(getFinalNode());
       }
     }
   }
@@ -52,9 +47,9 @@ public class AStar {
    * @param restrictedNodes List of restricted nodes.
    */
   public void setRestrictedAreas(Node[] restrictedNodes) {
-    for (int i = 0; i < restrictedNodes.length; i++) {
-      int row = restrictedNodes[i].getRow();
-      int col = restrictedNodes[i].getCol();
+    for (Node restrictedNode : restrictedNodes) {
+      int row = restrictedNode.getRow();
+      int col = restrictedNode.getCol();
       setRestricted(row, col);
     }
   }
@@ -70,13 +65,15 @@ public class AStar {
     while (!isEmpty(openList)) {
       Node currentNode = openList.poll();
       closedSet.add(currentNode);
-      if (isFinalNode(currentNode)) {
-        return getPath(currentNode);
-      } else {
-        addAdjacentNodes(currentNode);
+      if (currentNode != null) {
+        if (isFinalNode(currentNode)) {
+          return getPath(currentNode);
+        } else {
+          addAdjacentNodes(currentNode);
+        }
       }
     }
-    return new ArrayList<Node>();
+    return new ArrayList<>();
   }
 
   /**
@@ -87,7 +84,7 @@ public class AStar {
    * @return List of ordered Nodes forming the shortest path.
    */
   private List<Node> getPath(Node currentNode) {
-    List<Node> path = new ArrayList<Node>();
+    List<Node> path = new ArrayList<>();
     path.add(currentNode);
     Node parent;
     while ((parent = currentNode.getParent()) != null && !path.contains(parent)) {
@@ -112,7 +109,7 @@ public class AStar {
   /**
    * Exploring adjacent nodes in the lower row.
    *
-   * @param currentNode
+   * @param currentNode returns current node
    */
   private void addAdjacentLowerRow(Node currentNode) {
     int row = currentNode.getRow();
@@ -147,26 +144,25 @@ public class AStar {
   /**
    * Exploring adjacent nodes in the same row.
    *
-   * @param currentNode
+   * @param currentNode node being explored
    */
   private void addAdjacentMiddleRow(Node currentNode) {
     int row = currentNode.getRow();
     int col = currentNode.getCol();
-    int middleRow = row;
     if (col - 1 >= 0) {
-      double cost = getSearchArea()[middleRow][col - 1].stepCost;
-      checkNode(currentNode, col - 1, middleRow, cost);
+      double cost = getSearchArea()[row][col - 1].stepCost;
+      checkNode(currentNode, col - 1, row, cost);
     }
     if (col + 1 < getSearchArea()[0].length) {
-      double cost = getSearchArea()[middleRow][col + 1].stepCost;
-      checkNode(currentNode, col + 1, middleRow, cost);
+      double cost = getSearchArea()[row][col + 1].stepCost;
+      checkNode(currentNode, col + 1, row, cost);
     }
   }
 
   /**
    * Exploring adjacent nodes in the top row.
    *
-   * @param currentNode
+   * @param currentNode root node
    */
   private void addAdjacentUpperRow(Node currentNode) {
     int row = currentNode.getRow();
@@ -239,7 +235,7 @@ public class AStar {
   /**
    * Checks if our openList(priority queue) is empty
    *
-   * @param openList
+   * @param openList list of nodes yet to be explored.
    * @return True is empty, False otherwise.
    */
   private boolean isEmpty(PriorityQueue<Node> openList) {
@@ -340,7 +336,7 @@ public class AStar {
   /**
    * Sets the closed set of visited nodes.
    *
-   * @param closedSet
+   * @param closedSet return visited nodes.
    */
   public void setClosedSet(Set<Node> closedSet) {
     this.closedSet = closedSet;

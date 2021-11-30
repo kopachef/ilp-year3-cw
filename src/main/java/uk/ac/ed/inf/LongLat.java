@@ -3,6 +3,8 @@ package uk.ac.ed.inf;
 import org.apache.commons.math3.util.Precision;
 import uk.ac.ed.inf.utils.Settings;
 
+import java.util.Objects;
+
 /**
  * This class provides a blueprint for the definition of a LongLat object. This object is meant to
  * represent a physical location of the surface of the earth using a pair of coordinates
@@ -234,6 +236,18 @@ public class LongLat {
   @Override
   public String toString() {
     return "Longitude: " + longitude + "\nLatitude: " + latitude;
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @see java.lang.Object
+   *
+   * @return hash number of object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(longitude, latitude);
   }
 
   /** Dumps current state and attributes of the LongLat object it is called on. */

@@ -14,25 +14,52 @@ public class App {
 
   public static void main(String[] args) {
 
-    int expectedCmdArgLength = 5;
-    if (args.length == expectedCmdArgLength) {
+    int expectedCmdArgLength5 = 5;
+    int expectedCmdArgLength3 = 3;
 
+    Date deliveryDate;
+    String webServerPort;
+    String dbServerPort;
+
+    if (args.length == expectedCmdArgLength5) {
       String day = args[0];
       String month = args[1];
       String year = args[2];
-      String webServerPort = args[3];
-      String dbServerPort = args[4];
+
+      webServerPort = args[3];
+      dbServerPort = args[4];
 
       Settings.setDefaultServerPort(webServerPort);
       Settings.setDefaultDatabasePort(dbServerPort);
-      Date deliveryDate = Date.valueOf(year + "-" + month + "-" + day);
+      deliveryDate = Date.valueOf(year + "-" + month + "-" + day);
+
+      DeliveryPlanner deliveryPlanner = new DeliveryPlanner(deliveryDate);
+      deliveryPlanner.generatePathMap();
+      writeFlightAndDeliveryData(deliveryPlanner.getFlightPaths(), deliveryPlanner.getDeliveries());
+
+      }
+    else if(args.length == expectedCmdArgLength3) {
+
+      String[] dateValues = args[0].split("/");
+      String day = dateValues[0];
+      String month = dateValues[1];
+      String year = dateValues[2];
+
+      deliveryDate = Date.valueOf(year + "-" + month + "-" + day);
+
+      webServerPort = args[1];
+      dbServerPort = args[2];
+
+      Settings.setDefaultServerPort(webServerPort);
+      Settings.setDefaultDatabasePort(dbServerPort);
 
       DeliveryPlanner deliveryPlanner = new DeliveryPlanner(deliveryDate);
       deliveryPlanner.generatePathMap();
       writeFlightAndDeliveryData(deliveryPlanner.getFlightPaths(), deliveryPlanner.getDeliveries());
 
     } else {
-      System.err.println("Invalid command line argument length.\nExpected length: " + expectedCmdArgLength +
+      System.err.println("Invalid command line argument length.\nExpected length: "
+                      + expectedCmdArgLength5 + " or " + expectedCmdArgLength3 +
               "\nArgument length given: " + args.length);
       System.exit(1);
     }

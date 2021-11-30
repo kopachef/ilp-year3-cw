@@ -285,8 +285,10 @@ public class DeliveryPlanner {
   public void generatePathMap() {
     FeatureCollection featureCollection = FeatureCollection.fromFeature(generatePathLineString());
     String filePrefix = "src/main/java/uk/ac/ed/inf/";
+    String[] dateParts = deliveryDate.toString().split("-");
+    String dateString = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
     try {
-      FileWriter myWriter = new FileWriter(filePrefix + "geojson-" + deliveryDate + ".geojson");
+      FileWriter myWriter = new FileWriter(filePrefix + "drone-" + dateString + ".geojson");
       myWriter.write(featureCollection.toJson());
       myWriter.close();
     } catch (IOException e) {

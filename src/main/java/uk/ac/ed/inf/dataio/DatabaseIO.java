@@ -6,8 +6,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class DatabaseIO {
+
+  private static Logger logger = Logger.getLogger(String.valueOf(DatabaseIO.class));
 
   /**
    * Inserts an order into our database.
@@ -29,7 +34,7 @@ public class DatabaseIO {
       psInsertQuery.setString(3, customer);
       psInsertQuery.setString(4, deliverTo);
       int row = psInsertQuery.executeUpdate();
-      //System.out.println("Successfully insert into row: " + row);
+      logger.log(Level.FINE, "Successfully insert into row: " + row);
       psInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -51,7 +56,7 @@ public class DatabaseIO {
       psInsertQuery.setString(1, orderNo);
       psInsertQuery.setString(2, item);
       int row = psInsertQuery.executeUpdate();
-      //System.out.println("Successfully insert into row: " + row);
+      logger.log(Level.FINE,"Successfully insert into row: " + row);
       psInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -79,7 +84,7 @@ public class DatabaseIO {
       psDeleteQuery.setString(3, customer);
       psDeleteQuery.setString(4, deliverTo);
       int row = psDeleteQuery.executeUpdate();
-      //System.out.println("Successfully deleted entry at row: " + row);
+      logger.log(Level.FINE,"Successfully deleted entry at row: " + row);
       psDeleteQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -101,7 +106,7 @@ public class DatabaseIO {
       psDeleteQuery.setString(1, orderNo);
       psDeleteQuery.setString(2, item);
       int row = psDeleteQuery.executeUpdate();
-      //System.out.println("Successfully deleted entry at row: " + row);
+      logger.log(Level.FINE,"Successfully deleted entry at row: " + row);
       psDeleteQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -273,7 +278,7 @@ public class DatabaseIO {
         deliveryInsertQuery.setInt((2 * i) + i + 3, deliveries.get(i).costInPence);
       }
       int row = deliveryInsertQuery.executeUpdate();
-      //System.out.println("Successfully inserted deliveries count: " + row);
+      logger.log(Level.FINE,"Successfully inserted deliveries count: " + row);
       deliveryInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -340,7 +345,7 @@ public class DatabaseIO {
         flightInsertQuery.setDouble((5 * i) + i + 6, flightPaths.get(i).toLatitude);
       }
       int row = flightInsertQuery.executeUpdate();
-      //System.out.println("Successfully inserted flights count: " + row);
+      logger.log(Level.FINE,"Successfully inserted flights count: " + row);
       flightInsertQuery.close();
       conn.close();
     } catch (SQLException e) {
@@ -404,8 +409,8 @@ public class DatabaseIO {
     try {
       conn = DriverManager.getConnection(url);
     } catch (SQLException e) {
-      System.out.println(url);
-      System.out.println("Could not establish database connection");
+      System.err.println(url);
+      System.err.println("Could not establish database connection");
       e.printStackTrace();
       System.exit(1);
     }
