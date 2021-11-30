@@ -1,13 +1,11 @@
 package uk.ac.ed.inf;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -16,12 +14,22 @@ public class DroneTest {
     public void testConstructor() {
         Drone actualDrone = new Drone(1);
         actualDrone.setBatteryLevel(1);
+        ArrayList<MenuItem> items = new ArrayList<MenuItem>();
+        Date deliveryDate = mock(Date.class);
         LongLat longLat = new LongLat(10.0, 10.0);
 
-        actualDrone.setCurrentPosition(longLat);
-        actualDrone.turn(1);
+        FoodOrder foodOrder = new FoodOrder(items, "Order No", "Customer", deliveryDate, longLat, "42 Main St", 1);
+
+        actualDrone.setCurrentFoodOrder(foodOrder);
+        LongLat longLat1 = new LongLat(10.0, 10.0);
+
+        actualDrone.setCurrentPosition(longLat1);
         assertEquals(1, actualDrone.getBatteryLevel());
-        assertSame(longLat, actualDrone.getCurrentPosition());
+        assertSame(foodOrder, actualDrone.getCurrentFoodOrder());
+        LongLat currentPosition = actualDrone.getCurrentPosition();
+        assertSame(longLat1, currentPosition);
+        assertEquals(longLat, currentPosition);
+        assertEquals(Drone.DroneState.STATIONARY, actualDrone.getDroneState());
         assertEquals(0, actualDrone.getStepCount());
     }
 
@@ -30,6 +38,7 @@ public class DroneTest {
         Drone actualDrone = new Drone(1);
         assertEquals(1, actualDrone.getBatteryLevel());
         assertEquals(0, actualDrone.getStepCount());
+        assertEquals(Drone.DroneState.STATIONARY, actualDrone.getDroneState());
         assertEquals(-3.186874, actualDrone.getCurrentPosition().longitude, 0.0);
     }
 
@@ -45,28 +54,19 @@ public class DroneTest {
 
         drone.moveTo(longLat);
         assertEquals(-318662, drone.getBatteryLevel());
+        assertEquals(318663, drone.getStepCount());
         assertSame(longLat, drone.getCurrentPosition());
     }
 
     @Test
     public void testMoveTo2() {
         Drone drone = new Drone(1);
-        drone.moveTo(new LongLat(Double.NaN, 10.0));
-        assertEquals(1, drone.getBatteryLevel());
-        assertEquals(0, drone.getStepCount());
-        assertEquals(-3.186874, drone.getCurrentPosition().longitude, 0.0);
-    }
-
-    @Test
-    public void testMoveTo3() {
-        Drone drone = new Drone(1);
-        drone.setCurrentPosition(new LongLat(10.0, 10.0));
-        LongLat longLat = new LongLat(10.0, 10.0);
+        LongLat longLat = new LongLat(Double.NaN, 10.0);
 
         drone.moveTo(longLat);
         assertEquals(1, drone.getBatteryLevel());
         assertEquals(0, drone.getStepCount());
-        assertEquals(longLat, drone.getCurrentPosition());
+        assertSame(longLat, drone.getCurrentPosition());
     }
 
     @Test
@@ -74,29 +74,24 @@ public class DroneTest {
         Drone drone = new Drone(1);
         drone.hoverDrone();
         assertEquals(0, drone.getBatteryLevel());
+        assertEquals(Drone.DroneState.HOVERING, drone.getDroneState());
     }
 
     @Test
     public void testLoadItems() {
         Drone drone = new Drone(1);
-        ArrayList<MenuItem> items = new ArrayList<MenuItem>();
-        Date deliveryDate = mock(Date.class);
-        FoodOrder foodOrder = new FoodOrder(items, "Order No", "Customer", deliveryDate, new LongLat(10.0, 10.0),
-                "42 Main St", 10);
-
-        drone.setCurrentFoodOrder(foodOrder);
         drone.loadItems();
-        assertEquals("Customer", foodOrder.getCustomer());
-        assertFalse(foodOrder.isHasBeenDelivered());
-        assertEquals("Order No", foodOrder.getOrderNo());
-        List<LongLat> expectedOrderItems = foodOrder.getPickUpLocations();
-        assertEquals(expectedOrderItems, foodOrder.getOrderItems());
-        assertEquals("42 Main St", foodOrder.getDeliveryW3wAddress());
-        assertEquals(10.0, foodOrder.getDeliveryCost(), 0.0);
-        assertEquals(10.0, foodOrder.getDeliveryLocationLongLat().latitude, 0.0);
         assertEquals(1, drone.getBatteryLevel());
         assertEquals(0, drone.getStepCount());
+        assertEquals(Drone.DroneState.STATIONARY, drone.getDroneState());
         assertEquals(-3.186874, drone.getCurrentPosition().longitude, 0.0);
+    }
+
+    @Test
+    public void testResetBatterLevel() {
+        Drone drone = new Drone(1);
+        drone.resetBatterLevel();
+        assertEquals(1500, drone.getBatteryLevel());
     }
 }
 

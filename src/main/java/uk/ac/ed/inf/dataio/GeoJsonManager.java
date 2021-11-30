@@ -1,7 +1,9 @@
-package uk.ac.ed.inf;
+package uk.ac.ed.inf.dataio;
 
 import com.mapbox.geojson.*;
 import com.mapbox.turf.TurfJoins;
+import uk.ac.ed.inf.LongLat;
+import uk.ac.ed.inf.deliveryutils.Settings;
 import uk.ac.ed.inf.algorithm.Node;
 
 import java.awt.geom.Area;
@@ -15,7 +17,7 @@ import java.util.stream.Stream;
 public class GeoJsonManager {
 
   /** Feature Collection of all the restricted areas. */
-  private static FeatureCollection restrictedAreasFeatures =
+  private static final FeatureCollection restrictedAreasFeatures =
       FeatureCollection.fromJson(
           UrlDownloadManager.loadUrlContents(
               Settings.getDefaultServerUrlProtocol()
@@ -25,7 +27,7 @@ public class GeoJsonManager {
                   + Settings.getDefaultRestrictedBuildingsFilename()));
 
   /** Feature Collection of all the landmark features. */
-  private static FeatureCollection landmarkFeatures =
+  private static final FeatureCollection landmarkFeatures =
       FeatureCollection.fromJson(
           UrlDownloadManager.loadUrlContents(
               Settings.getDefaultServerUrlProtocol()
@@ -33,14 +35,19 @@ public class GeoJsonManager {
                   + ":"
                   + Settings.getDefaultServerPort()
                   + Settings.getDefaultRestrictedBuildingsFilename()));
+  /** List of Polygons representing restricted areas. */
+  private static final List<Polygon> restrictedAreas =
+      restrictedAreasFeatures.features().stream()
+          .map(x -> (Polygon) x.geometry())
+          .collect(Collectors.toList());
 
   /**
-   * Function to check if a point in within the perimeter of the restricted area. Returns True if point is in
-   * within range(subject to the radius) amd false otherwise.
+   * Function to check if a point in within the perimeter of the restricted area. Returns True if
+   * point is in within range(subject to the radius) amd false otherwise.
    *
    * @param centre centre representing the point for which we are testing for.
-   * @param radius radius denoting how far away from this point that we have to extrapolate and check if
-   *               a restricted area is in range.
+   * @param radius radius denoting how far away from this point that we have to extrapolate and
+   *     check if a restricted area is in range.
    * @return True if in range and False otherwise.
    */
   public static boolean isInPerimeterOfRestrictedArea(LongLat centre, double radius) {
@@ -51,22 +58,17 @@ public class GeoJsonManager {
 
     for (Polygon p : restrictedAreas) {
       if (Stream.of(centre, top, bottom, right, left)
-              .map(x -> (TurfJoins.inside(createPointFromLongLat(x), p)))
-              .anyMatch(Boolean.TRUE::equals)) {
+          .map(x -> (TurfJoins.inside(createPointFromLongLat(x), p)))
+          .anyMatch(Boolean.TRUE::equals)) {
         return true;
       }
     }
     return false;
   }
 
-  /** List of Polygons representing restricted areas. */
-  private static List<Polygon> restrictedAreas =
-      restrictedAreasFeatures.features().stream()
-          .map(x -> (Polygon) x.geometry())
-          .collect(Collectors.toList());
-
   /**
    * Returns a list of Feature objects representing the restricted areas.
+   *
    * @return Restricted areas as a List of Features.
    */
   public static List<Feature> getRestrictedAreasFeatures() {
@@ -74,10 +76,11 @@ public class GeoJsonManager {
   }
 
   /**
-   * Alternative to the 'isInPerimeterOfRestrictedArea' function that just checks whether a point is in the
-   * restricted area. This function does not provide any fine-grained control of checking whether a point
-   * is right next to a restricted area. While this may seem like a duplicate of the afore mentioned function,
-   * it is 4 times faster and has specific use cases where we don't care about radius.
+   * Alternative to the 'isInPerimeterOfRestrictedArea' function that just checks whether a point is
+   * in the restricted area. This function does not provide any fine-grained control of checking
+   * whether a point is right next to a restricted area. While this may seem like a duplicate of the
+   * afore mentioned function, it is 4 times faster and has specific use cases where we don't care
+   * about radius.
    *
    * @param longlat Longlat object to checked
    * @return True if is in restricted area, False otherwise.
@@ -89,11 +92,17 @@ public class GeoJsonManager {
     return false;
   }
 
+  /**
+   * Creates an Area from a Polygon.
+   *
+   * @param polygon the polygon
+   * @return the Area created from the polygon
+   */
   public static Area createAreaFromPolygon(Polygon polygon) {
     Path2D polyA = new Path2D.Double();
     boolean isFirst = true;
     for (Point p : polygon.outer().coordinates()) {
-      if(isFirst) {
+      if (isFirst) {
         polyA.moveTo(p.longitude(), p.latitude());
         isFirst = false;
       } else {
@@ -103,27 +112,42 @@ public class GeoJsonManager {
     polyA.closePath();
     return new Area(polyA);
   }
+
+  /**
+   * Checks if a Polygon intersects a restricted area.
+   *
+   * @param inputPolygon  the input Polygon.
+   * @return true if the input Polygon intersects a restricted area, false otherwise.
+   */
   public static boolean intersectsRestrictedArea(Polygon inputPolygon) {
     Area polygonA = createAreaFromPolygon(inputPolygon);
-    for(Polygon p : restrictedAreas) {
+    for (Polygon p : restrictedAreas) {
       Area polygonB = createAreaFromPolygon(p);
       polygonB.intersect(polygonA);
-      if(!polygonB.isEmpty()) {
+      if (!polygonB.isEmpty()) {
         return true;
       }
     }
     return false;
   }
 
-
+  /**
+   * Tests if a given point is inside the confinement zone.
+   *
+   * @param longLat the longitude and latitude of the point to test.
+   * @return True if in confinement zone, false otherwise.
+   */
   public static boolean isInConfinementZone(LongLat longLat) {
-    List<Point> corners = List.of(
-                    Settings.getDefaultNorthWestBound(),
-                    Settings.getDefaultNorthEastBound(),
-                    Settings.getDefaultSouthEastBound(),
-                    Settings.getDefaultSouthWestBound(),
-                    Settings.getDefaultNorthWestBound())
-            .stream().map(x -> createPointFromLongLat(x)).collect(Collectors.toList());
+    List<Point> corners =
+        List.of(
+                Settings.getDefaultNorthWestBound(),
+                Settings.getDefaultNorthEastBound(),
+                Settings.getDefaultSouthEastBound(),
+                Settings.getDefaultSouthWestBound(),
+                Settings.getDefaultNorthWestBound())
+            .stream()
+            .map(x -> createPointFromLongLat(x))
+            .collect(Collectors.toList());
 
     LineString boundingLineString = LineString.fromLngLats(corners);
     Polygon boundingBox = Polygon.fromOuterInner(boundingLineString);
@@ -155,17 +179,37 @@ public class GeoJsonManager {
     return result;
   }
 
+  /**
+   * Checks if two nodes are visible from each other.
+   *
+   * @param a the first node
+   * @param b the second node
+   * @param c the node to check visibility from
+   * @return true if the nodes a and c are directly visible from each other.
+   * */
+
   public static boolean lineOfSight(Node a, Node b, Node c) {
     List<Point> pts = GeoJsonManager.generatePointsFromNodes(Arrays.asList(a, b, c, a));
     LineString line = LineString.fromLngLats(pts);
     return intersectsRestrictedArea(Polygon.fromOuterInner(line));
   }
 
+  /**
+   * Checks if a line segment connecting two points crosses a restricted area.
+
+   * @param start the starting LongLat
+   * @param end the ending LongLat
+   * @return true if line segment crosses restricted area, false otherwise
+   *
+   * */
   public static boolean crossesRestricedArea(LongLat start, LongLat end) {
     double offset = 0.05 * Settings.getDefaultMovementStepDistance();
     LongLat mid = new LongLat(start.longitude + offset, start.latitude + offset);
     List<LongLat> coords = Arrays.asList(start, mid, end, start);
-    List<Point> pts = coords.stream().map(x -> GeoJsonManager.createPointFromLongLat(x)).collect(Collectors.toList());
+    List<Point> pts =
+        coords.stream()
+            .map(x -> GeoJsonManager.createPointFromLongLat(x))
+            .collect(Collectors.toList());
     LineString line = LineString.fromLngLats(pts);
     return intersectsRestrictedArea(Polygon.fromOuterInner(line));
   }

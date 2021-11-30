@@ -1,6 +1,7 @@
 package uk.ac.ed.inf;
 
 import org.junit.Test;
+import uk.ac.ed.inf.dataio.JsonObjectManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

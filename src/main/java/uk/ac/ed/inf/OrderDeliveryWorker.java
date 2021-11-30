@@ -1,7 +1,10 @@
 package uk.ac.ed.inf;
 
-import uk.ac.ed.inf.DatabaseIO.DatabaseOrder;
-import uk.ac.ed.inf.DatabaseIO.DatabaseOrderDetails;
+import uk.ac.ed.inf.dataio.DatabaseIO;
+import uk.ac.ed.inf.dataio.DatabaseIO.DatabaseOrder;
+import uk.ac.ed.inf.dataio.DatabaseIO.DatabaseOrderDetails;
+import uk.ac.ed.inf.dataio.JsonObjectManager;
+import uk.ac.ed.inf.deliveryutils.Settings;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -9,22 +12,22 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 public class OrderDeliveryWorker {
 
   /**
    * OrderDeliveryWorker objects manages essential food Queue ordering functionality outlined below.
-   * - Reads food orders for a specified day and loads them into a priority queue
-   * - Provides overridden priority queue that orders our food orders based on the ratio of delivery distance and
-   *    delivery cost hence allowing us maximum the value of orders delivered.
-   * - Allows us to update food delivery priority queue based on a custom provided LongLat object.
+   * - Reads food orders for a specified day and loads them into a priority queue - Provides
+   * overridden priority queue that orders our food orders based on the ratio of delivery distance
+   * and delivery cost hence allowing us maximum the value of orders delivered. - Allows us to
+   * update food delivery priority queue based on a custom provided LongLat object.
    */
-
   private final Drone drone;
+
   private final Date orderProcessingDate;
   private PriorityQueue<FoodOrder> foodOrderQueue;
   private double totalOrderValue = 0;
+
   public OrderDeliveryWorker(Drone droneObject, Date orderProcessingDate) {
     this.orderProcessingDate = orderProcessingDate;
     this.drone = droneObject;
@@ -43,8 +46,8 @@ public class OrderDeliveryWorker {
   }
 
   /**
-   * Reads the data from our database and extracts orders matching the provided date.
-   * It then creates FoodOrders objects with these details which are then added to our priority queue.
+   * Reads the data from our database and extracts orders matching the provided date. It then
+   * creates FoodOrders objects with these details which are then added to our priority queue.
    */
   public void populateFoodOrders() {
     List<DatabaseOrder> dbOrders = DatabaseIO.queryOrders("", this.orderProcessingDate, "", "");
@@ -84,8 +87,8 @@ public class OrderDeliveryWorker {
   }
 
   /**
-   * Updates the order of food items in our queue based on the current location of the drone. As noted above, it
-   * to prioritise orders that have the highest value per distance travelled.
+   * Updates the order of food items in our queue based on the current location of the drone. As
+   * noted above, it to prioritise orders that have the highest value per distance travelled.
    *
    * @param drone drone object
    * @param currentFoodOrderQueue current priority queue to be reordered.
@@ -125,8 +128,9 @@ public class OrderDeliveryWorker {
   }
 
   /**
-   * Pulls a food order out of priority and queue returns this. As this uses .poll(), takes not of the fact
-   * that modifies the state of the food order queue.
+   * Pulls a food order out of priority and queue returns this. As this uses .poll(), takes not of
+   * the fact that modifies the state of the food order queue.
+   *
    * @return FoodOrder object
    */
   public FoodOrder getFoodOrder() {

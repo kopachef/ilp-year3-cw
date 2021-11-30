@@ -1,8 +1,7 @@
 package uk.ac.ed.inf;
 
 import org.apache.commons.math3.util.Precision;
-
-import javax.print.attribute.SetOfIntegerSyntax;
+import uk.ac.ed.inf.deliveryutils.Settings;
 
 /**
  * This class provides a blueprint for the definition of a LongLat object. This object is meant to
@@ -26,7 +25,8 @@ public class LongLat {
 
   /**
    * Returns true if the current instance of the LongLat object is within the confinement area.
-   * Confinement area is defined by the longitude and latitude values specified in our settings file.
+   * Confinement area is defined by the longitude and latitude values specified in our settings
+   * file.
    *
    * <p>Location coordinates must be exclusively within the bounds defined in our settings file.
    * Points that lie at the boundary will not count as confined.
@@ -52,7 +52,8 @@ public class LongLat {
    * @return returns the calculated distance as double.
    */
   public double distanceTo(LongLat longLat) {
-    return Precision.round(calculateDistance(longitude, latitude, longLat.longitude, longLat.latitude), 6);
+    return Precision.round(
+        calculateDistance(longitude, latitude, longLat.longitude, longLat.latitude), 6);
   }
 
   /**
@@ -85,10 +86,9 @@ public class LongLat {
    * 'Move' angle (with an exception to the 'hover' angle) otherwise generated instance will have
    * the same coordinates as the instance it is called on.
    *
-   * <p> A valid 'Move' angle meets the following criteria:
-   *  <li> * Is an int that falls exclusively between -1 and 351. </li>
-   *  <li> * Is a multiple of 10. </li>
-   * </p>
+   * <p>A valid 'Move' angle meets the following criteria:
+   * <li>* Is an int that falls exclusively between -1 and 351.
+   * <li>* Is a multiple of 10.
    *
    * @param angle angle direction to take a single step in.
    * @return new LongLat instance resulting from taking a step in provided angle direction.
@@ -98,7 +98,8 @@ public class LongLat {
       LongLat longlat;
       LongLat old = this;
       double destination_longitude =
-          longitude + (Settings.getDefaultMovementStepDistance() * Math.cos(Math.toRadians((angle))));
+          longitude
+              + (Settings.getDefaultMovementStepDistance() * Math.cos(Math.toRadians((angle))));
       double destination_latitude =
           latitude + (Settings.getDefaultMovementStepDistance() * Math.sin(Math.toRadians(angle)));
       return new LongLat(destination_longitude, destination_latitude);
@@ -107,27 +108,20 @@ public class LongLat {
     }
   }
 
-  public LongLat nextPosition(double angle, double distance) {
-    double destination_longitude =
-              longitude + (distance * Math.cos(Math.toRadians((angle))));
-    double destination_latitude =
-              latitude + (distance * Math.sin(Math.toRadians(angle)));
-    return new LongLat(destination_longitude, destination_latitude);
-  }
-
   /**
-   * This in an unrestricted variant of the nextPosition function. While the previous function is useful in
-   * calculating the restricted jump from a start node, there are use cases where we wish to find the target node
-   * without being restricted by the rule that requires only angles that are multiples of 10.
+   * This in an unrestricted variant of the nextPosition function. While the previous function is
+   * useful in calculating the restricted jump from a start node, there are use cases where we wish
+   * to find the target node without being restricted by the rule that requires only angles that are
+   * multiples of 10.
    *
    * @param angle any given angle
    * @return returns new LongLat location are taking a single step in the direction of the angle.
    */
   public LongLat nextPositionUnrestricted(int angle) {
     double destination_longitude =
-            longitude + Settings.getDefaultMovementStepDistance() * Math.cos(angle * Math.PI / 180);
+        longitude + Settings.getDefaultMovementStepDistance() * Math.cos(angle * Math.PI / 180);
     double destination_latitude =
-            latitude + Settings.getDefaultMovementStepDistance() * Math.sin(angle * Math.PI / 180);
+        latitude + Settings.getDefaultMovementStepDistance() * Math.sin(angle * Math.PI / 180);
     return new LongLat(destination_longitude, destination_latitude);
   }
 
@@ -146,8 +140,8 @@ public class LongLat {
    * Helper function that checks if a given value falls within the range of the provided boundary
    * values.
    *
-   * <p> A value is considered to fall within the range of two bounds if it falls in between the provided boundaries
-   * but is not equal to either of them.
+   * <p>A value is considered to fall within the range of two bounds if it falls in between the
+   * provided boundaries but is not equal to either of them.
    *
    * @param lowerBound lower bound double value
    * @param upperBound upper bound double value
@@ -185,23 +179,25 @@ public class LongLat {
   public double calculateBearing(LongLat longlat) {
     double hypotenuse = this.distanceTo(longlat);
     double opposite = Math.abs(longlat.latitude - this.latitude);
-    double angle = Math.toDegrees(Math.asin(opposite/hypotenuse));
+    double angle = Math.toDegrees(Math.asin(opposite / hypotenuse));
 
-    if(this.equals(longlat)) {return 0;}
-    if(longlat.longitude > longitude) {
-      if(longlat.latitude > this.latitude) {
-        //1
+    if (this.equals(longlat)) {
+      return 0;
+    }
+    if (longlat.longitude > longitude) {
+      if (longlat.latitude > this.latitude) {
+        // 1
         return (angle) % 360;
       } else {
-        //Q4
+        // Q4
         return (360 - angle) % 360;
       }
     } else {
-      if(longlat.latitude > this.latitude){
-        //Q2
+      if (longlat.latitude > this.latitude) {
+        // Q2
         return (90 + (90 - angle)) % 360;
       } else {
-        //Q3
+        // Q3
         return (180 + angle) % 360;
       }
     }

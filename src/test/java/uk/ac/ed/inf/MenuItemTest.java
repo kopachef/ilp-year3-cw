@@ -2,14 +2,28 @@ package uk.ac.ed.inf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Objects;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MenuItemTest {
     @Test
     public void testConstructor() {
+        MenuItem actualMenuItem = new MenuItem("Name", "Location", 1, "Restaurant Name");
+
+        assertEquals("Location", actualMenuItem.getLocation());
+        assertEquals("Name", actualMenuItem.getName());
+        assertEquals(1, actualMenuItem.getPrice());
+        assertEquals("Restaurant Name", actualMenuItem.getRestaurantName());
+    }
+
+    @Test
+    public void testConstructor2() {
         MenuItem actualMenuItem = new MenuItem("Name", "Location", 1, "Restaurant Name");
 
         assertEquals("Location", actualMenuItem.getLocation());
@@ -24,6 +38,53 @@ public class MenuItemTest {
         assertNotEquals(null, (new MenuItem(null, "Location", 1, "Restaurant Name")));
         assertNotEquals(null, (new MenuItem("Name", null, 1, "Restaurant Name")));
         assertNotEquals(null, (new MenuItem("Name", "Location", 1, null)));
+        assertFalse((new MenuItem("Name", "Location", 1, "Restaurant Name")).equals(null));
+        assertFalse((new MenuItem("Name", "Location", 1, "Restaurant Name")).equals("Different type to MenuItem"));
+        assertFalse((new MenuItem(null, "Location", 1, "Restaurant Name")).equals(null));
+        assertFalse((new MenuItem("Name", null, 1, "Restaurant Name")).equals(null));
+        assertFalse((new MenuItem("Name", "Location", 1, null)).equals(null));
+    }
+
+    @Test
+    public void testEquals8() {
+        MenuItem menuItem = new MenuItem("Name", "Location", 1, "Restaurant Name");
+        assertTrue(menuItem.equals(menuItem));
+        int expectedHashCodeResult = menuItem.hashCode();
+        assertEquals(expectedHashCodeResult, menuItem.hashCode());
+    }
+
+    @Test
+    public void testEquals9() {
+        MenuItem menuItem = new MenuItem("Name", "Location", 1, "Restaurant Name");
+        MenuItem menuItem1 = new MenuItem("Name", "Location", 1, "Restaurant Name");
+
+        assertTrue(menuItem.equals(menuItem1));
+        int notExpectedHashCodeResult = menuItem.hashCode();
+        assertFalse(Objects.equals(notExpectedHashCodeResult, menuItem1.hashCode()));
+    }
+
+    @Test
+    public void testEquals10() {
+        MenuItem menuItem = new MenuItem("Location", "Location", 1, "Restaurant Name");
+        assertFalse(menuItem.equals(new MenuItem("Name", "Location", 1, "Restaurant Name")));
+    }
+
+    @Test
+    public void testEquals11() {
+        MenuItem menuItem = new MenuItem("Name", "Name", 1, "Restaurant Name");
+        assertFalse(menuItem.equals(new MenuItem("Name", "Location", 1, "Restaurant Name")));
+    }
+
+    @Test
+    public void testEquals12() {
+        MenuItem menuItem = new MenuItem("Name", "Location", 0, "Restaurant Name");
+        assertFalse(menuItem.equals(new MenuItem("Name", "Location", 1, "Restaurant Name")));
+    }
+
+    @Test
+    public void testEquals13() {
+        MenuItem menuItem = new MenuItem("Name", "Location", 1, "Name");
+        assertFalse(menuItem.equals(new MenuItem("Name", "Location", 1, "Restaurant Name")));
     }
 
     @Test
@@ -99,5 +160,6 @@ public class MenuItemTest {
 
         assertEquals(expectedOutput, outputStreamCaptor.toString());
     }
+
 }
 

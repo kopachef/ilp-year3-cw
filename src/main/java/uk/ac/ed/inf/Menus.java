@@ -1,24 +1,27 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.dataio.JsonObjectManager;
+import uk.ac.ed.inf.deliveryutils.Settings;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Menus {
   /**
-   * This class provides the main functionality of the system and associated with aggregating menu's and providing an
-   * entry point to access different menu items and their associated attributes.
+   * This class provides the main functionality of the system and associated with aggregating menu's
+   * and providing an entry point to access different menu items and their associated attributes.
    *
    * <h1>Functions</h1>
-   * <p>
-   * <li> * Core function of this class include reading menu's from the server and looding them into the system.
-   * <li> * Estimating delivery cost of an order
-   * <li> *
-   * </p>
    *
+   * <p>
+   * <li>* Core function of this class include reading menu's from the server and looding them into
+   *     the system.
+   * <li>* Estimating delivery cost of an order
+   * <li>*
    */
-
   private static final HashMap<String, MenuItem> menuItemHashMap = new HashMap<>();
+
   private static ArrayList<JsonObjectManager.Menu> menus;
 
   public Menus(String host, String port) {
@@ -77,7 +80,8 @@ public class Menus {
   }
 
   /**
-   * Utility function to look up MenuItem object just based on  the name.
+   * Utility function to look up MenuItem object just based on the name.
+   *
    * @param name name of MenuItem to return
    * @return return MenuItem object bearing the specified name.
    */
@@ -86,9 +90,9 @@ public class Menus {
   }
 
   /**
-   * Updates our item lookup cache by iterating through json-unpacked menu items ArrayList and adding or
-   * updating the items in our item hashmap with their respective MenuItem objects created from the
-   * ArrayList items.
+   * Updates our item lookup cache by iterating through json-unpacked menu items ArrayList and
+   * adding or updating the items in our item hashmap with their respective MenuItem objects created
+   * from the ArrayList items.
    */
   private void reloadMenuCache() {
     for (JsonObjectManager.Menu menu : menus) {
@@ -99,11 +103,12 @@ public class Menus {
         int itemPrice = menuItem.pence;
         String restaurantName = menu.name;
 
-        //Create MenuItem object with current attributes.
+        // Create MenuItem object with current attributes.
         MenuItem menuItemObject = new MenuItem(itemName, itemLocation, itemPrice, restaurantName);
 
         // Check if we already have the item in the hashmap or if the cached item is different.
-        if ((menuItemHashMap.get(itemName)) == null || !menuItemHashMap.get(itemName).equals(menuItemObject)) {
+        if ((menuItemHashMap.get(itemName)) == null
+            || !menuItemHashMap.get(itemName).equals(menuItemObject)) {
           menuItemHashMap.put(itemName, menuItemObject);
         }
       }

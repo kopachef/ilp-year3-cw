@@ -26,6 +26,7 @@ public class NodeTest {
         LongLat longLat = new LongLat(10.0, 10.0);
 
         actualNode.setLongLat(longLat);
+        actualNode.setNodeUsage(Node.NodeUsage.PICKUP);
         Node node = new Node(1, 1);
 
         actualNode.setParent(node);
@@ -45,9 +46,22 @@ public class NodeTest {
         assertNull(parent.getParent());
         assertEquals(1, actualNode.getRow());
         assertEquals(1, parent.getRow());
+        assertEquals(Node.NodeUsage.PICKUP, actualNode.getUsage());
+        assertEquals(Node.NodeUsage.ORDINARY, parent.getUsage());
         assertTrue(actualNode.isRestricted());
         assertFalse(parent.isRestricted());
-        assertEquals("Node [row = 1, col = 1]\nLongitude: 10.0\nLatitude: 10.0\n", actualNode.toString());
+        assertEquals("Node [row = 1, col = 1]\n", actualNode.toString());
+        assertEquals("Node [row = 1, col = 1]\n", parent.toString());
+    }
+
+    @Test
+    public void testConstructor2() {
+        Node actualNode = new Node(1, 1);
+
+        assertEquals(1, actualNode.getCol());
+        assertEquals(5.0, actualNode.stepCost, 0.0);
+        assertEquals(Node.NodeUsage.ORDINARY, actualNode.getUsage());
+        assertEquals(1, actualNode.getRow());
     }
 
     @Test
@@ -59,7 +73,6 @@ public class NodeTest {
         node.setLongLat(longLat);
         node.calculateHeuristic(new Node(1, 1));
         verify(longLat).distanceTo((LongLat) any());
-        assertEquals("Node [row = 1, col = 1]\nLongitude: 0.0\nLatitude: 0.0\n", node.toString());
         assertEquals(10.0, node.getH(), 0.0);
     }
 
@@ -79,6 +92,17 @@ public class NodeTest {
         Node node = new Node(1, 1);
         node.calculateTotalCost();
         assertEquals(0.0, node.getF(), 0.0);
+    }
+
+    @Test
+    public void testCalculateAngleTo() {
+        LongLat longLat = mock(LongLat.class);
+        when(longLat.calculateBearing((LongLat) any())).thenReturn(10.0);
+
+        Node node = new Node(1, 1);
+        node.setLongLat(longLat);
+        assertEquals(10.0, node.calculateAngleTo(new Node(1, 1)), 0.0);
+        verify(longLat).calculateBearing((LongLat) any());
     }
 
     @Test
@@ -155,6 +179,18 @@ public class NodeTest {
         Node node1 = new Node(1, 1);
         node1.setLongLat(mock(LongLat.class));
         assertFalse(node.equals(node1));
+    }
+
+    @Test
+    public void testIsLongLatSet() {
+        assertFalse((new Node(1, 1)).isLongLatSet());
+    }
+
+    @Test
+    public void testIsLongLatSet2() {
+        Node node = new Node(1, 1);
+        node.setLongLat(new LongLat(10.0, 10.0));
+        assertTrue(node.isLongLatSet());
     }
 }
 

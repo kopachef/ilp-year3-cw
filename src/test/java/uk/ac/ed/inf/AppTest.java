@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import org.apache.commons.math3.util.Precision;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -34,7 +35,8 @@ public class AppTest {
 
   @Test
   public void testDistanceTo(){
-    double calculatedDistance = 0.0015535481968716011;
+    double calculatedDistance = Precision.round(0.0015535481968716011, 6);
+    System.out.println(approxEq(appletonTower.distanceTo(businessSchool), calculatedDistance));
     assertTrue(approxEq(appletonTower.distanceTo(businessSchool), calculatedDistance));
   }
 

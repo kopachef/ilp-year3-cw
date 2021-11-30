@@ -13,41 +13,15 @@ import org.junit.Test;
 public class OrderDeliveryWorkerTest {
     @Test
     public void testConstructor() {
-        Drone drone = new Drone(1);
-        OrderDeliveryWorker actualOrderDeliveryWorker = new OrderDeliveryWorker(drone, mock(Date.class));
-
-        assertNull(actualOrderDeliveryWorker.getFoodOrder());
-        assertEquals(0, actualOrderDeliveryWorker.getFoodOrderQueueSize());
-        assertTrue(actualOrderDeliveryWorker.getFoodOrderQueue().isEmpty());
-        assertEquals(1, drone.getBatteryLevel());
-        assertEquals(0, drone.getStepCount());
-        LongLat currentPosition = drone.getCurrentPosition();
-        assertTrue(currentPosition.isConfined());
-        assertEquals(-3.186874, currentPosition.longitude, 0.0);
-        assertEquals(55.944494, currentPosition.latitude, 0.0);
-        assertEquals("Longitude: -3.186874\nLatitude: 55.944494", currentPosition.toString());
+        assertEquals(0.0, (new OrderDeliveryWorker(new Drone(1), mock(Date.class))).getTotalOrderValue(), 0.0);
     }
 
     @Test
     public void testConstructor2() {
-        assertNull((new OrderDeliveryWorker(new Drone(1), mock(Date.class))).getFoodOrder());
-    }
-
-    @Test
-    public void testConstructor3() {
-        Drone drone = new Drone(1);
-        OrderDeliveryWorker actualOrderDeliveryWorker = new OrderDeliveryWorker(drone, mock(Date.class));
+        OrderDeliveryWorker actualOrderDeliveryWorker = new OrderDeliveryWorker(new Drone(1), mock(Date.class));
 
         assertNull(actualOrderDeliveryWorker.getFoodOrder());
-        assertEquals(0, actualOrderDeliveryWorker.getFoodOrderQueueSize());
-        assertTrue(actualOrderDeliveryWorker.getFoodOrderQueue().isEmpty());
-        assertEquals(1, drone.getBatteryLevel());
-        assertEquals(0, drone.getStepCount());
-        LongLat currentPosition = drone.getCurrentPosition();
-        assertTrue(currentPosition.isConfined());
-        assertEquals(-3.186874, currentPosition.longitude, 0.0);
-        assertEquals(55.944494, currentPosition.latitude, 0.0);
-        assertEquals("Longitude: -3.186874\nLatitude: 55.944494", currentPosition.toString());
+        assertEquals(0.0, actualOrderDeliveryWorker.getTotalOrderValue(), 0.0);
     }
 
     @Test

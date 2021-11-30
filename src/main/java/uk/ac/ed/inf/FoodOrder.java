@@ -1,5 +1,7 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.dataio.JsonObjectManager;
+
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,16 +10,16 @@ import java.util.stream.Collectors;
 public class FoodOrder {
 
   /** Class representing a single food order and all the attributes associated with it. */
-  private List<MenuItem> orderItems;
+  private final List<MenuItem> orderItems;
 
-  private List<LongLat> deliveryPath;
-  private String customer;
-  private Date deliveryDate;
-  private String deliveryW3wAddress;
-  private String orderNo;
-  private int deliveryCost;
-  private boolean hasBeenDelivered;
-  private LongLat deliveryLocationLongLat;
+  private final List<LongLat> deliveryPath;
+  private final String customer;
+  private final Date deliveryDate;
+  private final String deliveryW3wAddress;
+  private final String orderNo;
+  private final int deliveryCost;
+  private final boolean hasBeenDelivered;
+  private final LongLat deliveryLocationLongLat;
 
   public FoodOrder(
       List<MenuItem> items,
@@ -75,15 +77,15 @@ public class FoodOrder {
   /**
    * Returns all the MenuItems contained in this order.
    *
-   * @return List  of <MenuItem> objects.
+   * @return List of <MenuItem> objects.
    */
   public List<MenuItem> getOrderItems() {
     return orderItems;
   }
 
   /**
-   * Returns the customer id for the customer associated wiht this order. In this case, the id is just the students'
-   * student numbers pre-appended wiht an 's'.
+   * Returns the customer id for the customer associated wiht this order. In this case, the id is
+   * just the students' student numbers pre-appended wiht an 's'.
    *
    * @return String representing the students' student number.
    */
@@ -110,8 +112,8 @@ public class FoodOrder {
   }
 
   /**
-   * Returns the delivery cost associated with this order. This is essentially the total item value of all the
-   * items in this order in addition to the delivery charge.
+   * Returns the delivery cost associated with this order. This is essentially the total item value
+   * of all the items in this order in addition to the delivery charge.
    *
    * @return double representing the total cost of this order.
    */

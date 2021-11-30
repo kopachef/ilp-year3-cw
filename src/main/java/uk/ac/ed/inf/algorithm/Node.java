@@ -8,26 +8,20 @@ public class Node implements Cloneable {
    * A node object represents a single node on our groan which also represents a location on our
    * map.
    */
-  //TODO trying using different tsp cost for this.
+  // TODO trying using different tsp cost for this.
   public double stepCost = 5;
+
   public int row, col;
   double g, h, f;
   private LongLat longLat;
   private boolean isRestricted;
   private Node parent;
-  private NodeUsage  usage = NodeUsage.ORDINARY;
+  private NodeUsage usage = NodeUsage.ORDINARY;
 
   public Node(int row, int col) {
     super();
     this.col = col;
     this.row = row;
-  }
-
-  /**
-   * Enum representing the different usage states of a node.
-   */
-  public enum NodeUsage {
-    PICKUP, DROPOFF, HOME, ORDINARY
   }
 
   /**
@@ -49,8 +43,8 @@ public class Node implements Cloneable {
   }
 
   /**
-   *   The calculateHeuristic() method calculates the heuristic for the node. It uses the distance between
-   *   the node's longitude and the destination's longitude to calculate the heuristic.
+   * The calculateHeuristic() method calculates the heuristic for the node. It uses the distance
+   * between the node's longitude and the destination's longitude to calculate the heuristic.
    *
    * @param destination
    */
@@ -59,8 +53,8 @@ public class Node implements Cloneable {
   }
 
   /**
-   *   The setNodeData() method sets the node's G cost value if it is not already set. It also sets the
-   *   parent node of the node. It calculates the total cost of the node.
+   * The setNodeData() method sets the node's G cost value if it is not already set. It also sets
+   * the parent node of the node. It calculates the total cost of the node.
    *
    * @param currentNode
    * @param cost
@@ -76,7 +70,6 @@ public class Node implements Cloneable {
    * The calculateTotalCost method will be used to calculate the total cost of a purchase. The
    * calculateTotalCost method adds the cost of the two products that have been selected. Then the
    * totalCost is set to this value.
-   *
    */
   public void calculateTotalCost() {
     double totalCost = getG() + getH();
@@ -90,8 +83,9 @@ public class Node implements Cloneable {
   }
 
   /**
-   * The lookUpBetterPath is a function that is used to determine if a better path is available. If the cost
-   * of the product is less than the current cost of the product, it will replace the current product.
+   * The lookUpBetterPath is a function that is used to determine if a better path is available. If
+   * the cost of the product is less than the current cost of the product, it will replace the
+   * current product.
    *
    * @param currentNode
    * @param cost
@@ -107,8 +101,8 @@ public class Node implements Cloneable {
   }
 
   /**
-   * The equals function checks to see if the locations are the same, the rows are the same,
-   * and the columns are the same.
+   * The equals function checks to see if the locations are the same, the rows are the same, and the
+   * columns are the same.
    *
    * @param node
    * @return
@@ -122,14 +116,14 @@ public class Node implements Cloneable {
   }
 
   /**
-   *  The toString() method returns a string containing the row, column, latitude,
-   *  and longitude of the square's location.
+   * The toString() method returns a string containing the row, column, latitude, and longitude of
+   * the square's location.
    *
    * @return
    */
   @Override
   public String toString() {
-    return "Node [row = " + row + ", col = " + col + "]\n";// + longLat.toString() + "\n";
+    return "Node [row = " + row + ", col = " + col + "]\n"; // + longLat.toString() + "\n";
   }
 
   /**
@@ -151,7 +145,7 @@ public class Node implements Cloneable {
   }
 
   /**
-   *  the getG() method returns the square's g-value.
+   * the getG() method returns the square's g-value.
    *
    * @return
    */
@@ -196,7 +190,7 @@ public class Node implements Cloneable {
   }
 
   /**
-   *  the setParent() method sets the square's parent.
+   * the setParent() method sets the square's parent.
    *
    * @param parent
    */
@@ -232,7 +226,7 @@ public class Node implements Cloneable {
   }
 
   /**
-   *  the setRestricted() method sets the square's restricted status.
+   * the setRestricted() method sets the square's restricted status.
    *
    * @param restricted
    */
@@ -245,13 +239,16 @@ public class Node implements Cloneable {
    *
    * @return True if set, False otherwise.
    */
-  public boolean isLongLatSet() {return !(longLat == null);}
+  public boolean isLongLatSet() {
+    return !(longLat == null);
+  }
 
   /**
-   * Not all nodes on the graph are the same. We use this to denote nodes that are pickup or delivery nodes.
-   * This is done because drone behaviour is different on these nodes(HOVER required). We could have avoided this
-   * by checking if the longlat values of a Node match a pickup or delivery node but that would be computationally
-   * expensive and this is an easy efficient solution.
+   * Not all nodes on the graph are the same. We use this to denote nodes that are pickup or
+   * delivery nodes. This is done because drone behaviour is different on these nodes(HOVER
+   * required). We could have avoided this by checking if the longlat values of a Node match a
+   * pickup or delivery node but that would be computationally expensive and this is an easy
+   * efficient solution.
    *
    * @return Node usage value
    */
@@ -268,7 +265,33 @@ public class Node implements Cloneable {
     this.usage = usage;
   }
 
+  /**
+   * This method clones the current node.
+   *
+   * @return cloned node object.
+   *
+   * @throws CloneNotSupportedException
+   */
   public Node clone() throws CloneNotSupportedException {
     return (Node) super.clone();
+  }
+
+  /**
+   * The NodeUsage enumeration defines the possible ways in which a node may be used in a
+   * path network.
+   *
+   * <p>PICKUP indicates that the node is being used to pick up food orders.
+   *
+   * <p>DROPOFF indicates that the node is being used to drop off food orders.
+   *
+   * <p>HOME indicates that the node is being used as a home base.
+   *
+   * <p>ORDINARY indicates that the node is being used in the ordinary way(usual nodes wihtin a path).
+   */
+  public enum NodeUsage {
+    PICKUP,
+    DROPOFF,
+    HOME,
+    ORDINARY
   }
 }

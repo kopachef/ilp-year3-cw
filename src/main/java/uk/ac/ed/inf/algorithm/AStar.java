@@ -4,8 +4,7 @@ import java.util.*;
 
 public class AStar {
   private Node[][] searchArea;
-  ;
-  private PriorityQueue<Node> openList;
+    private PriorityQueue<Node> openList;
   private Set<Node> closedSet;
   private Node initialNode;
   private Node finalNode;
@@ -34,9 +33,7 @@ public class AStar {
     this.closedSet = new HashSet<>();
   }
 
-    /**
-     * Sets the straight line heuristic from each node to the destination node.
-     */
+  /** Sets the straight line heuristic from each node to the destination node. */
   private void setNodes() {
     for (int i = 0; i < searchArea.length; i++) {
       for (int j = 0; j < searchArea[0].length; j++) {
@@ -45,14 +42,15 @@ public class AStar {
     }
   }
 
-    /**
-     * Allows to manually set some nodes as restricted which allows us to exclude them from the search.
-     *
-     * While we can set nodes as restricted here, we can also do this directly from a graph object. This has
-     * only been included for convince and testing.
-     *
-     * @param restrictedNodes List of restricted nodes.
-     */
+  /**
+   * Allows to manually set some nodes as restricted which allows us to exclude them from the
+   * search.
+   *
+   * <p>While we can set nodes as restricted here, we can also do this directly from a graph object.
+   * This has only been included for convince and testing.
+   *
+   * @param restrictedNodes List of restricted nodes.
+   */
   public void setRestrictedAreas(Node[] restrictedNodes) {
     for (int i = 0; i < restrictedNodes.length; i++) {
       int row = restrictedNodes[i].getRow();
@@ -61,12 +59,12 @@ public class AStar {
     }
   }
 
-    /**
-     * Traverses our search space starting from the start node and returns a list of connecting nodes that
-     * form our shortest path.
-     *
-     * @return List of connected Nodes that form our shortest path.
-     */
+  /**
+   * Traverses our search space starting from the start node and returns a list of connecting nodes
+   * that form our shortest path.
+   *
+   * @return List of connected Nodes that form our shortest path.
+   */
   public List<Node> findPath() {
     openList.add(initialNode);
     while (!isEmpty(openList)) {
@@ -81,13 +79,13 @@ public class AStar {
     return new ArrayList<Node>();
   }
 
-    /**
-     * Helper function to our findPath function that traverses up our nodes and reorganises our shortest
-     * path in the right order.
-     *
-     * @param currentNode node to start traversal from.
-     * @return List of ordered Nodes forming the shortest path.
-     */
+  /**
+   * Helper function to our findPath function that traverses up our nodes and reorganises our
+   * shortest path in the right order.
+   *
+   * @param currentNode node to start traversal from.
+   * @return List of ordered Nodes forming the shortest path.
+   */
   private List<Node> getPath(Node currentNode) {
     List<Node> path = new ArrayList<Node>();
     path.add(currentNode);
@@ -100,8 +98,8 @@ public class AStar {
   }
 
   /**
-   * From a given start node, this function allows us to explore adjacent nodes if there is a connecting
-   * edge between them
+   * From a given start node, this function allows us to explore adjacent nodes if there is a
+   * connecting edge between them
    *
    * @param currentNode node from which we begin to explore.
    */
@@ -124,14 +122,21 @@ public class AStar {
       if (col - 1 >= 0) {
         double cost = getSearchArea()[lowerRow][col - 1].stepCost;
         if (row % 2 == 0) {
-          checkNode(currentNode, col - 1, lowerRow, cost); // Comment this line if left diagonal movement is not allowed
-          //System.out.println("current node: " + currentNode + "checking: " + );
+          checkNode(
+              currentNode,
+              col - 1,
+              lowerRow,
+              cost); // Comment this line if left diagonal movement is not allowed
         }
       }
       if (col + 1 < getSearchArea()[0].length) {
         double cost = getSearchArea()[lowerRow][col + 1].stepCost;
         if (row % 2 == 1) {
-          checkNode( currentNode, col + 1, lowerRow, cost); // Comment this line if right diagonal movement is not allowed
+          checkNode(
+              currentNode,
+              col + 1,
+              lowerRow,
+              cost); // Comment this line if right diagonal movement is not allowed
         }
       }
       double cost = getSearchArea()[lowerRow][col].stepCost;
@@ -171,13 +176,21 @@ public class AStar {
       if (col - 1 >= 0) {
         double cost = getSearchArea()[upperRow][col - 1].stepCost;
         if (row % 2 == 0) {
-          checkNode(currentNode, col - 1, upperRow, cost); // Comment this if left diagonal movements is not allowed
+          checkNode(
+              currentNode,
+              col - 1,
+              upperRow,
+              cost); // Comment this if left diagonal movements is not allowed
         }
       }
       if (col + 1 < getSearchArea()[0].length) {
         double cost = getSearchArea()[upperRow][col + 1].stepCost;
         if (row % 2 == 1) {
-          checkNode(currentNode, col + 1, upperRow, cost); // Comment this if right diagonal movements is not allowed
+          checkNode(
+              currentNode,
+              col + 1,
+              upperRow,
+              cost); // Comment this if right diagonal movements is not allowed
         }
       }
 
@@ -187,8 +200,8 @@ public class AStar {
   }
 
   /**
-   * Checks if traversing through adjacent node reduces/minimises our straight line heuristic. If it does,
-   * switch nodes and use better node else we delete adjacent node from our open list.
+   * Checks if traversing through adjacent node reduces/minimises our straight line heuristic. If it
+   * does, switch nodes and use better node else we delete adjacent node from our open list.
    *
    * @param currentNode current node
    * @param col col value of adjacent node.
