@@ -6,9 +6,7 @@ import uk.ac.ed.inf.dataio.GeoJsonManager;
 import uk.ac.ed.inf.LongLat;
 import uk.ac.ed.inf.utils.Settings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.DoubleStream;
 
 import static java.util.stream.Collectors.toList;
@@ -22,7 +20,6 @@ public class Graph {
   private final double northWestBoundLatitude;
   private final double southEastBoundLongitude;
   private final double southEastBoundLatitude;
-  private double nearestNodeDistance;
 
   public Graph(
       double northWestBoundLongitude,
@@ -72,7 +69,7 @@ public class Graph {
    * boundaries of one of the following:
    * <li>the nearest node distance (set by this.nearestNodeDistance)
    * <li>The perimeter of a restricted area (set by GeoJsonManager.isInPerimeterOfRestrictedArea).
-   *     Considering the use of an additional (perimeter value allows us to prevent points from
+   *     Considering the use of an additional perimeter value allows us to prevent points from
    *     spawning too close to a restricted area.
    */
   private void setGrid() {
@@ -101,7 +98,6 @@ public class Graph {
       nxt = nxt.nextPosition(0);
       topRowCoords.add(nxt);
     }
-    this.nearestNodeDistance = longitudeStepSize;
     int rightRotationAngle = 240;
     int leftRotationAngle = rightRotationAngle + 60;
     LongLat nodeLongLat;
@@ -114,7 +110,7 @@ public class Graph {
           grid[i][j] = new Node(i, j);
           grid[i][j].setLongLat(nodeLongLat);
           grid[i][j].setRestricted(
-              GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance)
+              GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, longitudeStepSize)
                   || !nodeLongLat.isConfined());
         } else {
           if (i % 2 == 0) {
@@ -133,7 +129,7 @@ public class Graph {
           grid[i][j] = new Node(i, j);
           grid[i][j].setLongLat(nodeLongLat);
           grid[i][j].setRestricted(
-              GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, nearestNodeDistance)
+              GeoJsonManager.isInPerimeterOfRestrictedArea(nodeLongLat, longitudeStepSize)
                   || !nodeLongLat.isConfined());
         }
       }
@@ -143,7 +139,7 @@ public class Graph {
   /**
    * Returns the grid mesh.
    *
-   * @return
+   * @return grid mesh
    */
   public Node[][] getGrid() {
     return grid;
@@ -174,9 +170,7 @@ public class Graph {
   public List<Node> getAllNodes() {
     List<Node> result = new ArrayList<>();
     for (int i = 0; i < gridSize; i++) {
-      for (int j = 0; j < gridSize; j++) {
-        result.add(grid[i][j]);
-      }
+      result.addAll(Arrays.asList(grid[i]).subList(0, gridSize));
     }
     return result;
   }
@@ -190,8 +184,8 @@ public class Graph {
    * startLocation and destinationLocation on our graph and call the AStar algorithm to find the
    * shortest path between these.
    *
-   * @param startLocation
-   * @param destinationLocation
+   * @param startLocation start longlat.
+   * @param destinationLocation destination longlat.
    * @return A list of Nodes forming the shortest path.
    */
   public List<Node> getShortestPath(LongLat startLocation, LongLat destinationLocation) {
@@ -220,7 +214,7 @@ public class Graph {
         }
       }
     }
-    nodeLonglatToTargetLonglat.put(startNode.getLongLat(), startLocation);
+    nodeLonglatToTargetLonglat.put(Objects.requireNonNull(startNode).getLongLat(), startLocation);
     nodeLonglatToTargetLonglat.put(endNode.getLongLat(), destinationLocation);
     AStar aStar = new AStar(getGrid(), startNode, endNode);
     return aStar.findPath();
@@ -232,7 +226,7 @@ public class Graph {
    * startLocation and the distance to the startLocation is shorter than the current node's distance
    * to the target, then the node picked as a potential return value.
    *
-   * @param longlat
+   * @param longlat reference point
    * @return nearest node off all the nodes observed.
    */
   public Node findNearestNode(LongLat longlat) {
@@ -304,10 +298,9 @@ public class Graph {
   /**
    * Testing utility function to calculate and preview the distance and bearing between nodes given as in a List.
    *
-   * @param nodes
+   * @param nodes node list.
    */
   public void printDistanceBetweenNodes(List<Node> nodes) {
-    List<Feature> feats = new ArrayList();
     for (int i = 1; i < nodes.size(); i++) {
       System.out.println();
       double div =

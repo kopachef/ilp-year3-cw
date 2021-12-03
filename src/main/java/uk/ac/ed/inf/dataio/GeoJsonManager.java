@@ -11,6 +11,7 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,18 +27,9 @@ public class GeoJsonManager {
                   + Settings.getDefaultServerPort()
                   + Settings.getDefaultRestrictedBuildingsFilename()));
 
-  /** Feature Collection of all the landmark features. */
-  private static final FeatureCollection landmarkFeatures =
-      FeatureCollection.fromJson(
-          UrlDownloadManager.loadUrlContents(
-              Settings.getDefaultServerUrlProtocol()
-                  + Settings.getDefaultServerHost()
-                  + ":"
-                  + Settings.getDefaultServerPort()
-                  + Settings.getDefaultRestrictedBuildingsFilename()));
   /** List of Polygons representing restricted areas. */
   private static final List<Polygon> restrictedAreas =
-      restrictedAreasFeatures.features().stream()
+      Objects.requireNonNull(restrictedAreasFeatures.features()).stream()
           .map(x -> (Polygon) x.geometry())
           .collect(Collectors.toList());
 
@@ -58,8 +50,7 @@ public class GeoJsonManager {
 
     for (Polygon p : restrictedAreas) {
       if (Stream.of(centre, top, bottom, right, left)
-          .map(x -> (TurfJoins.inside(createPointFromLongLat(x), p)))
-          .anyMatch(Boolean.TRUE::equals)) {
+          .anyMatch(x -> (TurfJoins.inside(createPointFromLongLat(x), p)))) {
         return true;
       }
     }
@@ -139,14 +130,13 @@ public class GeoJsonManager {
    */
   public static boolean isInConfinementZone(LongLat longLat) {
     List<Point> corners =
-        List.of(
+        Stream.of(
                 Settings.getDefaultNorthWestBound(),
                 Settings.getDefaultNorthEastBound(),
                 Settings.getDefaultSouthEastBound(),
                 Settings.getDefaultSouthWestBound(),
                 Settings.getDefaultNorthWestBound())
-            .stream()
-            .map(x -> createPointFromLongLat(x))
+            .map(GeoJsonManager::createPointFromLongLat)
             .collect(Collectors.toList());
 
     LineString boundingLineString = LineString.fromLngLats(corners);
@@ -202,16 +192,16 @@ public class GeoJsonManager {
    * @return true if line segment crosses restricted area, false otherwise
    *
    * */
-  public static boolean crossesRestricedArea(LongLat start, LongLat end) {
+  public static boolean crossesRestrictedArea(LongLat start, LongLat end) {
     double offset = 0.05 * Settings.getDefaultMovementStepDistance();
     LongLat mid = new LongLat(start.longitude + offset, start.latitude + offset);
     List<LongLat> coords = Arrays.asList(start, mid, end, start);
     List<Point> pts =
         coords.stream()
-            .map(x -> GeoJsonManager.createPointFromLongLat(x))
+            .map(GeoJsonManager::createPointFromLongLat)
             .collect(Collectors.toList());
     LineString line = LineString.fromLngLats(pts);
-    return intersectsRestrictedArea(Polygon.fromOuterInner(line));
+    return !intersectsRestrictedArea(Polygon.fromOuterInner(line));
   }
 
   /**
@@ -220,6 +210,7 @@ public class GeoJsonManager {
    * @param features List of features from which to build the Feature Collection.
    * @return FeatureCollection object
    */
+  @SafeVarargs
   public static FeatureCollection createFeatureCollection(List<Feature>... features) {
     List<Feature> result = new ArrayList<>();
     for (List<Feature> f : features) {

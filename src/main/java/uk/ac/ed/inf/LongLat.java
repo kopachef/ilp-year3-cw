@@ -97,8 +97,6 @@ public class LongLat {
    */
   public LongLat nextPosition(int angle) {
     if (validMove(angle)) {
-      LongLat longlat;
-      LongLat old = this;
       double destination_longitude =
           longitude
               + (Settings.getDefaultMovementStepDistance() * Math.cos(Math.toRadians((angle))));

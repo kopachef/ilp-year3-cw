@@ -64,8 +64,8 @@ public class JsonObjectManager {
    *     to the W3WObject.Coords class object given as an argument.
    */
   public static LongLat coordToLonglat(W3WObject.Coords coords) {
-    double longitude = Double.valueOf(coords.lng);
-    double latitude = Double.valueOf(coords.lat);
+    double longitude = Double.parseDouble(coords.lng);
+    double latitude = Double.parseDouble(coords.lat);
     return new LongLat(longitude, latitude);
   }
 

@@ -10,7 +10,6 @@ public class Drone {
   private DroneState droneState;
   private boolean hasOrder;
   private int batteryLevel;
-  private final int batteryCapacity;
   private LongLat currentPosition;
   private final double movementStepDistance;
   private FoodOrder currentFoodOrder;
@@ -19,8 +18,7 @@ public class Drone {
     movementCount = 0;
     droneState = DroneState.STATIONARY;
     hasOrder = false;
-    this.batteryCapacity = batteryCapacity;
-    batteryLevel = this.batteryCapacity;
+    batteryLevel = batteryCapacity;
     currentPosition = Settings.getDefaultHomeLocation();
     movementStepDistance = Settings.getDefaultMovementStepDistance();
   }
@@ -29,7 +27,7 @@ public class Drone {
    * Calculate and return the battery cost of traversing the given distance. Distance is given in
    * degrees
    *
-   * @param distanceInDegrees distance for which battery cost is to calculated. This is expected to
+   * @param distanceInDegrees distance for which battery cost is too calculated. This is expected to
    *     be in degrees.
    * @return return the battery units incurred by travelling the given distance.
    */

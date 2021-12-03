@@ -6,15 +6,12 @@ import uk.ac.ed.inf.utils.Settings;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * The PathSmoothing class contains a number of helper functions used to smooth out a given path. Initially,
  * our shortest path will be a list of nodes which a restricted to a shorter list of distances and angles between them.
- * The angle constraints are discussed in the report. Path smoothing allows us to ahve more directed and smoother paths
+ * The angle constraints are discussed in the report. Path smoothing allows us to have more directed and smoother paths
  * between nodes in based on their usages(Node Usages).
  *
  */
@@ -22,10 +19,10 @@ public class PathSmoothing {
 
   private static final Object lock = new Object();
   private final int smoothCycles;
-  private final HashMap<LongLat, LongLat> nodeToTargteMapping;
+  private final HashMap<LongLat, LongLat> nodeToTargetMapping;
 
   public PathSmoothing(HashMap<LongLat, LongLat> nodeToLongLatMapping, int smoothCycles) {
-    this.nodeToTargteMapping = nodeToLongLatMapping;
+    this.nodeToTargetMapping = nodeToLongLatMapping;
     this.smoothCycles = smoothCycles;
   }
 
@@ -39,20 +36,18 @@ public class PathSmoothing {
    * location(e.g a pick or drop off location) as the destination.
    *
    * @param path List of nodes to filtered
-   * @return updated node list
    */
   @VisibleForTesting
-  private List<Node> reassignTrueNodes(List<Node> path) {
+  private void reassignTrueNodes(List<Node> path) {
     for (int i = 0; i < path.size(); i++) {
       if (path.get(i).getUsage() != Node.NodeUsage.ORDINARY) {
         Node current = path.get(i);
         LongLat oldLocation = current.getLongLat();
-        LongLat trueLocation = nodeToTargteMapping.get(oldLocation);
+        LongLat trueLocation = nodeToTargetMapping.get(oldLocation);
         current.setLongLat(trueLocation);
         path.set(i, current);
       }
     }
-    return path;
   }
 
   /**
@@ -65,25 +60,23 @@ public class PathSmoothing {
    *
    * a -> b -> c -> d -> e
    *
-   * if a is in LOS(line of sight) of e then:
+   * if an is in LOS(line of sight) of e then:
    *
    * cycle 1:
    *      a -> b -> c -> e
    * cycle 2:
    *      a -> b -> e
    *
-   * Thus we don't completely eliminate such cycles but we minimise how many times we do this to make it easier to
+   * Thus, we don't completely eliminate such cycles, but we minimise how many times we do this to make it easier to
    * correct for angles and distances between nodes in further operations.
    *
-   * @param path
-   * @return
    */
   @VisibleForTesting
-  private List<Node> midNodeRemovalCycles(List<Node> path) {
+  private void midNodeRemovalCycles(List<Node> path) {
     int cycleCount = smoothCycles;
     while (cycleCount > 0) {
       for (int j = 0; j < path.size() - 2; j++) {
-        if (!GeoJsonManager.crossesRestricedArea(
+        if (GeoJsonManager.crossesRestrictedArea(
                 path.get(j).getLongLat(), path.get(j + 2).getLongLat())
             && (path.get(j + 1).getUsage() == Node.NodeUsage.ORDINARY)) {
           path.remove(j + 1);
@@ -91,7 +84,6 @@ public class PathSmoothing {
       }
       cycleCount -= 1;
     }
-    return path;
   }
 
   /**
@@ -101,11 +93,10 @@ public class PathSmoothing {
    * already in a restricted area or confinement zone. If a generated nodes falls within a restricted area, we keep on
    * regenerating nodes that meet our constraints until a valid nodes is found.
    *
-   * @param path
-   * @return angle and distance adjusted path
+   * @param path nodes
    */
   @VisibleForTesting
-  private List<Node> pathDistanceAngleReadjustment(List<Node> path) {
+  private void pathDistanceAngleReadjustment(List<Node> path) {
     for (int i = 0; i < path.size() - 1; i++) {
       Node curr = path.get(i);
       Node next = path.get(i + 1);
@@ -151,7 +142,7 @@ public class PathSmoothing {
       List<LongLat> positions =
           Arrays.asList(pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10, pos11);
       for (LongLat l : positions) {
-        if (!GeoJsonManager.crossesRestricedArea(curr.getLongLat(), l)
+        if (GeoJsonManager.crossesRestrictedArea(curr.getLongLat(), l)
             && !GeoJsonManager.isInRestrictedArea(l)
             && GeoJsonManager.isInConfinementZone(l)) {
           next.setLongLat(l);
@@ -160,17 +151,16 @@ public class PathSmoothing {
       }
       path.set(i + 1, next);
     }
-    return path;
   }
 
   /**
    * This method calculates a path between two nodes, taking into account the movement step distance and bearing. if
    * the number of nodes that can be fit between two nodes is greater than one, we populate this space with
    * additional nodes to ensure each node is always one-step distance away from the next. This is done because the drone
-   * can only take one step at a time and we have already ensured that the distance between ndoes a multiple of a single
+   * can only take one step at a time, and we have already ensured that the distance between nodes a multiple of a single
    * step. We just need to make sure that each step taken moves us from one node to the next.
    *
-   * @param path
+   * @param path nodes
    * @return populated path list
    */
   @VisibleForTesting
@@ -194,7 +184,7 @@ public class PathSmoothing {
         } catch (CloneNotSupportedException e) {
           e.printStackTrace();
         }
-        LongLat currentLongLat = current.getLongLat();
+        LongLat currentLongLat = Objects.requireNonNull(current).getLongLat();
         currentLongLat = currentLongLat.nextPosition(angle);
         current.setLongLat(currentLongLat);
         current.setNodeUsage(Node.NodeUsage.ORDINARY);
@@ -212,16 +202,15 @@ public class PathSmoothing {
    * want this behaviour on special nodes(Node which are not ordinary) for example rather than changing the position
    * of the drone at a PICKUP Node, we just want to perform a Hover. To achieve this, we can look for these special
    * nodes and create a copy of them with the copy being assigned Ordinary Usage. This movement won't have to be
-   * performed on a special node but instead we will use the ordinary node to get to the special node and use the
+   * performed on a special node, but instead we will use the ordinary node to get to the special node and use the
    * special node to perform the Hover action. Overall we are splitting the responsibility of a single node it
    * two steps.
    *
    *
-   * @param path
-   * @return node action corrected path
+   * @param path nodes
    */
   @VisibleForTesting
-  private List<Node> nodeActionCorrection(List<Node> path) {
+  private void nodeActionCorrection(List<Node> path) {
     for (int i = 1; i < path.size(); i++) {
       if ((path.get(i).getUsage() != Node.NodeUsage.ORDINARY)
           && (path.get(i - 1).getLongLat() != path.get(i).getLongLat())) {
@@ -231,7 +220,7 @@ public class PathSmoothing {
         } catch (CloneNotSupportedException e) {
           e.printStackTrace();
         }
-        current.setNodeUsage(Node.NodeUsage.ORDINARY);
+        Objects.requireNonNull(current).setNodeUsage(Node.NodeUsage.ORDINARY);
         path.add(i, current);
       }
       if (path.get(i).getUsage() == path.get(i - 1).getUsage()
@@ -240,43 +229,39 @@ public class PathSmoothing {
         path.remove(i);
       }
     }
-    return path;
   }
 
   /**
    * The removeStationaryOrdinaryMoves() method removes all the nodes in the path that have an ordinary usage and
-   * are located at the same longitude and latitude. These are considered redundant as no action is performed at them
-   * and they do not contribute to the path.
+   * are located at the same longitude and latitude. These are considered redundant as no action is performed at them, and they do not contribute to the path.
    *
-   * @param path
-   * @return path without redundant ordinary nodes
+   * @param path nodes
    */
   @VisibleForTesting
-  private List<Node> removeStationaryOrdinaryMoves(List<Node> path) {
+  private void removeStationaryOrdinaryMoves(List<Node> path) {
     for (int i = 1; i < path.size(); i++) {
       if (path.get(i).getUsage() == Node.NodeUsage.ORDINARY
           && (path.get(i - 1).getLongLat().distanceTo(path.get(i).getLongLat())) == 0) {
         path.remove(i);
       }
     }
-    return path;
   }
 
   /**
    * The smoothenPath() method cleans up a given path, removing unnecessary nodes and cycles, and adjusting the
    * distances and angles between nodes.
    *
-   * @param path
+   * @param path nodes
    * @return smoothed out path
    */
   public List<Node> smoothenPath(List<Node> path) {
     synchronized (lock) {
-      path = reassignTrueNodes(path);
-      path = midNodeRemovalCycles(path);
-      path = pathDistanceAngleReadjustment(path);
-      path = nodeActionCorrection(path);
+      reassignTrueNodes(path);
+      midNodeRemovalCycles(path);
+      pathDistanceAngleReadjustment(path);
+      nodeActionCorrection(path);
       path = pathReExpansion(path);
-      path = removeStationaryOrdinaryMoves(path);
+      removeStationaryOrdinaryMoves(path);
     }
     return path;
   }

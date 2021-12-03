@@ -12,7 +12,6 @@ public class FoodOrder {
   /** Class representing a single food order and all the attributes associated with it. */
   private final List<MenuItem> orderItems;
 
-  private final List<LongLat> deliveryPath;
   private final String customer;
   private final Date deliveryDate;
   private final String deliveryW3wAddress;
@@ -37,7 +36,7 @@ public class FoodOrder {
     this.deliveryCost = deliveryCost;
     this.hasBeenDelivered = false;
     this.deliveryLocationLongLat = deliveryLocationLongLat;
-    this.deliveryPath = new ArrayList<>();
+    List<LongLat> deliveryPath = new ArrayList<>();
   }
 
   /**
@@ -57,7 +56,7 @@ public class FoodOrder {
       totalDistance += startLocation.distanceTo(pickUpLocation);
       currentLocation = pickUpLocation;
     }
-    return totalDistance += currentLocation.distanceTo(this.getDeliveryLocationLongLat());
+    return totalDistance + currentLocation.distanceTo(this.getDeliveryLocationLongLat());
   }
 
   /**
@@ -84,8 +83,8 @@ public class FoodOrder {
   }
 
   /**
-   * Returns the customer id for the customer associated wiht this order. In this case, the id is
-   * just the students' student numbers pre-appended wiht an 's'.
+   * Returns the customer id for the customer associated with this order. In this case, the id is
+   * just the students' student numbers pre-appended with an 's'.
    *
    * @return String representing the students' student number.
    */
@@ -124,7 +123,7 @@ public class FoodOrder {
   /**
    * Boolean representing whether an item has been delivered.
    *
-   * @return True if the order has been delivered, fFlse otherwise.
+   * @return True if the order has been delivered, fFalse otherwise.
    */
   public boolean isHasBeenDelivered() {
     return hasBeenDelivered;

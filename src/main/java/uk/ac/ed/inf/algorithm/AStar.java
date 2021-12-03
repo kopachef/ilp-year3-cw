@@ -245,8 +245,8 @@ public class AStar {
   /**
    * Sets a given nodes as restricted.
    *
-   * @param row
-   * @param col
+   * @param row current row
+   * @param col current column
    */
   private void setRestricted(int row, int col) {
     this.searchArea[row][col].setRestricted(true);
@@ -255,7 +255,7 @@ public class AStar {
   /**
    * Returns the initial node.
    *
-   * @return
+   * @return returns initial Node
    */
   public Node getInitialNode() {
     return initialNode;
@@ -264,7 +264,7 @@ public class AStar {
   /**
    * Sets the initial node.
    *
-   * @param initialNode
+   * @param initialNode sets initial Node
    */
   public void setInitialNode(Node initialNode) {
     this.initialNode = initialNode;
@@ -273,7 +273,7 @@ public class AStar {
   /**
    * Returns the final node.
    *
-   * @return
+   * @return returns final Node
    */
   public Node getFinalNode() {
     return finalNode;
@@ -282,7 +282,7 @@ public class AStar {
   /**
    * Sets the final node.
    *
-   * @param finalNode
+   * @param finalNode sets the final Node.
    */
   public void setFinalNode(Node finalNode) {
     this.finalNode = finalNode;
@@ -291,7 +291,7 @@ public class AStar {
   /**
    * Returns the search area.
    *
-   * @return
+   * @return returns search area.
    */
   public Node[][] getSearchArea() {
     return searchArea;
@@ -300,7 +300,7 @@ public class AStar {
   /**
    * Sets the search area.
    *
-   * @param searchArea
+   * @param searchArea sets the search area.
    */
   public void setSearchArea(Node[][] searchArea) {
     this.searchArea = searchArea;
@@ -309,7 +309,7 @@ public class AStar {
   /**
    * Returns the open list of nodes to be traversed.
    *
-   * @return
+   * @return open list
    */
   public PriorityQueue<Node> getOpenList() {
     return openList;
@@ -318,7 +318,7 @@ public class AStar {
   /**
    * Sets the open list of nodes to be traversed.
    *
-   * @param openList
+   * @param openList open list to be set.
    */
   public void setOpenList(PriorityQueue<Node> openList) {
     this.openList = openList;
@@ -327,7 +327,7 @@ public class AStar {
   /**
    * Gets the closed set of visited nodes.
    *
-   * @return
+   * @return closed set.
    */
   public Set<Node> getClosedSet() {
     return closedSet;

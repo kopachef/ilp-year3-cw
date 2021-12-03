@@ -2,6 +2,8 @@ package uk.ac.ed.inf.algorithm;
 
 import uk.ac.ed.inf.LongLat;
 
+import java.util.Objects;
+
 public class Node implements Cloneable {
 
   /**
@@ -35,7 +37,7 @@ public class Node implements Cloneable {
   /**
    * The setLongLat() method sets the longitude for this Node. It is a setter method.
    *
-   * @param longLat
+   * @param longLat value
    */
   public void setLongLat(LongLat longLat) {
     this.longLat = longLat;
@@ -45,7 +47,7 @@ public class Node implements Cloneable {
    * The calculateHeuristic() method calculates the heuristic for the node. It uses the distance
    * between the node's longitude and the destination's longitude to calculate the heuristic.
    *
-   * @param destination
+   * @param destination node
    */
   public void calculateHeuristic(Node destination) {
     this.h = this.longLat.distanceTo(destination.getLongLat());
@@ -55,8 +57,8 @@ public class Node implements Cloneable {
    * The setNodeData() method sets the node's G cost value if it is not already set. It also sets
    * the parent node of the node. It calculates the total cost of the node.
    *
-   * @param currentNode
-   * @param cost
+   * @param currentNode value
+   * @param cost value
    */
   public void setNodeData(Node currentNode, double cost) {
     double gTotal = currentNode.getG() + cost;
@@ -77,8 +79,7 @@ public class Node implements Cloneable {
 
   public double calculateAngleTo(Node node) {
     double real = this.getLongLat().calculateBearing(node.getLongLat());
-    int angle = GraphUtils.roundOffToNearest10th(real);
-    return angle;
+    return GraphUtils.roundOffToNearest10th(real);
   }
 
   /**
@@ -86,8 +87,8 @@ public class Node implements Cloneable {
    * the cost of the product is less than the current cost of the product, it will replace the
    * current product.
    *
-   * @param currentNode
-   * @param cost
+   * @param currentNode value
+   * @param cost value
    * @return True if lower cost path is found, False otherwise.
    */
   public boolean lookUpBetterPath(Node currentNode, double cost) {
@@ -103,22 +104,38 @@ public class Node implements Cloneable {
    * The equals function checks to see if the locations are the same, the rows are the same, and the
    * columns are the same.
    *
-   * @param node
-   * @return
+   * @param node value
+   * @return output
    */
   @Override
   public boolean equals(Object node) {
-    Node inputNode = (Node) node;
-    return this.getRow() == inputNode.getRow()
-        && this.getCol() == inputNode.getCol()
-        && inputNode.getLongLat().equals(this.getLongLat());
+    if ((node == null) || (getClass() != node.getClass())) {
+      return false;
+    } else {
+      Node inputNode = (Node) node;
+      return this.getRow() == inputNode.getRow()
+          && this.getCol() == inputNode.getCol()
+          && inputNode.getLongLat().equals(this.getLongLat());
+      }
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @see java.lang.Object
+   *     <p>Returns a hash of the MenuItem object.
+   * @return hash value of MenuItem object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(stepCost, row, col, g, h, f, longLat, isRestricted, parent, usage);
   }
 
   /**
    * The toString() method returns a string containing the row, column, latitude, and longitude of
    * the square's location.
    *
-   * @return
+   * @return output
    */
   @Override
   public String toString() {
@@ -128,7 +145,7 @@ public class Node implements Cloneable {
   /**
    * The getRow() method returns the row of the square
    *
-   * @return
+   * @return row
    */
   public int getRow() {
     return this.row;
@@ -137,7 +154,7 @@ public class Node implements Cloneable {
   /**
    * the getCol() method returns the column of the square
    *
-   * @return
+   * @return column
    */
   public int getCol() {
     return this.col;
@@ -146,7 +163,7 @@ public class Node implements Cloneable {
   /**
    * the getG() method returns the square's g-value.
    *
-   * @return
+   * @return value
    */
   public double getG() {
     return this.g;
@@ -155,7 +172,7 @@ public class Node implements Cloneable {
   /**
    * The setG() method sets the square's g-value.
    *
-   * @param g
+   * @param g value
    */
   public void setG(double g) {
     this.g = g;
@@ -164,7 +181,7 @@ public class Node implements Cloneable {
   /**
    * The getH() method returns the square's h-value
    *
-   * @return
+   * @return value
    */
   public double getH() {
     return this.h;
@@ -173,7 +190,7 @@ public class Node implements Cloneable {
   /**
    * the setH() method sets the square's h-value.
    *
-   * @param h
+   * @param h value
    */
   public void setH(double h) {
     this.h = h;
@@ -182,7 +199,7 @@ public class Node implements Cloneable {
   /**
    * The getParent() method returns the square's parent
    *
-   * @return
+   * @return value
    */
   public Node getParent() {
     return parent;
@@ -191,7 +208,7 @@ public class Node implements Cloneable {
   /**
    * the setParent() method sets the square's parent.
    *
-   * @param parent
+   * @param parent value
    */
   public void setParent(Node parent) {
     this.parent = parent;
@@ -200,7 +217,7 @@ public class Node implements Cloneable {
   /**
    * the setF() method sets the square's f-value.
    *
-   * @return
+   * @return value
    */
   public double getF() {
     return this.f;
@@ -209,7 +226,7 @@ public class Node implements Cloneable {
   /**
    * the setF() method sets the square's f-value.
    *
-   * @param f
+   * @param f value
    */
   public void setF(double f) {
     this.f = f;
@@ -218,7 +235,7 @@ public class Node implements Cloneable {
   /**
    * The isRestricted() method returns a boolean indicating whether the square is restricted
    *
-   * @return
+   * @return value
    */
   public boolean isRestricted() {
     return isRestricted;
@@ -227,7 +244,7 @@ public class Node implements Cloneable {
   /**
    * the setRestricted() method sets the square's restricted status.
    *
-   * @param restricted
+   * @param restricted value
    */
   public void setRestricted(boolean restricted) {
     isRestricted = restricted;
@@ -256,9 +273,9 @@ public class Node implements Cloneable {
   }
 
   /**
-   * Sets whether a node is a ordinary, pickup or delivery node.
+   * Sets whether a node is an ordinary, pickup or delivery node.
    *
-   * @param usage
+   * @param usage value
    */
   public void setNodeUsage(NodeUsage usage) {
     this.usage = usage;
@@ -269,7 +286,7 @@ public class Node implements Cloneable {
    *
    * @return cloned node object.
    *
-   * @throws CloneNotSupportedException
+   * @throws CloneNotSupportedException if not supported.
    */
   public Node clone() throws CloneNotSupportedException {
     return (Node) super.clone();
@@ -285,7 +302,7 @@ public class Node implements Cloneable {
    *
    * <p>HOME indicates that the node is being used as a home base.
    *
-   * <p>ORDINARY indicates that the node is being used in the ordinary way(usual nodes wihtin a path).
+   * <p>ORDINARY indicates that the node is being used in the ordinary way(usual nodes within a path).
    */
   public enum NodeUsage {
     PICKUP,

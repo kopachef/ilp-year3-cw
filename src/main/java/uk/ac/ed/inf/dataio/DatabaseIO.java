@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class DatabaseIO {
 
-  private static Logger logger = Logger.getLogger(String.valueOf(DatabaseIO.class));
+  private static final Logger logger = Logger.getLogger(String.valueOf(DatabaseIO.class));
 
   /**
    * Inserts an order into our database.
@@ -116,7 +115,7 @@ public class DatabaseIO {
 
   /**
    * Allows to query our OrderDetails table for items matching the specified parameters. Returns the
-   * most matching parameters i.e if only one parameter is specified for example 'orderNo' it would
+   * most matching parameters i.e. if only one parameter is specified for example 'orderNo' it would
    * return all the order matching this order number. Likewise, returns all our orderDetails if
    * empty parameters are given.
    *
@@ -153,13 +152,13 @@ public class DatabaseIO {
 
   /**
    * Allows to query our Orders table for items matching the specified parameters. Returns the most
-   * matching items with respect to the parameters i.e if only one parameter is specified for
+   * matching items with respect to the parameters i.e. if only one parameter is specified for
    * example 'orderNo' it would return all the order matching this order number. Likewise, returns
    * all our orders if empty parameters are given.
    *
    * @param orderNo order number to be matched against.
    * @param deliveryDate delivery date to be matched against.
-   * @param customer customer to be matched agsinst.
+   * @param customer customer to be matched against.
    * @param deliverTo delivery location ot ve matched against.
    * @return List of <DatabaseOrders> objects.
    */
@@ -203,8 +202,6 @@ public class DatabaseIO {
 
   /**
    * Creates the delivery and flightpath tables in the database.
-   *
-   * @throws SQLException if the database connection fails.
    */
   public static void recreateFlightAndDeliveryTables() {
     Connection conn = initialiseDBConnection();
@@ -244,9 +241,8 @@ public class DatabaseIO {
   /**
    * This method checks if a table exists in a database.
    *
-   * @param tableName
-   * @return
-   * @throws SQLException
+   * @param tableName test value
+   * @return true if exists, false otherwise.
    */
   public static boolean tableExists(String tableName) throws SQLException {
     Connection conn = initialiseDBConnection();
@@ -264,12 +260,10 @@ public class DatabaseIO {
    */
   public static void insertDelivery(List<Delivery> deliveries) {
     Connection conn = initialiseDBConnection();
-    StringBuffer insertQuery =
-        new StringBuffer(
+    StringBuilder insertQuery =
+        new StringBuilder(
             "insert into deliveries (orderNo, deliveredTo, costInPence) values (?, ?, ?)");
-    for (int i = 0; i < deliveries.size() - 1; i++) {
-      insertQuery.append(", (?, ?, ?)");
-    }
+    insertQuery.append(", (?, ?, ?)".repeat(Math.max(0, deliveries.size() - 1)));
     try {
       PreparedStatement deliveryInsertQuery = conn.prepareStatement(insertQuery.toString());
       for (int i = 0; i < deliveries.size(); i++) {
@@ -292,11 +286,10 @@ public class DatabaseIO {
    *
    * @param orderNo The order number to lookup.
    * @return A list of deliveries for the given order number.
-   * @throws SQLException if there is a problem inserting the data into the database
    */
   public static List<Delivery> getDeliveries(String orderNo) {
     Connection conn = initialiseDBConnection();
-    StringBuffer query = new StringBuffer();
+    StringBuilder query = new StringBuilder();
     List<Delivery> deliveries = new ArrayList<>();
     query.append("SELECT * FROM deliveries WHERE orderNo LIKE ?");
     try {
@@ -323,17 +316,14 @@ public class DatabaseIO {
    * Inserts a new flight paths into the database.
    *
    * @param flightPaths list of flight paths to be added.
-   * @throws SQLException if there is a problem inserting the data into the database
    */
   public static void insertFLightPath(List<FlightPath> flightPaths) {
     Connection conn = initialiseDBConnection();
-    StringBuffer insertQuery =
-        new StringBuffer(
+    StringBuilder insertQuery =
+        new StringBuilder(
             "insert into flightpath (orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude)"
                 + " values (?, ?, ?, ?, ?, ?)");
-    for (int i = 0; i < flightPaths.size() - 1; i++) {
-      insertQuery.append(", (?, ?, ?, ?, ?, ?)");
-    }
+    insertQuery.append(", (?, ?, ?, ?, ?, ?)".repeat(Math.max(0, flightPaths.size() - 1)));
     try {
       PreparedStatement flightInsertQuery = conn.prepareStatement(insertQuery.toString());
       for (int i = 0; i < flightPaths.size(); i++) {
@@ -359,11 +349,10 @@ public class DatabaseIO {
    *
    * @param orderNo the order number to search for.
    * @return a list of FlightPath objects
-   * @throws SQLException if there is a problem inserting the data into the database
    */
   public static List<FlightPath> getFLightPaths(String orderNo) {
     Connection conn = initialiseDBConnection();
-    StringBuffer query = new StringBuffer();
+    StringBuilder query = new StringBuilder();
     List<FlightPath> flightPaths = new ArrayList<>();
     query.append(
         "SELECT orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude "
@@ -395,7 +384,6 @@ public class DatabaseIO {
    * Initialises a connection to our database.
    *
    * @return returns database connection.
-   * @throws SQLException if there is a problem inserting the data into the database
    */
   private static Connection initialiseDBConnection() {
     Connection conn = null;

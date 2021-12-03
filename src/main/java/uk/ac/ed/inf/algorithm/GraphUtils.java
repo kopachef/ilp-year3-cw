@@ -30,18 +30,18 @@ public class GraphUtils {
    * the roundOffToNearest10th() method. This method is then compared to the rounded angle using the Precision.round()
    * method. If the two angles are equal, then the angle is a multiple of 10.
    *
-   * @param angle
-   * @return
+   * @param angle angle to be tested
+   * @return output
    */
-  public static boolean isAMulitpleOf10(double angle) {
+  public static boolean isAMultipleOf10(double angle) {
     return Precision.round(angle, 2) == Precision.round(roundOffToNearest10th(angle), 2);
   }
 
   /**
    * Returns true if the input is a whole number; otherwise, returns false.
    *
-   * @param d
-   * @return
+   * @param d test value
+   * @return output
    */
   public static boolean isWholeNumber(double d) {
     return d % 1 == 0;

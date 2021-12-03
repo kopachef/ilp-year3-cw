@@ -13,10 +13,7 @@ import uk.ac.ed.inf.utils.Settings;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -73,7 +70,7 @@ public class DeliveryPlanner {
   /**
    * This method creates a sequence of moves for a drone, flying it from its current location to the
    * end of the smoothedPath. This results in the creation of list of DatabaseIO.FlightPath and
-   * DatabaseIO.Deliveries objects which can be added to our database.
+   * DatabaseIO.Delivery objects which can be added to our database.
    */
   private void createDatabaseEntries() {
     drone.flyDrone();
@@ -87,13 +84,13 @@ public class DeliveryPlanner {
    * delivery worker's food order queue size is not 0. If so, the following is done:
    *
    * - The order delivery worker updates the food orders using the drone.
-   * - A list of pick up locations is created from the food order's getPickUpLocations() method.
-   * - A path is created from the start location to the first pick up location using the graph.getShortestPath() method.
+   * - A list of pickup locations is created from the food order's getPickUpLocations() method.
+   * - A path is created from the start location to the first pickup location using the graph.getShortestPath() method.
    * - setLastNodeUsage() is called for the path with a Node.NodeUsage.PICKUP value.
    * - The end of the previous path is checked to see if it is the start of the current path. If it is, the end node is
    *   removed.
    * - The path is added to the pathToClient list.
-   * - A path is created from the first pick up location to the final station using the graph.getShortestPath() method.
+   * - A path is created from the first pickup location to the final station using the graph.getShortestPath() method.
    * - setLastNodeUsage() is called for the path with a Node.NodeUsage.DROPOFF value.
    * - The start node is removed to avoid duplication.
    * - The path is added to the pathToFinalStation list.
@@ -101,7 +98,7 @@ public class DeliveryPlanner {
    * - The estimated travel distance and battery usage is calculated.
    * - If the battery usage will not be enough to complete the order and return home, the order is not delivered.
    * - The fullPath is created by adding the pathToClient and pathToFinalStation lists.
-   * - The fulfilledOrderValue and fullfiledOrderCount are incremented.
+   * - The fulfilledOrderValue and fulfilledOrderCount are incremented.
    */
   private void updateFoodDeliveryList() {
     boolean canDeliver = true;
@@ -122,10 +119,8 @@ public class DeliveryPlanner {
         if (!pathToClient.isEmpty()
             && pathToClient.get(pathToClient.size() - 1).equals(path.get(0))) {
           path.remove(0);
-          pathToClient.addAll(path);
-        } else {
-          pathToClient.addAll(path);
         }
+        pathToClient.addAll(path);
         startLocation = longlat;
         Node placeHolderNode = new Node(0, 0);
         placeHolderNode.setLongLat(longlat);
@@ -150,7 +145,7 @@ public class DeliveryPlanner {
               + graph.distanceBetweenNodes(pathFromClientToHome);
       int estimatedBatteryUsage = drone.calculateMovementStepCost(travelDistance);
 
-      // if  battery wont be enough to complete this order and get back home then we don't deliver it.
+      // if  battery won't be enough to complete this order and get back home then we don't deliver it.
       if (drone.getBatteryLevel() - estimatedBatteryUsage > 0) {
         drone.setCurrentFoodOrder(foodOrder);
 
@@ -182,13 +177,14 @@ public class DeliveryPlanner {
    * and fly to the next node. If the node is the home, the drone will return to the home position. Further this,
    * method creates the list of moves and deliveries database entries.
    *
-   * @param drone
-   * @param pathNodes
+   * @param drone drone object
+   * @param pathNodes path nodes
    */
   private void executeMoves(Drone drone, List<Node> pathNodes) {
     synchronized (lock) {
       //deliverable orders are permanently changed during this operation hence we clone to preserve orders in the
       // deliverableOrders class variable.
+      @SuppressWarnings("unchecked")
       LinkedList<FoodOrder> foodOrderList = (LinkedList<FoodOrder>) deliverableOrders.clone();
 
       //Set the current target order and drone location.
@@ -274,7 +270,7 @@ public class DeliveryPlanner {
     } catch (CloneNotSupportedException e) {
       e.printStackTrace();
     }
-    lastNode.setNodeUsage(usage);
+    Objects.requireNonNull(lastNode).setNodeUsage(usage);
     nodes.add(lastNode);
   }
 
@@ -308,7 +304,7 @@ public class DeliveryPlanner {
     features.addAll(GeoJsonManager.getRestrictedAreasFeatures());
     features.addAll(
         GeoJsonManager.generatePointsFromNodes(graph.getAllNodes()).stream()
-            .map(x -> Feature.fromGeometry(x))
+            .map(Feature::fromGeometry)
             .collect(toList()));
     return features;
   }
@@ -316,7 +312,7 @@ public class DeliveryPlanner {
   /**
    * The generatePathLineString() method constructs a Feature from a LineString created from a list of LongLats.
    *
-   * @return
+   * @return feature
    */
   private Feature generatePathLineString() {
     List<LongLat> visitedLongLats = new ArrayList<>();
@@ -326,19 +322,17 @@ public class DeliveryPlanner {
     for (DatabaseIO.FlightPath flightPath : flightPaths) {
       visitedLongLats.add(new LongLat(flightPath.toLongitude, flightPath.toLatitude));
     }
-    Feature feature =
-        Feature.fromGeometry(
-            LineString.fromLngLats(
-                visitedLongLats.stream()
-                    .map(x -> GeoJsonManager.createPointFromLongLat(x))
-                    .collect(toList())));
-    return feature;
+    return Feature.fromGeometry(
+        LineString.fromLngLats(
+            visitedLongLats.stream()
+                .map(GeoJsonManager::createPointFromLongLat)
+                .collect(toList())));
   }
 
   /**
    * This method returns a list of all the food orders that are currently deliverable.
    *
-   * @return
+   * @return food orders
    */
   public LinkedList<FoodOrder> getDeliverableOrders() {
     return deliverableOrders;
@@ -349,7 +343,7 @@ public class DeliveryPlanner {
    * FoodOrder object and the value is a List<Node> object. The List<Node> object contains the nodes in the delivery
    * path for the specified FoodOrder.
    *
-   * @return
+   * @return path mapping
    */
   public HashMap<FoodOrder, List<Node>> getDeliveryPaths() {
     return deliveryPaths;
@@ -358,7 +352,7 @@ public class DeliveryPlanner {
   /**
    * This method returns a list of DatabaseIO.Delivery objects.
    *
-   * @return
+   * @return database deliveries
    */
   public LinkedList<DatabaseIO.Delivery> getDeliveries() {
     return deliveries;
@@ -367,7 +361,7 @@ public class DeliveryPlanner {
   /**
    * This method returns a list of FlightPaths.
    *
-   * @return
+   * @return database flight paths
    */
   public LinkedList<DatabaseIO.FlightPath> getFlightPaths() {
     return flightPaths;
@@ -376,7 +370,7 @@ public class DeliveryPlanner {
   /**
    * This method returns the full delivery path.
    *
-   * @return
+   * @return full path
    */
   public List<Node> getFullPath() {
     return fullPath;
@@ -411,7 +405,7 @@ public class DeliveryPlanner {
             + fulfilledOrderCount
             + "\nPercentage of orders delivered: "
             + (fulfilledOrderValue / totalOrderValue) * 100
-            + "\nFulfiled order ratio: "
+            + "\nFulfilled order ratio: "
             + fulfilledOrderCount
             + "/"
             + totalOrderCount

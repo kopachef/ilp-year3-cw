@@ -23,9 +23,9 @@ public class GraphUtilsTest {
 
     @Test
     public void testIsAMulitpleOf10() {
-        assertTrue(GraphUtils.isAMulitpleOf10(10.0));
-        assertFalse(GraphUtils.isAMulitpleOf10(1.0));
-        assertFalse(GraphUtils.isAMulitpleOf10(Double.NaN));
+        assertTrue(GraphUtils.isAMultipleOf10(10.0));
+        assertFalse(GraphUtils.isAMultipleOf10(1.0));
+        assertFalse(GraphUtils.isAMultipleOf10(Double.NaN));
     }
 
     @Test

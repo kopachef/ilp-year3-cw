@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.dataio.JsonObjectManager;
 
+import java.util.Objects;
+
 public class MenuItem {
 
   /**
@@ -92,6 +94,18 @@ public class MenuItem {
               && restaurantName.equals(inputMenuItem.getRestaurantName());
     }
     return result;
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @see java.lang.Object
+   *     <p>Returns a hash of the MenuItem object.
+   * @return hash value of MenuItem object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, location, price, restaurantName);
   }
 
   /**
